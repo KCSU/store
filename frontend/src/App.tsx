@@ -1,44 +1,26 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+// import './App.css'
+
+import { Container, Flex, useBreakpointValue } from "@chakra-ui/react"
+import { useState } from "react"
+import { Sidebar } from "./components/navigation/Sidebar"
+import { HelloWorld } from "./views/HelloWorld"
+
+const smVariant = { navigation: 'drawer', navigationButton: true }
+const mdVariant = { navigation: 'sidebar', navigationButton: false }
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const variants = useBreakpointValue({ base: smVariant, md: mdVariant })
+
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen)
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
+    <Flex height="100vh">
+      <Sidebar variant={variants?.navigation as 'drawer' | 'sidebar'}
+        isOpen={isSidebarOpen}
+        onClose={toggleSidebar}/>
+      <HelloWorld/>
+    </Flex>
   )
 }
 
