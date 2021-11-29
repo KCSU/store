@@ -19,7 +19,8 @@ function App() {
       <Sidebar variant={variants?.navigation as 'drawer' | 'sidebar'}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar}/>
-      <HelloWorld/>
+      <HelloWorld onMenu={toggleSidebar}
+        hasMenuButton={!!variants?.navigationButton}/>
     </Flex>
   )
 }
