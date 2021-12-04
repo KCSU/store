@@ -6,6 +6,7 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerOverlay,
+  Heading,
   useColorModeValue,
 } from "@chakra-ui/react";
 import React from "react";
@@ -25,7 +26,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const bg = useColorModeValue("gray.50", "gray.800");
   return variant === "sidebar" ? (
-    <Box left={0} p={5} w="300px" top={0} h="100%">
+    <Box left={0} p={6} w="275px" top={0} h="100%">
+      <Heading mb="12px" size="lg">KiFoMaSy</Heading>
       <SidebarContent /*onClick={onClose}*/ />
     </Box>
   ) : (
@@ -33,7 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <DrawerOverlay>
         <DrawerContent bg={bg}>
           <DrawerCloseButton />
-          <DrawerHeader>Chakra-UI</DrawerHeader>
+          <DrawerHeader>KiFoMaSy</DrawerHeader>
           <DrawerBody>
             <SidebarContent /*onClick={onClose}*/ />
           </DrawerBody>

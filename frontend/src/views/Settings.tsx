@@ -1,0 +1,25 @@
+import { Heading } from "@chakra-ui/layout";
+import { FormControl, FormLabel, Switch, useColorMode } from "@chakra-ui/react";
+import { Card } from "../components/utility/Card";
+
+export const Settings: React.FC = () => {
+  const { colorMode, toggleColorMode } = useColorMode();
+  return (
+      <Card>
+        <Heading as="h3" size="lg" mb={5}>
+          Settings
+        </Heading>
+        <FormControl display="flex" alignItems="center">
+          <FormLabel htmlFor="dark-mode" mb="0">
+            Dark Mode:
+          </FormLabel>
+          <Switch
+            id="dark-mode"
+            colorScheme="purple"
+            isChecked={colorMode === "dark"}
+            onChange={toggleColorMode}
+          />
+        </FormControl>
+      </Card>
+  );
+};

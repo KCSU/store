@@ -1,22 +1,20 @@
-import { IconButton } from "@chakra-ui/button";
-import { useColorMode } from "@chakra-ui/react";
-import { FaHamburger, FaMoon, FaSun } from "react-icons/fa";
-
-interface HelloWorldProps {
-  onMenu: () => void;
-  hasMenuButton: boolean;
-};
-
-export const HelloWorld = ({ onMenu, hasMenuButton } : HelloWorldProps) => {
-  const { colorMode, toggleColorMode } = useColorMode();
-
-  return <main>
-    <div>Hello, World!</div>
-    <IconButton onClick={toggleColorMode} aria-label="toggle dark">
-      {colorMode == 'light' ? <FaMoon/> : <FaSun/>}
-    </IconButton>
-    {
-      hasMenuButton && <IconButton aria-label="open menu" onClick={onMenu}><FaHamburger/></IconButton>
-    }
-  </main>;
+export const HelloWorld : React.FC = () => {
+  return (
+    <main>
+      <div>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Numquam
+        suscipit fuga vitae sunt incidunt modi mollitia nobis dolorem nihil
+        dolore? Architecto laborum explicabo magnam omnis at aspernatur vel
+        nesciunt ducimus odit assumenda, aperiam dignissimos tenetur
+        voluptatibus quasi! Quidem magni nobis dolorum animi porro, odio
+        similique mollitia ipsa autem nemo quaerat, ea cumque numquam? Obcaecati
+        doloremque expedita molestias quisquam aperiam quidem, dolore cumque
+        suscipit magni, nisi aliquam repellendus? Vitae mollitia nesciunt,
+        voluptate reprehenderit iste doloribus aut error, minima dolores
+        dignissimos eligendi molestias! Quo in non dolorem eligendi enim
+        asperiores. Laudantium reprehenderit voluptates nam voluptatum maxime a
+        nulla fugit sunt blanditiis delectus!
+      </div>
+    </main>
+  );
 };
