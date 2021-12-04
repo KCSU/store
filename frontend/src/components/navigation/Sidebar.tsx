@@ -7,6 +7,8 @@ import {
   DrawerHeader,
   DrawerOverlay,
 } from "@chakra-ui/react";
+import React from "react";
+import { SidebarContent } from "./SidebarContent";
 
 interface SidebarProps {
   onClose: () => void;
@@ -14,12 +16,12 @@ interface SidebarProps {
   variant: "drawer" | "sidebar";
 }
 
-const SidebarContent = () => {
-  return <div>Sidebar Content</div>;
-};
-
 // TODO: Close button & Hamburger button
-export const Sidebar = ({ isOpen, variant, onClose }: SidebarProps) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  variant,
+  onClose,
+}) => {
   return variant === "sidebar" ? (
     <Box left={0} p={5} w="300px" top={0} h="100%">
       <SidebarContent /*onClick={onClose}*/ />
