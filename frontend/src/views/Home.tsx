@@ -12,17 +12,17 @@ const formals = [
   {
     title: "Example Formal",
   },
-  // {
-  //   title: "Example Superformal",
-  // },
-  // {
-  //   title: "One More Formal",
-  // },
+  {
+    title: "Example Superformal",
+  },
+  {
+    title: "One More Formal",
+  },
 ];
 
 const MotionCard = motion<CardProps>(Card);
 
-export const Home: React.FC = () => {
+export function Home() {
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     let timer = setTimeout(() => {

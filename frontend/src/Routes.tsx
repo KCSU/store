@@ -6,7 +6,7 @@ import { Settings } from "./views/Settings";
 
 const MotionBox = motion(Box);
 
-export const Routes: React.FC = () => {
+export function Routes() {
   const location = useLocation();
   return (
     <AnimatePresence exitBeforeEnter initial={false}>

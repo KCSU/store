@@ -26,7 +26,7 @@ const routes = [
   }
 ];
 
-export const SidebarContent = () => {
+export function SidebarContent() {
   return (
     <VStack spacing="12px">
       {routes.map(({ to, title, icon, end }) => (

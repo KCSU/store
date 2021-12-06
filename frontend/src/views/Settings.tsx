@@ -2,7 +2,7 @@ import { Heading } from "@chakra-ui/layout";
 import { FormControl, FormLabel, Switch, useColorMode } from "@chakra-ui/react";
 import { Card } from "../components/utility/Card";
 
-export const Settings: React.FC = () => {
+export function Settings() {
   const { colorMode, toggleColorMode } = useColorMode();
   return (
       <Card>

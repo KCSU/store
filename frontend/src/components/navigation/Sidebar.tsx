@@ -19,15 +19,13 @@ interface SidebarProps {
 }
 
 // TODO: Close button & Hamburger button
-export const Sidebar: React.FC<SidebarProps> = ({
-  isOpen,
-  variant,
-  onClose,
-}) => {
+export function Sidebar({ isOpen, variant, onClose }: SidebarProps) {
   const bg = useColorModeValue("gray.50", "gray.800");
   return variant === "sidebar" ? (
     <Box left={0} p={6} w="275px" top={0} h="100%">
-      <Heading mb="12px" size="lg" as="h1">KiFoMaSy</Heading>
+      <Heading mb="12px" size="lg" as="h1">
+        KiFoMaSy
+      </Heading>
       <SidebarContent /*onClick={onClose}*/ />
     </Box>
   ) : (
@@ -43,4 +41,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </DrawerOverlay>
     </Drawer>
   );
-};
+}
