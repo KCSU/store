@@ -1,7 +1,7 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, FlexProps } from "@chakra-ui/react";
 import React from "react";
 
-export const IconBox: React.FC<any> = ({children, ...rest}) => {
+export const IconBox: React.FC<FlexProps> = ({children, ...rest}) => {
   return (
     <Flex
       alignItems={"center"}

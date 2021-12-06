@@ -25,7 +25,7 @@ function App() {
       <Container maxW="container.xl" flex="1" py={6}>
         { variants?.navigationButton && (
           <Flex justifyContent="space-between" alignItems="center" mb={5}>
-            <Heading size="lg">KiFoMaSy</Heading>
+            <Heading size="lg" as="h1">KiFoMaSy</Heading>
             <IconButton size="sm" aria-label="open sidebar" onClick={toggleSidebar}>
               <FaBars/>
             </IconButton>
