@@ -14,15 +14,15 @@ export function Routes() {
         key={location.pathname}
         initial={{
           opacity: 0,
-          translateY: "10px",
+          y: 10
         }}
         animate={{
           opacity: 1,
-          translateY: 0
+          y: 0
         }}
         exit={{
           opacity: 0,
-          translateY: "10px",
+          y: 10
         }}
         transition={{
           duration: 0.15,
