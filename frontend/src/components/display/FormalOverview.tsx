@@ -18,6 +18,7 @@ import {
   useColorModeValue,
   Center,
 } from "@chakra-ui/react";
+import { FaArrowRight } from "react-icons/fa";
 import { Formal } from "../../model/Formal";
 import { Card } from "../utility/Card";
 
@@ -83,22 +84,47 @@ function FormalStats({ formal }: FormalProps) {
       />
       {formal.guestLimit > 0 ? (
         <>
-        <Divider orientation="vertical" mx={2} />
-        <TicketStats
-          prefix="Guest "
-          price={formal.guestPrice}
-          tickets={formal.guestTickets}
-          ticketsRemaining={formal.guestTicketsRemaining}
-        />
+          <Divider orientation="vertical" mx={2} />
+          <TicketStats
+            prefix="Guest "
+            price={formal.guestPrice}
+            tickets={formal.guestTickets}
+            ticketsRemaining={formal.guestTicketsRemaining}
+          />
         </>
       ) : (
-        <Center flex="1" bg={noGuestBg} borderRadius={5}>
+        <Center flex="1" bg={noGuestBg} borderRadius={5} p={4}>
           <Text as="i" color={noGuestFg} textAlign="center">
             Guest tickets unavailable
           </Text>
         </Center>
       )}
     </Flex>
+  );
+}
+
+function BuyButton({ formal }: FormalProps) {
+  let text = "Buy Tickets";
+  let disabled = false;
+  if (formal.saleEnd < new Date()) {
+    disabled = true;
+  } else if (formal.saleStart > new Date()) {
+    text = "Join Queue";
+  } else if (
+    formal.guestTicketsRemaining === 0 &&
+    formal.ticketsRemaining === 0
+  ) {
+    text = "Join Waiting List";
+  }
+  return (
+    <Button
+      size="sm"
+      rightIcon={<FaArrowRight />}
+      colorScheme="purple"
+      disabled={disabled}
+    >
+      {text}
+    </Button>
   );
 }
 
@@ -113,8 +139,9 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
         <Divider my={2} />
         <FormalStats formal={formal} />
         {/* <Divider my={2} /> */}
-        <HStack>
-          <Button>More Info</Button>
+        <HStack mt={4}>
+          <Button size="sm">More Info</Button>
+          <BuyButton formal={formal}></BuyButton>
         </HStack>
       </Card>
     );

@@ -1,6 +1,7 @@
 import {
   Heading,
   SimpleGrid,
+  SimpleGridProps,
   SkeletonCircle,
   SkeletonText,
 } from "@chakra-ui/react";
@@ -10,6 +11,7 @@ import {
   FormalOverview,
   FormalProps,
 } from "../components/display/FormalOverview";
+import { generateMotion } from "../components/helpers/motion";
 import { Card, CardProps } from "../components/utility/Card";
 import { Formal } from "../model/Formal";
 
@@ -50,11 +52,30 @@ const formals: Formal[] = [
   },
 ].map(createFormal);
 
-const MotionCard = motion<CardProps>(Card);
+const MotionCard = generateMotion<CardProps, 'div'>(Card);
 const MotionOverview = motion<FormalProps>(FormalOverview);
+const MotionSimpleGrid = motion<SimpleGridProps>(SimpleGrid);
 
 export function Home() {
   const [loading, setLoading] = useState(true);
+  const gridVariant = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+  const itemVariant = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+    },
+    show: {
+      opacity: 1,
+      y: 0,
+    },
+  };
   useEffect(() => {
     let timer = setTimeout(() => {
       setLoading(false);
@@ -66,36 +87,41 @@ export function Home() {
   return (
     <>
       <Heading mb={5}>Upcoming Formals</Heading>
-      <SimpleGrid
-        templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
-        spacing="40px"
-      >
-        {/* TODO: fix weird visual behaviour */}
-        <AnimatePresence exitBeforeEnter initial={false}>
-          {loading ? (
+      <AnimatePresence exitBeforeEnter initial={false}>
+        {loading ? (
+          <SimpleGrid
+            key="loadingGrid"
+            templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
+            spacing="40px"
+          >
             <MotionCard
               exit={{ scale: 0.5, opacity: 0 }}
-              transition={{ ease: "easeIn" }}
+              transition={{ duration: 0.25 }}
             >
               <SkeletonCircle size="10" />
               <SkeletonText mt="4" noOfLines={4} spacing="4" />
             </MotionCard>
-          ) : (
-            formals.map((f, i) => (
+          </SimpleGrid>
+        ) : (
+          <MotionSimpleGrid
+            key="loadedGrid"
+            variants={gridVariant}
+            initial="hidden"
+            animate="show"
+            templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
+            spacing="40px"
+          >
+            {formals.map((f, i) => (
               <MotionOverview
                 // TODO: use actual DB ID as key
                 key={`formal.${i}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  delay: 0.1 * i
-                }}
+                variants={itemVariant}
                 formal={f}
               />
-            ))
-          )}
-        </AnimatePresence>
-      </SimpleGrid>
+            ))}
+          </MotionSimpleGrid>
+        )}
+      </AnimatePresence>
     </>
   );
 }
