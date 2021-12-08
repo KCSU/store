@@ -19,6 +19,7 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import { Formal } from "../../model/Formal";
 import { Card } from "../utility/Card";
 
@@ -140,7 +141,7 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
         <FormalStats formal={formal} />
         {/* <Divider my={2} /> */}
         <HStack mt={4}>
-          <Button size="sm">More Info</Button>
+          <Button size="sm" as={Link} to={`/formals/${formal.id}`}>More Info</Button>
           <BuyButton formal={formal}></BuyButton>
         </HStack>
       </Card>

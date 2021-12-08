@@ -9,7 +9,6 @@ import {
   Heading,
   useColorModeValue,
 } from "@chakra-ui/react";
-import React from "react";
 import { SidebarContent } from "./SidebarContent";
 
 interface SidebarProps {

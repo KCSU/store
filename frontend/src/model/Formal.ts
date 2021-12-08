@@ -1,4 +1,5 @@
 export interface Formal {
+    id: number;
     title: string;
     menu: string; // TODO:
     price: number;

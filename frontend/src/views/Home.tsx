@@ -17,6 +17,7 @@ import { Formal } from "../model/Formal";
 
 function createFormal(data: Partial<Formal>): Formal {
   const template: Formal = {
+    id: 0,
     title: "",
     menu: "",
     price: 0,
@@ -35,6 +36,7 @@ function createFormal(data: Partial<Formal>): Formal {
 
 const formals: Formal[] = [
   {
+    id: 1,
     title: "Example Formal",
     guestLimit: 2,
     tickets: 100,
@@ -43,11 +45,13 @@ const formals: Formal[] = [
     saleEnd: new Date("2022/01/01"),
   },
   {
+    id: 2,
     title: "Example Superformal",
     guestLimit: 1,
     saleEnd: new Date("2022/01/01"),
   },
   {
+    id: 3,
     title: "One More Formal",
   },
 ].map(createFormal);

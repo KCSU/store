@@ -1,16 +1,17 @@
-import { Box } from "@chakra-ui/layout";
+import { Box, BoxProps } from "@chakra-ui/layout";
 import { AnimatePresence, motion } from "framer-motion";
 import { Route, Routes as ReactRoutes, useLocation } from "react-router";
+import { generateMotion } from "./components/helpers/motion";
 import { Home } from "./views/Home";
 import { Settings } from "./views/Settings";
 
-const MotionBox = motion(Box);
+const MotionBox = generateMotion<BoxProps, 'div'>(Box);
 
 export function Routes() {
   const location = useLocation();
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <MotionBox
+      <MotionBox mr={4}
         key={location.pathname}
         initial={{
           opacity: 0,
