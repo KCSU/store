@@ -1,7 +1,7 @@
-import { Box, BoxProps } from "@chakra-ui/layout";
+import { Box, BoxProps } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Route, Routes as ReactRoutes, useLocation } from "react-router";
-import { generateMotion } from "./components/helpers/motion";
+import { generateMotion } from "./components/utility/generateMotion";
 import { Home } from "./views/Home";
 import { Settings } from "./views/Settings";
 

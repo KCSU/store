@@ -11,7 +11,7 @@ import {
   FormalOverview,
   FormalProps,
 } from "../components/display/FormalOverview";
-import { generateMotion } from "../components/helpers/motion";
+import { generateMotion } from "../components/utility/generateMotion";
 import { Card, CardProps } from "../components/utility/Card";
 import { Formal } from "../model/Formal";
 
@@ -22,7 +22,12 @@ function createFormal(data: Partial<Formal>): Formal {
     menu: "",
     price: 0,
     guestPrice: 0,
-    options: [],
+    options: [
+      'Normal',
+      'Vegan',
+      'Vegetarian',
+      'Pescetarian'
+    ],
     guestLimit: 0,
     guestTickets: 0,
     guestTicketsRemaining: 0,

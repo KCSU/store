@@ -7,13 +7,10 @@ import {
   Heading,
   HStack,
   Stat,
-  StatGroup,
   StatHelpText,
   StatLabel,
   StatNumber,
   Box,
-  SimpleGrid,
-  VStack,
   Flex,
   useColorModeValue,
   Center,
@@ -104,7 +101,7 @@ function FormalStats({ formal }: FormalProps) {
   );
 }
 
-function BuyButton({ formal }: FormalProps) {
+const BuyButton = forwardRef<FormalProps, 'button'>(({ formal, ...props }, ref) => {
   let text = "Buy Tickets";
   let disabled = false;
   if (formal.saleEnd < new Date()) {
@@ -119,15 +116,17 @@ function BuyButton({ formal }: FormalProps) {
   }
   return (
     <Button
+      ref={ref}
       size="sm"
       rightIcon={<FaArrowRight />}
       colorScheme="purple"
       disabled={disabled}
+      {...props}
     >
       {text}
     </Button>
   );
-}
+});
 
 export const FormalOverview = forwardRef<FormalProps, "div">(
   ({ formal }, ref) => {
