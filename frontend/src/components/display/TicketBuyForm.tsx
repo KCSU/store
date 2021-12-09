@@ -22,9 +22,10 @@ import { TicketOptions } from "./TicketOptions";
 
 interface TicketBuyFormProps {
   formal: Formal;
+  hasShadow?: boolean;
 }
 
-export function TicketBuyForm({ formal }: TicketBuyFormProps) {
+export function TicketBuyForm({ formal, hasShadow = true }: TicketBuyFormProps) {
   // TODO: Change this
   const [ticket, setTicket] = useState<TicketRequest>({
     option: "Normal",
@@ -68,6 +69,7 @@ export function TicketBuyForm({ formal }: TicketBuyFormProps) {
       </Box>
       <TicketOptions
         options={formal.options}
+        hasShadow={hasShadow}
         value={ticket.option}
         onChange={setTicketOption}
       >
@@ -79,6 +81,7 @@ export function TicketBuyForm({ formal }: TicketBuyFormProps) {
         <TicketOptions
           key={`guestTickets.${i}`}
           options={formal.options}
+          hasShadow={hasShadow}
           value={t.option}
           onChange={(v) => setGuestTicket(i, v)}
         >
@@ -110,7 +113,7 @@ export function TicketBuyForm({ formal }: TicketBuyFormProps) {
         <StatNumber>
           {formatMoney(formal.price + formal.guestPrice * guestTickets.length)}
         </StatNumber>
-        <StatHelpText>Added to college bill</StatHelpText>
+        <StatHelpText>Will be added to college bill</StatHelpText>
       </Stat>
     </VStack>
   );

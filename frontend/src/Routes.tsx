@@ -2,6 +2,7 @@ import { Box, BoxProps } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Route, Routes as ReactRoutes, useLocation } from "react-router";
 import { generateMotion } from "./components/utility/generateMotion";
+import { FormalInfo } from "./views/FormalInfo";
 import { Home } from "./views/Home";
 import { Settings } from "./views/Settings";
 
@@ -33,6 +34,7 @@ export function Routes() {
         <ReactRoutes location={location}>
           <Route path="/" element={<Home />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/formals/:formalId" element={<FormalInfo />} />
         </ReactRoutes>
       </MotionBox>
     </AnimatePresence>

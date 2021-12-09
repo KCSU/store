@@ -52,11 +52,12 @@ const formals: Formal[] = [
   {
     id: 2,
     title: "Example Superformal",
-    guestLimit: 1,
+    guestLimit: 0,
     saleEnd: new Date("2022/01/01"),
   },
   {
     id: 3,
+    guestLimit: 1,
     title: "One More Formal",
   },
 ].map(createFormal);

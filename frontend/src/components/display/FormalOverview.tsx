@@ -27,6 +27,7 @@ import {
 import { FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
+import { getBuyText } from "../../helpers/getBuyText";
 import { Formal } from "../../model/Formal";
 import { Card } from "../utility/Card";
 import { TicketBuyForm } from "./TicketBuyForm";
@@ -111,18 +112,6 @@ function FormalStats({ formal }: FormalProps) {
       )}
     </Flex>
   );
-}
-
-function getBuyText(formal: Formal): string {
-  if (formal.saleStart > new Date()) {
-    return "Join Queue";
-  } else if (
-    formal.guestTicketsRemaining === 0 &&
-    formal.ticketsRemaining === 0
-  ) {
-    return "Join Waiting List";
-  }
-  return "Buy Tickets";
 }
 
 const BuyButton = forwardRef<FormalProps, "button">(
