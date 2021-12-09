@@ -20,8 +20,8 @@ function createFormal(data: Partial<Formal>): Formal {
     id: 0,
     title: "",
     menu: "",
-    price: 0,
-    guestPrice: 0,
+    price: 18.2,
+    guestPrice: 23.5,
     options: [
       'Normal',
       'Vegan',

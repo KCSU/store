@@ -1,4 +1,4 @@
 export interface TicketRequest {
-    guest: boolean;
+    // guest: boolean;
     option: string;
 }

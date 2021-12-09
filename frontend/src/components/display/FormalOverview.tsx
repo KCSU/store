@@ -14,11 +14,23 @@ import {
   Flex,
   useColorModeValue,
   Center,
+  useDisclosure,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Icon,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { formatMoney } from "../../helpers/formatMoney";
 import { Formal } from "../../model/Formal";
 import { Card } from "../utility/Card";
+import { TicketBuyForm } from "./TicketBuyForm";
+import { TicketOptions } from "./TicketOptions";
 
 export interface FormalProps {
   formal: Formal;
@@ -54,7 +66,7 @@ function TicketStats(props: TicketStatsProps) {
           {props.prefix}
           Ticket Price
         </StatLabel>
-        <StatNumber>&#163;{props.price}</StatNumber>
+        <StatNumber>{formatMoney(props.price)}</StatNumber>
       </Stat>
       <Stat>
         <StatLabel>
@@ -101,35 +113,41 @@ function FormalStats({ formal }: FormalProps) {
   );
 }
 
-const BuyButton = forwardRef<FormalProps, 'button'>(({ formal, ...props }, ref) => {
-  let text = "Buy Tickets";
-  let disabled = false;
-  if (formal.saleEnd < new Date()) {
-    disabled = true;
-  } else if (formal.saleStart > new Date()) {
-    text = "Join Queue";
+function getBuyText(formal: Formal): string {
+  if (formal.saleStart > new Date()) {
+    return "Join Queue";
   } else if (
     formal.guestTicketsRemaining === 0 &&
     formal.ticketsRemaining === 0
   ) {
-    text = "Join Waiting List";
+    return "Join Waiting List";
   }
-  return (
-    <Button
-      ref={ref}
-      size="sm"
-      rightIcon={<FaArrowRight />}
-      colorScheme="purple"
-      disabled={disabled}
-      {...props}
-    >
-      {text}
-    </Button>
-  );
-});
+  return "Buy Tickets";
+}
+
+const BuyButton = forwardRef<FormalProps, "button">(
+  ({ formal, ...props }, ref) => {
+    const text = getBuyText(formal);
+    const disabled = formal.saleEnd < new Date();
+    return (
+      <Button
+        ref={ref}
+        size="sm"
+        rightIcon={<Icon as={FaArrowRight} />}
+        colorScheme="purple"
+        disabled={disabled}
+        {...props}
+      >
+        {text}
+      </Button>
+    );
+  }
+);
 
 export const FormalOverview = forwardRef<FormalProps, "div">(
   ({ formal }, ref) => {
+    const modalBg = useColorModeValue("gray.50", "gray.800");
+    const { isOpen, onOpen, onClose } = useDisclosure();
     return (
       <Card ref={ref}>
         <HStack>
@@ -140,9 +158,30 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
         <FormalStats formal={formal} />
         {/* <Divider my={2} /> */}
         <HStack mt={4}>
-          <Button size="sm" as={Link} to={`/formals/${formal.id}`}>More Info</Button>
-          <BuyButton formal={formal}></BuyButton>
+          <Button size="sm" as={Link} to={`/formals/${formal.id}`}>
+            More Info
+          </Button>
+          <BuyButton formal={formal} onClick={onOpen}></BuyButton>
         </HStack>
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent bg={modalBg}>
+            <ModalHeader>Ticket Purchase</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <TicketBuyForm formal={formal} />
+            </ModalBody>
+
+            <ModalFooter>
+              <Button colorScheme="purple" mr={3} onClick={onClose}>
+                {getBuyText(formal)}
+              </Button>
+              <Button variant="ghost" onClick={onClose}>
+                Cancel
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </Card>
     );
   }
