@@ -3,17 +3,19 @@ import {
   Button,
   Container,
   Heading,
+  Icon,
   Text,
   VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { useParams } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { TicketBuyForm } from "../components/display/TicketBuyForm";
 import { Card } from "../components/utility/Card";
 import { formatMoney } from "../helpers/formatMoney";
 import { getBuyText } from "../helpers/getBuyText";
-import { Formal } from "../model/Formal";
+import { useFormal } from "../hooks/useFormal";
 
 interface TicketStatsProps {
   prefix?: string;
@@ -50,26 +52,25 @@ export const TicketStats: React.FC<TicketStatsProps> = (props) => {
 
 export function FormalInfo() {
   const { formalId } = useParams();
-  // TODO: query
-  const formal: Formal = {
-    id: formalId ? parseInt(formalId) : 1,
-    title: "Example Formal",
-    guestLimit: 2,
-    tickets: 100,
-    ticketsRemaining: 50,
-    saleStart: new Date("2021/12/25"),
-    saleEnd: new Date("2022/01/01"),
-    menu: "This is a menu.",
-    price: 18.3,
-    guestPrice: 23.5,
-    options: ["Normal", "Vegetarian", "Vegan", "Pescetarian"],
-    guestTickets: 40,
-    guestTicketsRemaining: 23,
-  };
+  const formal = useFormal(parseInt(formalId ?? "0"));
+  if (!formal) {
+    // TODO: return an error!
+    return <Navigate to="/"/>;
+  }
   const prefix = formal.guestLimit > 0 ? "King's " : "";
   return (
     // TODO: guest list, responsive meal option
     <Container maxW="container.md" p={0}>
+      <Button
+        as={Link}
+        // size="sm"
+        to="/"
+        variant="ghost"
+        mb={4}
+        leftIcon={<Icon as={FaArrowLeft} />}
+      >
+        Back Home
+      </Button>
       <Card mb={5}>
         <Heading as="h3" size="lg" mb={5}>
           {formal.title}
