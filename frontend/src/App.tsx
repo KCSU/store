@@ -1,6 +1,7 @@
 // import './App.css'
 
 import {
+  Box,
   Container,
   Flex,
   Heading,
@@ -30,13 +31,11 @@ function App() {
         isOpen={isSidebarOpen}
         onClose={toggleSidebar}
       />
-      {/* TODO: Routes */}
+      <Box flex="1" overflowY="auto" height="100%">
       <Container
+        // mb={4}
         maxW="container.xl"
-        flex="1"
         py={6}
-        overflowY="auto"
-        height="100%"
       >
         {variants?.navigationButton && (
           <Flex justifyContent="space-between" alignItems="center" mb={5}>
@@ -54,6 +53,7 @@ function App() {
         )}
         <Routes />
       </Container>
+      </Box>
     </Flex>
   );
 }
