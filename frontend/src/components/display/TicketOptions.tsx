@@ -37,7 +37,7 @@ export const TicketOptions: React.FC<TicketOptionsProps> = ({
           <CreatableSelect
             // TODO: fix long answers
             isClearable
-            selectedOptionColor="purple"
+            selectedOptionColor="brand"
             value={{
               label: value,
               value

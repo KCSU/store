@@ -120,7 +120,7 @@ export function FormalInfo() {
           </Box>
           <VStack align="stretch" borderWidth="1px" borderRadius="md" p={3}>
             <TicketBuyForm formal={formal} hasShadow={false} />
-            <Button colorScheme="purple">{getBuyText(formal)}</Button>
+            <Button colorScheme="brand">{getBuyText(formal)}</Button>
           </VStack>
         </VStack>
       </Card>

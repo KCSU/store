@@ -15,7 +15,7 @@ export function Settings() {
           </FormLabel>
           <Switch
             id="dark-mode"
-            colorScheme="purple"
+            colorScheme="brand"
             isChecked={colorMode === "dark"}
             onChange={toggleColorMode}
           />

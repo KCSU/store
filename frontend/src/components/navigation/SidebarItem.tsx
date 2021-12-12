@@ -24,7 +24,6 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
   const activeBg = useColorModeValue("white", "gray.700");
   const activeColor = useColorModeValue("gray.700", "white");
   const inactiveColor = useColorModeValue("gray.400", "gray.400");
-  const purple = "purple.500";
   const sidebarActiveShadow = "0px 7px 11px rgba(0, 0, 0, 0.04)";
   const trans = "0.2s linear";
   const resolved = useResolvedPath(to);
@@ -51,7 +50,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
         transform: "none",
         borderColor: "transparent",
       }}
-      ringColor={purple}
+      ringColor="brand.500"
       _focus={{}}
       _focusVisible={{
         boxShadow: active ? "0px 7px 11px rgba(0, 0, 0, 0.2)" : "none",
@@ -60,8 +59,8 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
     >
       <Flex>
         <IconBox
-          bg={active ? purple : activeBg}
-          color={active ? "white" : "purple.400"}
+          bg={active ? "brand.500" : activeBg}
+          color={active ? "white" : "brand.400"}
           h="30px"
           w="30px"
           me="12px"

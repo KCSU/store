@@ -103,7 +103,7 @@ export function TicketBuyForm({ formal, hasShadow = true }: TicketBuyFormProps) 
           size="sm"
           variant="outline"
           leftIcon={<Icon as={FaPlus} />}
-          colorScheme="purple"
+          colorScheme="brand"
         >
           Add Guest Ticket
         </Button>

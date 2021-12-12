@@ -123,7 +123,7 @@ const BuyButton = forwardRef<FormalProps, "button">(
         ref={ref}
         size="sm"
         rightIcon={<Icon as={FaArrowRight} />}
-        colorScheme="purple"
+        colorScheme="brand"
         disabled={disabled}
         {...props}
       >
@@ -162,7 +162,7 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
             </ModalBody>
 
             <ModalFooter>
-              <Button colorScheme="purple" mr={3} onClick={onClose}>
+              <Button colorScheme="brand" mr={3} onClick={onClose}>
                 {getBuyText(formal)}
               </Button>
               <Button variant="ghost" onClick={onClose}>
