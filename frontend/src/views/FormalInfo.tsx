@@ -50,6 +50,7 @@ export const TicketStats: React.FC<TicketStatsProps> = (props) => {
   );
 };
 
+// TODO: Date and time!
 export function FormalInfo() {
   const { formalId } = useParams();
   const formal = useFormal(parseInt(formalId ?? "0"));

@@ -5,6 +5,7 @@ import { generateMotion } from "./components/utility/generateMotion";
 import { FormalInfo } from "./views/FormalInfo";
 import { Home } from "./views/Home";
 import { Settings } from "./views/Settings";
+import { Tickets } from "./views/Tickets";
 
 const MotionBox = generateMotion<BoxProps, 'div'>(Box);
 
@@ -35,6 +36,7 @@ export function Routes() {
           <Route path="/" element={<Home />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/formals/:formalId" element={<FormalInfo />} />
+          <Route path="/tickets" element={<Tickets />} />
         </ReactRoutes>
       </MotionBox>
     </AnimatePresence>
