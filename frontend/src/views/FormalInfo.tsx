@@ -15,6 +15,7 @@ import { TicketBuyForm } from "../components/display/TicketBuyForm";
 import { Card } from "../components/utility/Card";
 import { formatMoney } from "../helpers/formatMoney";
 import { getBuyText } from "../helpers/getBuyText";
+import { useDateTime } from "../hooks/useDateTime";
 import { useFormal } from "../hooks/useFormal";
 
 interface TicketStatsProps {
@@ -58,6 +59,7 @@ export function FormalInfo() {
     // TODO: return an error!
     return <Navigate to="/"/>;
   }
+  const datetime = useDateTime(formal.dateTime);
   const prefix = formal.guestLimit > 0 ? "King's " : "";
   return (
     // TODO: guest list, responsive meal option
@@ -73,9 +75,10 @@ export function FormalInfo() {
         Back Home
       </Button>
       <Card mb={5}>
-        <Heading as="h3" size="lg" mb={5}>
+        <Heading as="h3" size="lg" mb={1}>
           {formal.title}
         </Heading>
+        <Text as="b" mb={4}>{datetime}</Text>
         <VStack alignItems="stretch">
           <Wrap justifyContent="space-between">
             <TicketStats

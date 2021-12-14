@@ -12,6 +12,7 @@ export interface Formal {
     guestTicketsRemaining: number;
     saleStart: Date; // TODO:
     saleEnd: Date;
+    dateTime: Date;
     // guestList: 
     // hidden?
     // groups?

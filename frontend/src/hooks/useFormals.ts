@@ -15,6 +15,7 @@ function createFormal(data: Partial<Formal>): Formal {
     ticketsRemaining: 0,
     saleStart: new Date("2020/01/01"),
     saleEnd: new Date(),
+    dateTime: new Date("2022/05/01 19:30")
   };
   return Object.assign(template, data);
 }

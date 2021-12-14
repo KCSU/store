@@ -28,10 +28,10 @@ import { FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
+import { useDateTime } from "../../hooks/useDateTime";
 import { Formal } from "../../model/Formal";
 import { Card } from "../utility/Card";
 import { TicketBuyForm } from "./TicketBuyForm";
-import { TicketOptions } from "./TicketOptions";
 
 export interface FormalProps {
   formal: Formal;
@@ -137,12 +137,14 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
   ({ formal }, ref) => {
     const modalBg = useColorModeValue("gray.50", "gray.800");
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const datetime = useDateTime(formal.dateTime);
     return (
       <Card ref={ref}>
-        <HStack>
+        <HStack mb="2">
           <Heading size="md">{formal.title}</Heading>
           <FormalStatusTag formal={formal} />
         </HStack>
+        <Text as="b">{datetime}</Text>
         <Divider my={2} />
         <FormalStats formal={formal} />
         {/* <Divider my={2} /> */}

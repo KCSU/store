@@ -21,6 +21,7 @@ function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const variants = useBreakpointValue({ base: smVariant, md: mdVariant });
 
+  // TODO: refactoring with useCallback
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const bg = useColorModeValue("gray.50", "gray.800");
 

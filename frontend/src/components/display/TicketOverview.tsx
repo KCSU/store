@@ -10,10 +10,10 @@ import {
   Th,
   Thead,
   Tr,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { formatMoney } from "../../helpers/formatMoney";
+import { useDateTime } from "../../hooks/useDateTime";
 import { Ticket } from "../../model/Ticket";
 import { Card } from "../utility/Card";
 
@@ -26,12 +26,14 @@ export function TicketOverview({ ticket }: TicketOverviewProps) {
   const price =
     ticket.formal.price + ticket.formal.guestPrice * ticket.guestTickets.length;
     // const borderColor = useColorModeValue("gray.300", "gray.600")
+  const datetime = useDateTime(ticket.formal.dateTime);
   return (
     <Card borderWidth="1px" boxShadow="none" borderRadius="md" p={3}>
-      <Heading size="md" as="h4" mb={2}>
+      <Heading size="md" as="h4">
         {ticket.formal.title}
       </Heading>
-      <Table size="sm" mb={2}>
+      <Text as="b">{datetime}</Text>
+      <Table size="sm" my={2}>
         <Thead>
           <Tr>
             <Th>Type</Th>
