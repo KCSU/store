@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	// TODO: Define config spec
+	DbConnection string `split_words:"true"`
 }
 
 func Init() *Config {
