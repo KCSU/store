@@ -10,7 +10,7 @@ import {
   WrapItem,
 } from "@chakra-ui/react";
 import { FaArrowLeft } from "react-icons/fa";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { TicketBuyForm } from "../components/display/TicketBuyForm";
 import { Card } from "../components/utility/Card";
 import { formatMoney } from "../helpers/formatMoney";
@@ -53,6 +53,7 @@ export const TicketStats: React.FC<TicketStatsProps> = (props) => {
 
 // TODO: Date and time!
 export function FormalInfo() {
+  const navigate = useNavigate();
   const { formalId } = useParams();
   const formal = useFormal(parseInt(formalId ?? "0"));
   if (!formal) {
@@ -123,7 +124,9 @@ export function FormalInfo() {
           </Box>
           <VStack align="stretch" borderWidth="1px" borderRadius="md" p={3}>
             <TicketBuyForm formal={formal} hasShadow={false} />
-            <Button colorScheme="brand">{getBuyText(formal)}</Button>
+            <Button colorScheme="brand" onClick={
+              () => navigate('/tickets')
+            }>{getBuyText(formal)}</Button>
           </VStack>
         </VStack>
       </Card>

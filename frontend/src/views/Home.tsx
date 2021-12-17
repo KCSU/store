@@ -51,7 +51,7 @@ export function Home() {
   };
   return (
     <>
-      <Heading mb={5}>Upcoming Formals</Heading>
+      <Heading size="xl" mb={5}>Upcoming Formals</Heading>
       <AnimatePresence exitBeforeEnter initial={false}>
         {loading ? (
           <SimpleGrid

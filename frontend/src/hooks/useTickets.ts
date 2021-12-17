@@ -7,6 +7,11 @@ const ticketData = [
     option: "Normal",
     guestOptions: ["Pescetarian", "Normal"],
   },
+  {
+    formalId: 2,
+    option: "Normal",
+    guestOptions: ["Pescetarian", "Normal"],
+  },
 ];
 
 export function useTickets(): Ticket[] {

@@ -1,7 +1,9 @@
 import {
+  Badge,
   Button,
   Heading,
   HStack,
+  Progress,
   Table,
   Tbody,
   Td,
@@ -19,19 +21,23 @@ import { Card } from "../utility/Card";
 
 interface TicketOverviewProps {
   ticket: Ticket;
+  queue?: boolean;
 }
 
 // TODO: make this responsive!
-export function TicketOverview({ ticket }: TicketOverviewProps) {
+export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
   const price =
     ticket.formal.price + ticket.formal.guestPrice * ticket.guestTickets.length;
-    // const borderColor = useColorModeValue("gray.300", "gray.600")
+  // const borderColor = useColorModeValue("gray.300", "gray.600")
   const datetime = useDateTime(ticket.formal.dateTime);
   return (
     <Card borderWidth="1px" boxShadow="none" borderRadius="md" p={3}>
-      <Heading size="md" as="h4">
-        {ticket.formal.title}
-      </Heading>
+      <HStack>
+        <Heading size="md" as="h4">
+          {ticket.formal.title}
+        </Heading>
+        {queue && <Badge colorScheme="brand">In Queue</Badge>}
+      </HStack>
       <Text as="b">{datetime}</Text>
       <Table size="sm" my={2}>
         <Thead>
@@ -74,9 +80,18 @@ export function TicketOverview({ ticket }: TicketOverviewProps) {
           Edit
         </Button>
         <Button size="sm" colorScheme="red" leftIcon={<FaTrashAlt />}>
-          Cancel Ticket
+          Cancel {queue ? " Request" : " Ticket"}
         </Button>
       </HStack>
+      {queue && (
+        <Progress
+          colorScheme="brand"
+          borderRadius={3}
+          size="sm"
+          isIndeterminate
+          mt={3}
+        />
+      )}
     </Card>
   );
 }

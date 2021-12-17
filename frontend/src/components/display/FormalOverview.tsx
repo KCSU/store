@@ -25,7 +25,7 @@ import {
   Icon,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
 import { useDateTime } from "../../hooks/useDateTime";
@@ -135,6 +135,7 @@ const BuyButton = forwardRef<FormalProps, "button">(
 
 export const FormalOverview = forwardRef<FormalProps, "div">(
   ({ formal }, ref) => {
+    const navigate = useNavigate();
     const modalBg = useColorModeValue("gray.50", "gray.800");
     const { isOpen, onOpen, onClose } = useDisclosure();
     const datetime = useDateTime(formal.dateTime);
@@ -164,7 +165,11 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
             </ModalBody>
 
             <ModalFooter>
-              <Button colorScheme="brand" mr={3} onClick={onClose}>
+              <Button colorScheme="brand" mr={3} onClick={() => {
+                onClose();
+                // TODO: fix this
+                setTimeout(() => navigate('/tickets'), 300);
+              }}>
                 {getBuyText(formal)}
               </Button>
               <Button variant="ghost" onClick={onClose}>

@@ -40,7 +40,7 @@ function App() {
       >
         {variants?.navigationButton && (
           <Flex justifyContent="space-between" alignItems="center" mb={5}>
-            <Heading size="lg" as="h1">
+            <Heading size="xl" as="h1">
               KiFoMaSy
             </Heading>
             <IconButton
