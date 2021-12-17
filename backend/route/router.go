@@ -26,6 +26,7 @@ func Init() *echo.Echo {
 	h := handlers.NewHandler(*c, d)
 	// Routes
 	e.GET("/", h.GetHello)
+	e.GET("/formals", h.GetFormals)
 
 	return e
 }
