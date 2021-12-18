@@ -142,7 +142,7 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
     return (
       <Card ref={ref}>
         <HStack mb="2">
-          <Heading size="md">{formal.title}</Heading>
+          <Heading size="md">{formal.name}</Heading>
           <FormalStatusTag formal={formal} />
         </HStack>
         <Text as="b">{datetime}</Text>

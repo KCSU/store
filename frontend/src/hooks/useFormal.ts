@@ -1,7 +1,13 @@
+import { useQuery } from "react-query";
 import { useFormals } from "./useFormals";
 
 export function useFormal(id: number) {
-    // TODO: make query more efficient?
-    const formals = useFormals();
-    return formals.find(f => f.id === id);
+    const {data: formals} = useFormals();
+    return useQuery(['formals', id], () => {
+        const formal = formals?.find(f => f.id === id);
+        return formal;
+    }, {
+        enabled: formals === undefined
+    })
+    
 }

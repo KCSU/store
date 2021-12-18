@@ -6,31 +6,20 @@ import {
   SkeletonText,
 } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import {
   FormalOverview,
   FormalProps,
 } from "../components/display/FormalOverview";
 import { generateMotion } from "../components/utility/generateMotion";
 import { Card, CardProps } from "../components/utility/Card";
-import { Formal } from "../model/Formal";
 import { useFormals } from "../hooks/useFormals";
 
-const MotionCard = generateMotion<CardProps, 'div'>(Card);
+const MotionCard = generateMotion<CardProps, "div">(Card);
 const MotionOverview = motion<FormalProps>(FormalOverview);
 const MotionSimpleGrid = motion<SimpleGridProps>(SimpleGrid);
 
 export function Home() {
-  const formals = useFormals();
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    let timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+  const { data: formals, isLoading, isError } = useFormals();
   const gridVariant = {
     hidden: {},
     show: {
@@ -51,9 +40,11 @@ export function Home() {
   };
   return (
     <>
-      <Heading size="xl" mb={5}>Upcoming Formals</Heading>
+      <Heading size="xl" mb={5}>
+        Upcoming Formals
+      </Heading>
       <AnimatePresence exitBeforeEnter initial={false}>
-        {loading ? (
+        {isLoading ? (
           <SimpleGrid
             key="loadingGrid"
             templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
@@ -76,7 +67,7 @@ export function Home() {
             templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
             spacing="40px"
           >
-            {formals.map((f, i) => (
+            {formals?.map((f, i) => (
               <MotionOverview
                 // TODO: use actual DB ID as key
                 key={`formal.${i}`}

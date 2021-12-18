@@ -17,6 +17,7 @@ func Init() *echo.Echo {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.CORS())
 
 	c := config.Init()
 	d, err := db.Init(c)

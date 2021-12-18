@@ -64,7 +64,7 @@ export function TicketBuyForm({ formal, hasShadow = true }: TicketBuyFormProps) 
     <VStack spacing={2}>
       <Box>
         <Text as="b" fontSize="lg">
-          Buying tickets for {formal.title}:
+          Buying tickets for {formal.name}:
         </Text>
       </Box>
       <TicketOptions

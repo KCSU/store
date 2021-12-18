@@ -1,6 +1,6 @@
 export interface Formal {
     id: number;
-    title: string;
+    name: string;
     menu: string; // TODO:
     price: number;
     guestPrice: number;

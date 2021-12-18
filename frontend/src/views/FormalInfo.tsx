@@ -55,7 +55,7 @@ export const TicketStats: React.FC<TicketStatsProps> = (props) => {
 export function FormalInfo() {
   const navigate = useNavigate();
   const { formalId } = useParams();
-  const formal = useFormal(parseInt(formalId ?? "0"));
+  const {data: formal, isLoading, isError} = useFormal(parseInt(formalId ?? "0"));
   if (!formal) {
     // TODO: return an error!
     return <Navigate to="/"/>;
@@ -77,7 +77,7 @@ export function FormalInfo() {
       </Button>
       <Card mb={5}>
         <Heading as="h3" size="lg" mb={1}>
-          {formal.title}
+          {formal.name}
         </Heading>
         <Text as="b" mb={4}>{datetime}</Text>
         <VStack alignItems="stretch">

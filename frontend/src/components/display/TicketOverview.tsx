@@ -34,7 +34,7 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
     <Card borderWidth="1px" boxShadow="none" borderRadius="md" p={3}>
       <HStack>
         <Heading size="md" as="h4">
-          {ticket.formal.title}
+          {ticket.formal.name}
         </Heading>
         {queue && <Badge colorScheme="brand">In Queue</Badge>}
       </HStack>

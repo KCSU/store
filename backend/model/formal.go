@@ -14,4 +14,5 @@ type Formal struct {
 	SaleStart    time.Time `json:"saleStart"`
 	SaleEnd      time.Time `json:"saleEnd"`
 	DateTime     time.Time `json:"dateTime"`
+	TicketSales  []Ticket  `json:"-"`
 }
