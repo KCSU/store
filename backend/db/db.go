@@ -8,5 +8,7 @@ import (
 
 func Init(c *config.Config) (db *gorm.DB, err error) {
 	dsn := c.DbConnection
-	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	return gorm.Open(postgres.Open(dsn), &gorm.Config{
+		// Logger: logger.Default.LogMode(logger.Info),
+	})
 }

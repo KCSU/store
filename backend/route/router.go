@@ -27,6 +27,7 @@ func Init() *echo.Echo {
 	// Routes
 	e.GET("/", h.GetHello)
 	e.GET("/formals", h.GetFormals)
+	e.GET("/tickets", h.GetTickets)
 
 	return e
 }

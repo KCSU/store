@@ -15,5 +15,8 @@ func main() {
 		log.Fatal(err)
 	}
 	// TODO: manual migration
-	d.AutoMigrate(&model.Formal{})
+	d.AutoMigrate(
+		&model.Formal{},
+		&model.Ticket{},
+	)
 }
