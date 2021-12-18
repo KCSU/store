@@ -6,5 +6,5 @@ type Ticket struct {
 	IsQueue    bool    `json:"isQueue"`
 	MealOption string  `json:"option"`
 	FormalID   int     `json:"formalId"`
-	Formal     *Formal `json:"formal,omitempty" gorm:"constraint:OnDelete:CASCADE;"`
+	Formal     *Formal `json:"-" gorm:"constraint:OnDelete:CASCADE;"`
 }

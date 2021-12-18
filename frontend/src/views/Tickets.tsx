@@ -1,4 +1,4 @@
-import { Heading, SimpleGrid } from "@chakra-ui/react";
+import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
 import { TicketOverview } from "../components/display/TicketOverview";
 import { Card } from "../components/utility/Card";
 import { useQueue } from "../hooks/useQueue";
@@ -6,13 +6,17 @@ import { useTickets } from "../hooks/useTickets";
 
 export function Tickets() {
   const queue = useQueue();
-  const tickets = useTickets();
+  // TODO: loading indicators
+  const {data: tickets, isLoading, isError} = useTickets();
+  if (!tickets || isLoading || isError) {
+    return <Box></Box>;
+  }
   return (
     <>
       <Heading size="xl" mb={5}>
         My Tickets
       </Heading>
-      {queue.length > 0 && (
+      {/* {queue.length > 0 && (
         <>
           <Heading size="md" as="h3" mb={4}>
             Ticket Queue
@@ -25,7 +29,7 @@ export function Tickets() {
             </SimpleGrid>
           </Card>
         </>
-      )}
+      )} */}
       <Heading size="md" as="h3" mb={4}>
         Upcoming Formals
       </Heading>

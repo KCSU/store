@@ -9,5 +9,7 @@ export function useFormals() {
       options: ["Normal", "Vegan", "Vegetarian", "Pescetarian"]
     };
     return response.data.map(f => Object.assign(f, template));
+  }, {
+    staleTime: 60 * 1000 // 1 minute
   })
 }

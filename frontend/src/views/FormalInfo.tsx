@@ -16,7 +16,7 @@ import { Card } from "../components/utility/Card";
 import { formatMoney } from "../helpers/formatMoney";
 import { getBuyText } from "../helpers/getBuyText";
 import { useDateTime } from "../hooks/useDateTime";
-import { useFormal } from "../hooks/useFormal";
+import { useFormals } from "../hooks/useFormals";
 
 interface TicketStatsProps {
   prefix?: string;
@@ -55,8 +55,13 @@ export const TicketStats: React.FC<TicketStatsProps> = (props) => {
 export function FormalInfo() {
   const navigate = useNavigate();
   const { formalId } = useParams();
-  const {data: formal, isLoading, isError} = useFormal(parseInt(formalId ?? "0"));
-  if (!formal) {
+  const {data: formals, isLoading, isError} = useFormals();
+  if (isLoading) {
+    // TODO: return something better!
+    return <Box></Box>;
+  }
+  const formal = formals?.find(f => f.id === parseInt(formalId ?? "0"));
+  if (isError || !formal) {
     // TODO: return an error!
     return <Navigate to="/"/>;
   }

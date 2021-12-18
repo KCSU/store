@@ -16,7 +16,7 @@ func Init() *echo.Echo {
 	// TODO: config for e.Debug()
 	// Middleware
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	// e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
 	c := config.Init()
