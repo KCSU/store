@@ -1,4 +1,10 @@
 import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   Badge,
   Button,
   Heading,
@@ -12,12 +18,63 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
 } from "@chakra-ui/react";
+import { useRef } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { formatMoney } from "../../helpers/formatMoney";
 import { useDateTime } from "../../hooks/useDateTime";
 import { Ticket } from "../../model/Ticket";
 import { Card } from "../utility/Card";
+
+interface CancelTicketButtonProps {
+  isQueue: boolean;
+}
+
+function CancelTicketButton({ isQueue }: CancelTicketButtonProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef(null);
+
+  return (
+    <>
+      <Button
+        size="sm"
+        colorScheme="red"
+        leftIcon={<FaTrashAlt />}
+        onClick={onOpen}
+      >
+        Cancel {isQueue ? " Request" : " Ticket"}
+      </Button>
+
+      <AlertDialog
+        isOpen={isOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Cancel Ticket
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to cancel your ticket?
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button colorScheme="red" onClick={onClose}>
+                  Cancel {isQueue ? " Request" : " Ticket"}
+              </Button>
+              <Button ref={cancelRef} onClick={onClose} ml={3}>
+                Go Back
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+    </>
+  );
+}
 
 interface TicketOverviewProps {
   ticket: Ticket;
@@ -79,9 +136,7 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
         <Button size="sm" variant="outline" leftIcon={<FaEdit />}>
           Edit
         </Button>
-        <Button size="sm" colorScheme="red" leftIcon={<FaTrashAlt />}>
-          Cancel {queue ? " Request" : " Ticket"}
-        </Button>
+        <CancelTicketButton isQueue={queue} />
       </HStack>
       {queue && (
         <Progress
