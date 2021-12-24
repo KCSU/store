@@ -29,6 +29,7 @@ func Init() *echo.Echo {
 	e.GET("/", h.GetHello)
 	e.GET("/formals", h.GetFormals)
 	e.GET("/tickets", h.GetTickets)
+	e.POST("/tickets", h.BuyTicket)
 
 	return e
 }
