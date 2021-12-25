@@ -24,12 +24,15 @@ import {
   ModalOverlay,
   Icon,
 } from "@chakra-ui/react";
+import { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
+import { useBuyTicket } from "../../hooks/useBuyTicket";
 import { useDateTime } from "../../hooks/useDateTime";
 import { Formal } from "../../model/Formal";
+import { QueueRequest } from "../../model/QueueRequest";
 import { Card } from "../utility/Card";
 import { TicketBuyForm } from "./TicketBuyForm";
 
@@ -139,6 +142,14 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
     const modalBg = useColorModeValue("gray.50", "gray.800");
     const { isOpen, onOpen, onClose } = useDisclosure();
     const datetime = useDateTime(formal.dateTime);
+    const [queueRequest, setQueueRequest] = useState<QueueRequest>({
+      formalId: formal.id,
+      ticket: {
+        option: "Normal",
+      },
+      guestTickets: [],
+    });
+    const mutation = useBuyTicket();
     return (
       <Card ref={ref}>
         <HStack mb="2">
@@ -161,18 +172,29 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
             <ModalHeader>Ticket Purchase</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <TicketBuyForm formal={formal} />
+              <TicketBuyForm
+                value={queueRequest}
+                formal={formal}
+                onChange={setQueueRequest}
+              />
             </ModalBody>
 
             <ModalFooter>
-              <Button colorScheme="brand" mr={3} onClick={() => {
-                onClose();
-                // TODO: fix this
-                setTimeout(() => navigate('/tickets'), 300);
-              }}>
+              <Button
+                isLoading={mutation.isLoading}
+                colorScheme="brand"
+                mr={3}
+                onClick={async () => {
+                  await mutation.mutateAsync(queueRequest);
+                  onClose();
+                  // TODO: fix this
+                  setTimeout(() => navigate("/tickets"), 300);
+                }}
+              >
                 {getBuyText(formal)}
               </Button>
-              <Button variant="ghost" onClick={onClose}>
+              <Button variant="ghost" onClick={onClose}
+              isDisabled={mutation.isLoading}>
                 Cancel
               </Button>
             </ModalFooter>

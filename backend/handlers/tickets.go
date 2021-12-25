@@ -84,5 +84,6 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		return err
 	}
 	// TODO: h.db.Clauses(clause.OnConflict{DoNothing: true})
-	return c.JSON(http.StatusOK, t)
+	// Should this return some data?
+	return c.NoContent(http.StatusOK)
 }

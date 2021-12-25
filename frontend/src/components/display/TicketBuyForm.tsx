@@ -17,37 +17,56 @@ import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { formatMoney } from "../../helpers/formatMoney";
 import { Formal } from "../../model/Formal";
+import { QueueRequest } from "../../model/QueueRequest";
 import { TicketRequest } from "../../model/TicketRequest";
 import { TicketOptions } from "./TicketOptions";
 
 interface TicketBuyFormProps {
   formal: Formal;
   hasShadow?: boolean;
+  value: QueueRequest;
+  onChange?: (req: QueueRequest) => void;
 }
 
-export function TicketBuyForm({ formal, hasShadow = true }: TicketBuyFormProps) {
-  // TODO: Change this
-  const [ticket, setTicket] = useState<TicketRequest>({
-    option: "Normal",
-  });
-  const [guestTickets, setGuestTickets] = useState<TicketRequest[]>([]);
-  const setTicketOption = (value: string) => {
-    setTicket((prev) => ({
-      ...prev,
-      option: value,
-    }));
+export function TicketBuyForm({
+  formal,
+  onChange = _ => {},
+  value,
+  hasShadow = true,
+}: TicketBuyFormProps) {
+  const ticket = value.ticket;
+  const guestTickets = value.guestTickets;
+
+  // CALLBACKS
+  const setTicket = (t: TicketRequest) => {
+    onChange({
+      ...value,
+      ticket: t
+    });
+  }
+  const setGuestTickets = (gt: TicketRequest[]) => {
+    onChange({
+      ...value,
+      guestTickets: gt
+    })
+  }
+  const setTicketOption = (option: string) => {
+    setTicket({
+      ...value.ticket,
+      option,
+    });
   };
-  const setGuestTicket = (index: number, value: string) => {
-    setGuestTickets((prev) => [
+  const setGuestTicket = (index: number, option: string) => {
+    const prev = value.guestTickets;
+    setGuestTickets([
       ...prev.slice(0, index),
-      {
-        option: value,
-      },
+      { option },
       ...prev.slice(index + 1),
     ]);
   };
   const addGuestTicket = () => {
-    setGuestTickets((prev) => [
+    const prev = value.guestTickets;
+    setGuestTickets([
       ...prev,
       {
         option: "Normal",
@@ -55,11 +74,13 @@ export function TicketBuyForm({ formal, hasShadow = true }: TicketBuyFormProps) 
     ]);
   };
   const removeGuestTicket = (index: number) => {
-    setGuestTickets((prev) => [
+    const prev = value.guestTickets;
+    setGuestTickets([
       ...prev.slice(0, index),
       ...prev.slice(index + 1),
     ]);
   };
+  
   return (
     <VStack spacing={2}>
       <Box>
