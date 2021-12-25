@@ -23,17 +23,20 @@ import {
 import { useRef } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { formatMoney } from "../../helpers/formatMoney";
+import { useCancelTickets } from "../../hooks/useCancelTickets";
 import { useDateTime } from "../../hooks/useDateTime";
 import { Ticket } from "../../model/Ticket";
 import { Card } from "../utility/Card";
 
 interface CancelTicketButtonProps {
+  formalId: number;
   isQueue: boolean;
 }
 
-function CancelTicketButton({ isQueue }: CancelTicketButtonProps) {
+function CancelTicketButton({ isQueue, formalId }: CancelTicketButtonProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef(null);
+  const mutation = useCancelTickets();
 
   return (
     <>
@@ -62,10 +65,22 @@ function CancelTicketButton({ isQueue }: CancelTicketButtonProps) {
             </AlertDialogBody>
 
             <AlertDialogFooter>
-              <Button colorScheme="red" onClick={onClose}>
-                  Cancel {isQueue ? " Request" : " Ticket"}
+              <Button
+                colorScheme="red"
+                onClick={async () => {
+                  await mutation.mutateAsync(formalId);
+                  onClose();
+                }}
+                isLoading={mutation.isLoading}
+              >
+                Cancel {isQueue ? " Request" : " Ticket"}
               </Button>
-              <Button ref={cancelRef} onClick={onClose} ml={3}>
+              <Button
+                ref={cancelRef}
+                onClick={onClose}
+                ml={3}
+                isDisabled={mutation.isLoading}
+              >
                 Go Back
               </Button>
             </AlertDialogFooter>
@@ -136,7 +151,7 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
         <Button size="sm" variant="outline" leftIcon={<FaEdit />}>
           Edit
         </Button>
-        <CancelTicketButton isQueue={queue} />
+        <CancelTicketButton formalId={ticket.formal.id} isQueue={queue} />
       </HStack>
       {queue && (
         <Progress

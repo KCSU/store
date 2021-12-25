@@ -25,11 +25,17 @@ func Init() *echo.Echo {
 		log.Fatal(err)
 	}
 	h := handlers.NewHandler(*c, d)
-	// Routes
+	// ROUTES
+
 	e.GET("/", h.GetHello)
+
+	// Formals
 	e.GET("/formals", h.GetFormals)
+
+	// Tickets
 	e.GET("/tickets", h.GetTickets)
 	e.POST("/tickets", h.BuyTicket)
+	e.DELETE("/formals/:id/tickets", h.CancelTickets)
 
 	return e
 }

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
@@ -85,5 +86,19 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 	}
 	// TODO: h.db.Clauses(clause.OnConflict{DoNothing: true})
 	// Should this return some data?
+	return c.NoContent(http.StatusOK)
+}
+
+func (h *Handler) CancelTickets(c echo.Context) error {
+	id := c.Param("id")
+	formalID, err := strconv.Atoi(id)
+	if err != nil {
+		// TODO: NewHTTPError?
+		return echo.ErrNotFound
+	}
+	err = h.db.Where("formal_id = ?", formalID).Delete(&model.Ticket{}).Error
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
 	return c.NoContent(http.StatusOK)
 }

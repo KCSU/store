@@ -9,8 +9,7 @@ export function useBuyTicket() {
   const toast = useToast();
   return useMutation(
     async (qr: QueueRequest) => {
-      // TODO: return type? REMOVE THIS LINE
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // TODO: return type?
       return api.post<void>("tickets", qr);
     },
     {
