@@ -24,15 +24,14 @@ import {
   ModalOverlay,
   Icon,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
 import { useBuyTicket } from "../../hooks/useBuyTicket";
 import { useDateTime } from "../../hooks/useDateTime";
+import { useQueueRequest } from "../../hooks/useQueueRequest";
 import { Formal } from "../../model/Formal";
-import { QueueRequest } from "../../model/QueueRequest";
 import { Card } from "../utility/Card";
 import { TicketBuyForm } from "./TicketBuyForm";
 
@@ -142,13 +141,7 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
     const modalBg = useColorModeValue("gray.50", "gray.800");
     const { isOpen, onOpen, onClose } = useDisclosure();
     const datetime = useDateTime(formal.dateTime);
-    const [queueRequest, setQueueRequest] = useState<QueueRequest>({
-      formalId: formal.id,
-      ticket: {
-        option: "Normal",
-      },
-      guestTickets: [],
-    });
+    const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
     const mutation = useBuyTicket();
     return (
       <Card ref={ref}>
@@ -175,7 +168,7 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
               <TicketBuyForm
                 value={queueRequest}
                 formal={formal}
-                onChange={setQueueRequest}
+                onChange={dispatchQR}
               />
             </ModalBody>
 

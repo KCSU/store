@@ -5,13 +5,10 @@ import {
   Heading,
   Icon,
   Text,
-  useToast,
   VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import axios from "axios";
-import { useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { TicketBuyForm } from "../components/display/TicketBuyForm";
@@ -21,8 +18,7 @@ import { getBuyText } from "../helpers/getBuyText";
 import { useBuyTicket } from "../hooks/useBuyTicket";
 import { useDateTime } from "../hooks/useDateTime";
 import { useFormals } from "../hooks/useFormals";
-import { QueueRequest } from "../model/QueueRequest";
-import { TicketRequest } from "../model/TicketRequest";
+import { useQueueRequest } from "../hooks/useQueueRequest";
 
 interface TicketStatsProps {
   prefix?: string;
@@ -61,21 +57,17 @@ export const TicketStats: React.FC<TicketStatsProps> = (props) => {
 export function FormalInfo() {
   // Get the formal
   const { formalId } = useParams();
+  const formalIdNum = parseInt(formalId ?? "0");
   const { data: formals, isLoading, isError } = useFormals();
-  const formal = formals?.find((f) => f.id === parseInt(formalId ?? "0"));
+  const formal = formals?.find((f) => f.id === formalIdNum);
 
   // Formal Data
   const datetime = useDateTime(formal?.dateTime ?? new Date());
   const prefix = (formal?.guestLimit ?? 0) > 0 ? "King's " : "";
-
-  // Buy tickets
-  const [ticket, setTicket] = useState<TicketRequest>({
-    option: "Normal",
-  });
-  const [guestTickets, setGuestTickets] = useState<TicketRequest[]>([]);
   const mutation = useBuyTicket();
-  const toast = useToast();
   const navigate = useNavigate();
+  // State management
+  const [queueRequest, dispatchQR] = useQueueRequest(formalIdNum);
 
   if (isLoading) {
     // TODO: return something better!
@@ -85,17 +77,6 @@ export function FormalInfo() {
     // TODO: return an error!
     return <Navigate to="/" />;
   }
-
-  // State management
-  const queueRequest: QueueRequest = {
-    formalId: formal.id,
-    ticket,
-    guestTickets,
-  };
-  const setQueueRequest = (qr: QueueRequest) => {
-    setTicket(qr.ticket);
-    setGuestTickets(qr.guestTickets);
-  };
 
   return (
     // TODO: guest list, responsive meal option
@@ -164,7 +145,7 @@ export function FormalInfo() {
               formal={formal}
               hasShadow={false}
               value={queueRequest}
-              onChange={setQueueRequest}
+              onChange={dispatchQR}
             />
             <Button
               colorScheme="brand"
