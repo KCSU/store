@@ -36,6 +36,7 @@ func Init() *echo.Echo {
 	e.GET("/tickets", h.GetTickets)
 	e.POST("/tickets", h.BuyTicket)
 	e.DELETE("/formals/:id/tickets", h.CancelTickets)
+	e.DELETE("/tickets/:id", h.CancelTicket)
 
 	return e
 }

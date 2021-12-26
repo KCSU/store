@@ -102,3 +102,17 @@ func (h *Handler) CancelTickets(c echo.Context) error {
 	}
 	return c.NoContent(http.StatusOK)
 }
+
+func (h *Handler) CancelTicket(c echo.Context) error {
+	id := c.Param("id")
+	ticketID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	// TODO: check user id
+	err = h.db.Delete(&model.Ticket{}, ticketID).Error
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+	return c.NoContent(http.StatusOK)
+}
