@@ -8,14 +8,14 @@ import (
 
 type Handler struct {
 	config  config.Config
-	db      *gorm.DB
 	formals *db.FormalStore
+	tickets *db.TicketStore
 }
 
 func NewHandler(c config.Config, d *gorm.DB) *Handler {
 	return &Handler{
 		config:  c,
-		db:      d,
 		formals: db.NewFormalStore(d),
+		tickets: db.NewTicketStore(d),
 	}
 }

@@ -11,8 +11,10 @@ import (
 
 func (h *Handler) GetTickets(c echo.Context) error {
 	// Load tickets from the database
-	var tickets []model.Ticket
-	h.db.Preload("Formal").Find(&tickets)
+	tickets, err := h.tickets.Get()
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
 	// Group tickets by formal and guest status
 	dtos := map[uint]dto.TicketDto{}
 	for _, t := range tickets {
@@ -58,9 +60,11 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 
 	// Check that ticket does not already exist
 	// TODO: users
-	var ticketExists int64
-	h.db.Model(&model.Ticket{}).Not("is_guest").Where("formal_id = ?", t.FormalId).Count(&ticketExists)
-	if ticketExists > 0 {
+	ticketExists, err := h.tickets.ExistsByFormal(int(t.FormalId))
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+	if ticketExists {
 		return echo.NewHTTPError(http.StatusConflict, "Ticket already exists.")
 	}
 
@@ -81,7 +85,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		}
 	}
 	// Insert into DB
-	if err := h.db.Create(tickets).Error; err != nil {
+	if err := h.tickets.Create(tickets); err != nil {
 		return err
 	}
 	// TODO: h.db.Clauses(clause.OnConflict{DoNothing: true})
@@ -96,8 +100,7 @@ func (h *Handler) CancelTickets(c echo.Context) error {
 		// TODO: NewHTTPError?
 		return echo.ErrNotFound
 	}
-	err = h.db.Where("formal_id = ?", formalID).Delete(&model.Ticket{}).Error
-	if err != nil {
+	if err := h.tickets.DeleteByFormal(formalID); err != nil {
 		return echo.ErrInternalServerError
 	}
 	return c.NoContent(http.StatusOK)
@@ -110,8 +113,7 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 	// TODO: check user id
-	err = h.db.Delete(&model.Ticket{}, ticketID).Error
-	if err != nil {
+	if err := h.tickets.Delete(ticketID); err != nil {
 		return echo.ErrInternalServerError
 	}
 	return c.NoContent(http.StatusOK)
