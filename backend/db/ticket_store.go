@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/kcsu/store/model"
+	"github.com/kcsu/store/model/dto"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +20,17 @@ func (t *TicketStore) Get() ([]model.Ticket, error) {
 	var tickets []model.Ticket
 	err := t.db.Preload("Formal").Find(&tickets).Error
 	return tickets, err
+}
+
+func (t *TicketStore) Find(id int) (model.Ticket, error) {
+	var ticket model.Ticket
+	err := t.db.First(&ticket, id).Error
+	return ticket, err
+}
+
+// TODO: rewrite completely
+func (t *TicketStore) Update(id int, ticket *dto.TicketRequestDto) error {
+	return t.db.Model(&model.Ticket{}).Where("id = ?", id).Update("meal_option", ticket.MealOption).Error
 }
 
 func (t *TicketStore) Create(tickets []model.Ticket) error {

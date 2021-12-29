@@ -1,14 +1,20 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
+// TODO: implement 404 checks everywhere they are needed
+// TODO: GUEST LIMIT
+
+// Get a list of the user's tickets, grouped by formal
 func (h *Handler) GetTickets(c echo.Context) error {
 	// Load tickets from the database
 	tickets, err := h.tickets.Get()
@@ -47,6 +53,7 @@ func (h *Handler) GetTickets(c echo.Context) error {
 	return c.JSON(http.StatusOK, dtoList)
 }
 
+// Buy tickets for a formal, potentially with guest tickets
 func (h *Handler) BuyTicket(c echo.Context) error {
 	// Bind request data
 	t := new(dto.BuyTicketDto)
@@ -110,11 +117,39 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 	id := c.Param("id")
 	ticketID, err := strconv.Atoi(id)
 	if err != nil {
+		// Should this be a different error?
 		return echo.ErrNotFound
+	}
+	ticket, err := h.tickets.Find(ticketID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return echo.ErrInternalServerError
+	}
+	if !ticket.IsGuest {
+		return echo.NewHTTPError(http.StatusForbidden, "Non-guest tickets must be cancelled as a group")
 	}
 	// TODO: check user id
 	if err := h.tickets.Delete(ticketID); err != nil {
 		return echo.ErrInternalServerError
 	}
+	return c.NoContent(http.StatusOK)
+}
+
+func (h *Handler) EditTicket(c echo.Context) error {
+	id := c.Param("id")
+	ticketID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	t := new(dto.TicketRequestDto)
+	if err := c.Bind(t); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := h.tickets.Update(ticketID, t); err != nil {
+		return echo.ErrInternalServerError
+	}
+	// TODO: return the new model
 	return c.NoContent(http.StatusOK)
 }

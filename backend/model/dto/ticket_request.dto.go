@@ -1,5 +1,5 @@
 package dto
 
-type TicketRequest struct {
+type TicketRequestDto struct {
 	MealOption string `json:"option"`
 }
