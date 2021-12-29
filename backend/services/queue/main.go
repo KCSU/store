@@ -17,6 +17,9 @@ func min(a, b int) int {
 	return b
 }
 
+// FIXME: this doesn't work.
+// We need to ensure all guest tickets correspond to
+// successful "normal" tickets
 func main() {
 	// Initialise data
 	c := config.Init()

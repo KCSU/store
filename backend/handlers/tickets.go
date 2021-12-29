@@ -12,6 +12,7 @@ import (
 )
 
 // TODO: implement 404 checks everywhere they are needed
+// TODO: Formal sale start/end times
 // TODO: GUEST LIMIT
 
 // Get a list of the user's tickets, grouped by formal
@@ -65,6 +66,16 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 	// 	return err
 	// }
 
+	// Check that formal permits this many tickets
+	formal, err := h.formals.Find(int(t.FormalId))
+	if err != nil {
+		// Check whether error is formal existence?
+		return echo.ErrInternalServerError
+	}
+	if len(t.GuestTickets) > int(formal.GuestLimit) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Too many guest tickets requested.")
+	}
+
 	// Check that ticket does not already exist
 	// TODO: users
 	ticketExists, err := h.tickets.ExistsByFormal(int(t.FormalId))
@@ -92,12 +103,12 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		}
 	}
 	// Insert into DB
-	if err := h.tickets.Create(tickets); err != nil {
+	if err := h.tickets.BatchCreate(tickets); err != nil {
 		return err
 	}
 	// TODO: h.db.Clauses(clause.OnConflict{DoNothing: true})
 	// Should this return some data?
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusCreated)
 }
 
 func (h *Handler) CancelTickets(c echo.Context) error {
@@ -108,6 +119,9 @@ func (h *Handler) CancelTickets(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 	if err := h.tickets.DeleteByFormal(formalID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
 		return echo.ErrInternalServerError
 	}
 	return c.NoContent(http.StatusOK)
@@ -152,4 +166,57 @@ func (h *Handler) EditTicket(c echo.Context) error {
 	}
 	// TODO: return the new model
 	return c.NoContent(http.StatusOK)
+}
+
+// TODO: reduce DB calls
+func (h *Handler) AddTicket(c echo.Context) error {
+	// Parse request data
+	id := c.Param("id")
+	formalID, err := strconv.Atoi(id)
+	if err != nil {
+		// TODO: NewHTTPError?
+		return echo.ErrNotFound
+	}
+	t := new(dto.TicketRequestDto)
+	if err := c.Bind(&t); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	// Make sure the user already has a ticket to this formal
+	exists, err := h.tickets.ExistsByFormal(formalID)
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+	if !exists {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "You must purchase a normal ticket first.")
+	}
+
+	// Make sure the user doesn't have too many guest tickets already
+	count, err := h.tickets.CountGuestByFormal(formalID)
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+	formal, err := h.formals.Find(formalID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return echo.ErrInternalServerError
+	}
+	if int64(formal.GuestLimit)-count <= 0 {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Too many guest tickets requested.")
+	}
+
+	// Create the ticket in the DB
+	ticket := model.Ticket{
+		FormalID:   formalID,
+		IsGuest:    true,
+		IsQueue:    true,
+		MealOption: t.MealOption,
+	}
+	if err := h.tickets.Create(&ticket); err != nil {
+		return echo.ErrInternalServerError
+	}
+	// TODO: return the new model
+	return c.NoContent(http.StatusCreated)
 }

@@ -5,6 +5,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: return HTTP errors instead
+
 type FormalStore struct {
 	db *gorm.DB
 }
@@ -31,6 +33,12 @@ func (f *FormalStore) All() ([]model.Formal, error) {
 	var data []model.Formal
 	err := f.db.Find(&data).Error
 	return data, err
+}
+
+func (f *FormalStore) Find(id int) (model.Formal, error) {
+	var formal model.Formal
+	err := f.db.First(&formal, id).Error
+	return formal, err
 }
 
 func (f *FormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uint {

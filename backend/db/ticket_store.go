@@ -6,6 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: return HTTP errors instead
+
 type TicketStore struct {
 	db *gorm.DB
 }
@@ -33,8 +35,18 @@ func (t *TicketStore) Update(id int, ticket *dto.TicketRequestDto) error {
 	return t.db.Model(&model.Ticket{}).Where("id = ?", id).Update("meal_option", ticket.MealOption).Error
 }
 
-func (t *TicketStore) Create(tickets []model.Ticket) error {
+func (t *TicketStore) BatchCreate(tickets []model.Ticket) error {
 	return t.db.Create(tickets).Error
+}
+
+func (t *TicketStore) Create(ticket *model.Ticket) error {
+	return t.db.Create(ticket).Error
+}
+
+func (t *TicketStore) CountGuestByFormal(formalID int) (int64, error) {
+	var count int64
+	err := t.db.Model(&model.Ticket{}).Where("is_guest").Where("formal_id = ?", formalID).Count(&count).Error
+	return count, err
 }
 
 func (t *TicketStore) ExistsByFormal(formalID int) (bool, error) {
