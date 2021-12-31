@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	Debug        bool
 	DbConnection string `split_words:"true"`
 }
 
