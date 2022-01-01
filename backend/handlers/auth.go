@@ -11,8 +11,20 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	// TODO: handle user in database
-	return c.JSON(http.StatusOK, gothUser)
+
+	user, err := h.users.FindOrCreate(gothUser)
+	if err != nil {
+		exists, exerr := h.users.Exists(gothUser.Email)
+		if exerr != nil {
+			return echo.ErrInternalServerError
+		}
+		if exists {
+			return echo.NewHTTPError(http.StatusConflict, "email is taken")
+		}
+		return echo.ErrInternalServerError
+	}
+	// TODO: create JWT or session cookie for login
+	return c.JSON(http.StatusOK, user)
 }
 
 func (h *Handler) AuthRedirect(c echo.Context) error {

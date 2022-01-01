@@ -18,5 +18,6 @@ func main() {
 	d.AutoMigrate(
 		&model.Formal{},
 		&model.Ticket{},
+		&model.User{},
 	)
 }

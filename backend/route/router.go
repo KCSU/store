@@ -19,6 +19,7 @@ func Init() *echo.Echo {
 	}
 
 	e := echo.New()
+	e.Use(middleware.Logger())
 
 	// TODO: config for e.Debug()
 	// Middleware
@@ -27,9 +28,9 @@ func Init() *echo.Echo {
 		// CORS for testing localhost on different ports
 		e.Use(middleware.CORS())
 	} else {
-		e.Use(middleware.Logger())
 		e.Use(middleware.Recover())
 	}
+
 	// ROUTES
 	a := auth.Init(c)
 	h := handlers.NewHandler(*c, d, a)

@@ -11,6 +11,7 @@ type Handler struct {
 	config  config.Config
 	formals *db.FormalStore
 	tickets *db.TicketStore
+	users   *db.UserStore
 	auth    *auth.Auth
 }
 
@@ -19,6 +20,7 @@ func NewHandler(c config.Config, d *gorm.DB, a *auth.Auth) *Handler {
 		config:  c,
 		formals: db.NewFormalStore(d),
 		tickets: db.NewTicketStore(d),
+		users:   db.NewUserStore(d),
 		auth:    a,
 	}
 }
