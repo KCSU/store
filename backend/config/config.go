@@ -8,8 +8,12 @@ import (
 )
 
 type Config struct {
-	Debug        bool
-	DbConnection string `split_words:"true"`
+	Debug            bool
+	DbConnection     string `split_words:"true"`
+	CookieSecret     string `split_words:"true"`
+	OauthClientKey   string `split_words:"true"`
+	OauthSecretKey   string `split_words:"true"`
+	OauthCallbackUrl string `split_words:"true"`
 }
 
 func Init() *Config {
