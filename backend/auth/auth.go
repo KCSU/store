@@ -34,7 +34,21 @@ type Auth struct {
 func Init(c *config.Config) *Auth {
 	// TODO: supply cookie store from middleware
 	store := sessions.NewCookieStore([]byte(c.CookieSecret))
-	provider := google.New(c.OauthClientKey, c.OauthSecretKey, c.OauthCallbackUrl)
+	store.Options = &sessions.Options{
+		Path:     "/",
+		Domain:   "",
+		MaxAge:   86400 * 30,
+		HttpOnly: true,
+		Secure:   false,
+	}
+	provider := google.New(
+		c.OauthClientKey,
+		c.OauthSecretKey,
+		c.OauthCallbackUrl,
+		"email",
+		"profile",
+		"openid",
+	)
 	// Should this be a config value?
 	provider.SetHostedDomain(hostedDomain)
 	return &Auth{
@@ -93,7 +107,7 @@ func (auth *Auth) CompleteUserAuth(c echo.Context) (goth.User, error) {
 	}
 
 	// get new token and retry fetch
-	_, err = sess.Authorize(auth, params)
+	_, err = sess.Authorize(auth.Provider, params)
 	if err != nil {
 		return goth.User{}, err
 	}

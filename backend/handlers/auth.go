@@ -7,11 +7,16 @@ import (
 )
 
 func (h *Handler) AuthCallback(c echo.Context) error {
-	return nil
+	gothUser, err := h.auth.CompleteUserAuth(c)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	// TODO: handle user in database
+	return c.JSON(http.StatusOK, gothUser)
 }
 
 func (h *Handler) AuthRedirect(c echo.Context) error {
-	url, err := h.auth.GetAuthUrl(c.Request(), c.Response())
+	url, err := h.auth.GetAuthUrl(c)
 	if err != nil {
 		return echo.ErrBadRequest
 	}
