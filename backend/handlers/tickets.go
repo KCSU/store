@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/kcsu/store/auth"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
@@ -17,8 +18,9 @@ import (
 
 // Get a list of the user's tickets, grouped by formal
 func (h *Handler) GetTickets(c echo.Context) error {
+	userId := auth.GetUserId(c)
 	// Load tickets from the database
-	tickets, err := h.tickets.Get()
+	tickets, err := h.tickets.Get(userId)
 	if err != nil {
 		return err
 	}
@@ -56,6 +58,7 @@ func (h *Handler) GetTickets(c echo.Context) error {
 
 // Buy tickets for a formal, potentially with guest tickets
 func (h *Handler) BuyTicket(c echo.Context) error {
+	userId := auth.GetUserId(c)
 	// Bind request data
 	t := new(dto.BuyTicketDto)
 	if err := c.Bind(t); err != nil {
@@ -78,7 +81,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 
 	// Check that ticket does not already exist
 	// TODO: users
-	ticketExists, err := h.tickets.ExistsByFormal(int(t.FormalId))
+	ticketExists, err := h.tickets.ExistsByFormal(int(t.FormalId), userId)
 	if err != nil {
 		return err
 	}
@@ -112,13 +115,14 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 }
 
 func (h *Handler) CancelTickets(c echo.Context) error {
+	userId := auth.GetUserId(c)
 	id := c.Param("id")
 	formalID, err := strconv.Atoi(id)
 	if err != nil {
 		// TODO: NewHTTPError?
 		return echo.ErrNotFound
 	}
-	if err := h.tickets.DeleteByFormal(formalID); err != nil {
+	if err := h.tickets.DeleteByFormal(formalID, userId); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
 		}
@@ -170,6 +174,7 @@ func (h *Handler) EditTicket(c echo.Context) error {
 
 // TODO: reduce DB calls
 func (h *Handler) AddTicket(c echo.Context) error {
+	userId := auth.GetUserId(c)
 	// Parse request data
 	id := c.Param("id")
 	formalID, err := strconv.Atoi(id)
@@ -183,7 +188,7 @@ func (h *Handler) AddTicket(c echo.Context) error {
 	}
 
 	// Make sure the user already has a ticket to this formal
-	exists, err := h.tickets.ExistsByFormal(formalID)
+	exists, err := h.tickets.ExistsByFormal(formalID, userId)
 	if err != nil {
 		return err
 	}
@@ -192,7 +197,7 @@ func (h *Handler) AddTicket(c echo.Context) error {
 	}
 
 	// Make sure the user doesn't have too many guest tickets already
-	count, err := h.tickets.CountGuestByFormal(formalID)
+	count, err := h.tickets.CountGuestByFormal(formalID, userId)
 	if err != nil {
 		return err
 	}

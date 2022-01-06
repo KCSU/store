@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/kcsu/store/auth"
@@ -28,10 +29,11 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	}
 	// Create JWT for login
 	claims := &auth.JwtClaims{
-		user.Name,
-		user.Email,
-		jwt.StandardClaims{
-			Subject: strconv.Itoa(int(user.ID)),
+		Name:  user.Name,
+		Email: user.Email,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+			Subject:   strconv.Itoa(int(user.ID)),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

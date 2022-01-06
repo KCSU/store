@@ -18,9 +18,9 @@ func NewTicketStore(db *gorm.DB) *TicketStore {
 	}
 }
 
-func (t *TicketStore) Get() ([]model.Ticket, error) {
+func (t *TicketStore) Get(userId int) ([]model.Ticket, error) {
 	var tickets []model.Ticket
-	err := t.db.Preload("Formal").Find(&tickets).Error
+	err := t.db.Preload("Formal").Where("user_id = ?", userId).Find(&tickets).Error
 	return tickets, err
 }
 
@@ -43,20 +43,20 @@ func (t *TicketStore) Create(ticket *model.Ticket) error {
 	return t.db.Create(ticket).Error
 }
 
-func (t *TicketStore) CountGuestByFormal(formalID int) (int64, error) {
+func (t *TicketStore) CountGuestByFormal(formalID int, userID int) (int64, error) {
 	var count int64
-	err := t.db.Model(&model.Ticket{}).Where("is_guest").Where("formal_id = ?", formalID).Count(&count).Error
+	err := t.db.Model(&model.Ticket{}).Where("is_guest").Where("formal_id = ? AND user_id = ?", formalID, userID).Count(&count).Error
 	return count, err
 }
 
-func (t *TicketStore) ExistsByFormal(formalID int) (bool, error) {
+func (t *TicketStore) ExistsByFormal(formalID int, userID int) (bool, error) {
 	var count int64
-	err := t.db.Model(&model.Ticket{}).Not("is_guest").Where("formal_id = ?", formalID).Count(&count).Error
+	err := t.db.Model(&model.Ticket{}).Not("is_guest").Where("formal_id = ? AND user_id = ?", formalID, userID).Count(&count).Error
 	return count > 0, err
 }
 
-func (t *TicketStore) DeleteByFormal(formalID int) error {
-	return t.db.Where("formal_id = ?", formalID).Delete(&model.Ticket{}).Error
+func (t *TicketStore) DeleteByFormal(formalID int, userID int) error {
+	return t.db.Where("formal_id = ? AND user_id = ?", formalID, userID).Delete(&model.Ticket{}).Error
 }
 
 func (t *TicketStore) Delete(id int) error {

@@ -7,8 +7,9 @@ import (
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/handlers"
+	"github.com/kcsu/store/middleware"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	em "github.com/labstack/echo/v4/middleware"
 )
 
 func Init() *echo.Echo {
@@ -19,16 +20,16 @@ func Init() *echo.Echo {
 	}
 
 	e := echo.New()
-	e.Use(middleware.Logger())
+	e.Use(em.Logger())
 
 	// TODO: config for e.Debug()
 	// Middleware
 	if c.Debug {
 		e.Debug = true
 		// CORS for testing localhost on different ports
-		e.Use(middleware.CORS())
+		e.Use(em.CORS())
 	} else {
-		e.Use(middleware.Recover())
+		e.Use(em.Recover())
 	}
 
 	// ROUTES
@@ -36,20 +37,24 @@ func Init() *echo.Echo {
 	h := handlers.NewHandler(*c, d, a)
 	e.GET("/", h.GetHello)
 
-	// Formals
-	e.GET("/formals", h.GetFormals)
-	e.POST("/formals/:id/tickets", h.AddTicket)
-	e.DELETE("/formals/:id/tickets", h.CancelTickets)
-
-	// Tickets
-	e.GET("/tickets", h.GetTickets)
-	e.POST("/tickets", h.BuyTicket)
-	e.DELETE("/tickets/:id", h.CancelTicket)
-	e.PUT("/tickets/:id", h.EditTicket)
-
 	// Auth
 	e.GET("/auth/redirect", h.AuthRedirect)
 	e.GET("/auth/callback", h.AuthCallback)
+
+	requireAuth := middleware.JWTAuth(c)
+
+	formals := e.Group("/formals", requireAuth)
+	// Formals
+	formals.GET("", h.GetFormals)
+	formals.POST("/:id/tickets", h.AddTicket)
+	formals.DELETE("/:id/tickets", h.CancelTickets)
+
+	tickets := e.Group("/tickets", requireAuth)
+	// Tickets
+	tickets.GET("", h.GetTickets)
+	tickets.POST("", h.BuyTicket)
+	tickets.DELETE("/:id", h.CancelTicket)
+	tickets.PUT("/:id", h.EditTicket)
 
 	return e
 }
