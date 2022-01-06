@@ -12,7 +12,7 @@ func (h *Handler) GetFormals(c echo.Context) error {
 	// TODO: filter by time
 	formals, err := h.formals.Get()
 	if err != nil {
-		return echo.ErrInternalServerError
+		return err
 	}
 	formalData := make([]dto.FormalDto, len(formals))
 	for i, f := range formals {

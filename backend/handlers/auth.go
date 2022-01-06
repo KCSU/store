@@ -19,12 +19,12 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	if err != nil {
 		exists, exerr := h.users.Exists(gothUser.Email)
 		if exerr != nil {
-			return echo.ErrInternalServerError
+			return exerr
 		}
 		if exists {
 			return echo.NewHTTPError(http.StatusConflict, "email is taken")
 		}
-		return echo.ErrInternalServerError
+		return err
 	}
 	// Create JWT for login
 	claims := &auth.JwtClaims{
