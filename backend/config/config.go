@@ -7,10 +7,12 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+// TODO: split into separate configs?
 type Config struct {
 	Debug            bool
 	DbConnection     string `split_words:"true"`
 	CookieSecret     string `split_words:"true"`
+	JwtSecret        string `split_words:"true"`
 	OauthClientKey   string `split_words:"true"`
 	OauthSecretKey   string `split_words:"true"`
 	OauthCallbackUrl string `split_words:"true"`
