@@ -7,20 +7,26 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Custom claims for user JWT
 type JwtClaims struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	jwt.StandardClaims
 	// TODO: admin stuff
-	// id? or is that iss/aud or something
 }
 
+// Load claims from the current context
+//
+// Requires authentication middleware
 func GetClaims(c echo.Context) *JwtClaims {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*JwtClaims)
 	return claims
 }
 
+// Load the user's id from the current context
+//
+// Requires authentication middleware
 func GetUserId(c echo.Context) int {
 	claims := GetClaims(c)
 	id, err := strconv.Atoi(claims.Subject)

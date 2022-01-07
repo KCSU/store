@@ -7,6 +7,8 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+// Configuration data for the app
+//
 // TODO: split into separate configs?
 type Config struct {
 	Debug            bool
@@ -18,6 +20,8 @@ type Config struct {
 	OauthCallbackUrl string `split_words:"true"`
 }
 
+// Load configuration from environment variables or
+// a .env file
 func Init() *Config {
 	godotenv.Load() // Handle err?
 	c := &Config{}

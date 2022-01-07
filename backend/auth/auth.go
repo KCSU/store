@@ -26,11 +26,13 @@ const (
 	hostedDomain = "cam.ac.uk"
 )
 
+// Helper struct for authentication
 type Auth struct {
 	goth.Provider
 	Store sessions.Store
 }
 
+// Initialise auth helper from config
 func Init(c *config.Config) *Auth {
 	// TODO: supply cookie store from middleware
 	store := sessions.NewCookieStore([]byte(c.CookieSecret))
@@ -41,6 +43,8 @@ func Init(c *config.Config) *Auth {
 		HttpOnly: true,
 		Secure:   false,
 	}
+
+	// Create the google OAuth2 provider
 	provider := google.New(
 		c.OauthClientKey,
 		c.OauthSecretKey,
@@ -49,6 +53,7 @@ func Init(c *config.Config) *Auth {
 		"profile",
 		"openid",
 	)
+
 	// Should this be a config value?
 	provider.SetHostedDomain(hostedDomain)
 	return &Auth{
@@ -57,18 +62,25 @@ func Init(c *config.Config) *Auth {
 	}
 }
 
+// Generate the OAuth2 redirect URL for the Authorization Code Flow.
+//
+// See https://developers.google.com/identity/protocols/oauth2/web-server
 func (auth *Auth) GetAuthUrl(c echo.Context) (string, error) {
+	// Generate a random state string and add it to a new session
 	state := auth.GenerateState()
 	sess, err := auth.BeginAuth(state)
 	if err != nil {
 		return "", err
 	}
+
+	// Get the auth URL from the goth session
 	url, err := sess.GetAuthURL()
 	if err != nil {
 		return "", err
 	}
-	err = auth.StoreInSession(providerName, sess.Marshal(), c)
 
+	// Save the session in a secure cookie
+	err = auth.StoreInSession(providerName, sess.Marshal(), c)
 	if err != nil {
 		return "", err
 	}
@@ -76,28 +88,35 @@ func (auth *Auth) GetAuthUrl(c echo.Context) (string, error) {
 	return url, err
 }
 
+// Complete user authentication in the Oauth2 callback route
+//
+// See https://developers.google.com/identity/protocols/oauth2/web-server
 func (auth *Auth) CompleteUserAuth(c echo.Context) (goth.User, error) {
+	// Retrieve and unmarshal the session data from the cookie
 	value, err := auth.GetFromSession(providerName, c.Request())
 	if err != nil {
 		return goth.User{}, err
 	}
-	// TODO: defer Logout(res, req)
+	// TODO: defer Logout(res, req)?
 	sess, err := auth.UnmarshalSession(value)
 	if err != nil {
 		return goth.User{}, err
 	}
 
+	// Ensure that the state value is correct (protects against XSRF)
 	err = validateState(c, sess)
 	if err != nil {
 		return goth.User{}, err
 	}
 
+	// Check if session is already logged in
 	user, err := auth.FetchUser(sess)
 	if err == nil {
 		// user can be found with existing session data
 		return user, err
 	}
 
+	// Get the auth params from query or form
 	params := c.QueryParams()
 	if params.Encode() == "" && c.Request().Method == http.MethodPost {
 		params, err = c.FormParams()
@@ -112,12 +131,14 @@ func (auth *Auth) CompleteUserAuth(c echo.Context) (goth.User, error) {
 		return goth.User{}, err
 	}
 
+	// Save the session back to cookie
 	err = auth.StoreInSession(providerName, sess.Marshal(), c)
 
 	if err != nil {
 		return goth.User{}, err
 	}
 
+	// Fetch the google user data
 	gu, err := auth.FetchUser(sess)
 
 	// verify hd and email claims
@@ -168,6 +189,7 @@ func (auth *Auth) GenerateState() string {
 	return base64.URLEncoding.EncodeToString(nonceBytes)
 }
 
+// Get the state parameter from query or form data
 func GetState(c echo.Context) string {
 	params := c.QueryParams()
 	if params.Encode() == "" && c.Request().Method == http.MethodPost {
@@ -176,6 +198,7 @@ func GetState(c echo.Context) string {
 	return params.Get("state")
 }
 
+// Load data from the session store
 func (auth *Auth) GetFromSession(key string, req *http.Request) (string, error) {
 	session, _ := auth.Store.Get(req, sessionName)
 	value, err := getSessionValue(session, key)
@@ -186,6 +209,7 @@ func (auth *Auth) GetFromSession(key string, req *http.Request) (string, error) 
 	return value, nil
 }
 
+// Save data to the session store
 func (auth *Auth) StoreInSession(key string, value string, c echo.Context) error {
 	session, _ := auth.Store.New(c.Request(), sessionName)
 
@@ -196,6 +220,7 @@ func (auth *Auth) StoreInSession(key string, value string, c echo.Context) error
 	return session.Save(c.Request(), c.Response())
 }
 
+// Read a gzipped value from the session for a specified key
 func getSessionValue(session *sessions.Session, key string) (string, error) {
 	value := session.Values[key]
 	if value == nil {
@@ -215,6 +240,7 @@ func getSessionValue(session *sessions.Session, key string) (string, error) {
 	return string(s), nil
 }
 
+// Update a gzipped value in the session for a specified key
 func updateSessionValue(session *sessions.Session, key, value string) error {
 	var b bytes.Buffer
 	gz := gzip.NewWriter(&b)
