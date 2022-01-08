@@ -157,7 +157,7 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 	}
 	// Check the ticket really belongs to the logged-in user
 	if ticket.UserId != userId {
-		return echo.ErrUnauthorized
+		return echo.ErrForbidden
 	}
 	// The ticket must be a guest ticket
 	if !ticket.IsGuest {
@@ -188,7 +188,7 @@ func (h *Handler) EditTicket(c echo.Context) error {
 	}
 	// Check the ticket really belongs to the logged-in user
 	if ticket.UserId != userId {
-		return echo.ErrUnauthorized
+		return echo.ErrForbidden
 	}
 	// Update the ticket based on request data
 	t := new(dto.TicketRequestDto)

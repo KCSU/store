@@ -8,6 +8,7 @@ import (
 	"github.com/kcsu/store/model"
 )
 
+// Migrate the database model
 func main() {
 	c := config.Init()
 	d, err := db.Init(c)

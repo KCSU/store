@@ -7,10 +7,12 @@ import (
 	em "github.com/labstack/echo/v4/middleware"
 )
 
+// Generate the error in the event of unauthenticated user
 func jwtErrorHandler(e error) error {
 	return echo.ErrUnauthorized
 }
 
+// Ensure a valid JWT is present in the Authorization header
 func JWTAuth(c *config.Config) echo.MiddlewareFunc {
 	jwtConfig := em.JWTConfig{
 		Claims:       &auth.JwtClaims{},
