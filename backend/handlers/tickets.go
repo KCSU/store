@@ -96,6 +96,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		IsGuest:    false,
 		IsQueue:    true,
 		MealOption: t.Ticket.MealOption,
+		UserId:     userId,
 	}
 	for i, gt := range t.GuestTickets {
 		tickets[i+1] = model.Ticket{
@@ -103,6 +104,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 			IsGuest:    true,
 			IsQueue:    true,
 			MealOption: gt.MealOption,
+			UserId:     userId,
 		}
 	}
 	// Insert into DB
@@ -114,14 +116,19 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
+// Cancel the user's tickets for a given formal
 func (h *Handler) CancelTickets(c echo.Context) error {
 	userId := auth.GetUserId(c)
+
+	// Get the formal ID from query
 	id := c.Param("id")
 	formalID, err := strconv.Atoi(id)
 	if err != nil {
 		// TODO: NewHTTPError?
 		return echo.ErrNotFound
 	}
+
+	// [Soft-]delete ticket from the database
 	if err := h.tickets.DeleteByFormal(formalID, userId); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
@@ -131,13 +138,16 @@ func (h *Handler) CancelTickets(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Cancel a specified ticket
 func (h *Handler) CancelTicket(c echo.Context) error {
+	userId := auth.GetUserId(c)
 	id := c.Param("id")
 	ticketID, err := strconv.Atoi(id)
 	if err != nil {
 		// Should this be a different error?
 		return echo.ErrNotFound
 	}
+	// Fetch ticket from the database
 	ticket, err := h.tickets.Find(ticketID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -145,22 +155,42 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 		}
 		return err
 	}
+	// Check the ticket really belongs to the logged-in user
+	if ticket.UserId != userId {
+		return echo.ErrUnauthorized
+	}
+	// The ticket must be a guest ticket
 	if !ticket.IsGuest {
 		return echo.NewHTTPError(http.StatusForbidden, "Non-guest tickets must be cancelled as a group")
 	}
-	// TODO: check user id
+	// Delete the ticket from the database
 	if err := h.tickets.Delete(ticketID); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)
 }
 
+// Update a specified ticket
 func (h *Handler) EditTicket(c echo.Context) error {
+	userId := auth.GetUserId(c)
 	id := c.Param("id")
 	ticketID, err := strconv.Atoi(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
+	// Fetch ticket from the database
+	ticket, err := h.tickets.Find(ticketID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	// Check the ticket really belongs to the logged-in user
+	if ticket.UserId != userId {
+		return echo.ErrUnauthorized
+	}
+	// Update the ticket based on request data
 	t := new(dto.TicketRequestDto)
 	if err := c.Bind(t); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -172,6 +202,8 @@ func (h *Handler) EditTicket(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Add a guest ticket to the user's tickets for a specified formal
+//
 // TODO: reduce DB calls
 func (h *Handler) AddTicket(c echo.Context) error {
 	userId := auth.GetUserId(c)
@@ -218,6 +250,7 @@ func (h *Handler) AddTicket(c echo.Context) error {
 		IsGuest:    true,
 		IsQueue:    true,
 		MealOption: t.MealOption,
+		UserId:     userId,
 	}
 	if err := h.tickets.Create(&ticket); err != nil {
 		return err

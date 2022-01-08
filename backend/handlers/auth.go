@@ -10,14 +10,18 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// OAuth2 callback route handler
 func (h *Handler) AuthCallback(c echo.Context) error {
+	// Fetch the OAuth2 user data
 	gothUser, err := h.auth.CompleteUserAuth(c)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	// Create or fetch the user in the database
 	user, err := h.users.FindOrCreate(gothUser)
 	if err != nil {
+		// Ensure there is no email address conflict
 		exists, exerr := h.users.Exists(gothUser.Email)
 		if exerr != nil {
 			return exerr
@@ -27,6 +31,7 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 		}
 		return err
 	}
+
 	// Create JWT for login
 	claims := &auth.JwtClaims{
 		Name:  user.Name,
@@ -48,11 +53,12 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	})
 }
 
+// Redirect to the (google) OAuth2 provider
 func (h *Handler) AuthRedirect(c echo.Context) error {
 	url, err := h.auth.GetAuthUrl(c)
 	if err != nil {
 		return echo.ErrBadRequest
 	}
-	// gothic.BeginAuthHandler(c.Response().Writer, c.Request())
+
 	return c.Redirect(http.StatusTemporaryRedirect, url)
 }

@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Helper struct containing useful data and methods for handlers to use
 type Handler struct {
 	config  config.Config
 	formals *db.FormalStore
@@ -15,6 +16,7 @@ type Handler struct {
 	auth    *auth.Auth
 }
 
+// Initialise the handler helper
 func NewHandler(c config.Config, d *gorm.DB, a *auth.Auth) *Handler {
 	return &Handler{
 		config:  c,

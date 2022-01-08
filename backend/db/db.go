@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Connect to the database
 func Init(c *config.Config) (db *gorm.DB, err error) {
 	dsn := c.DbConnection
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{

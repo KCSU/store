@@ -7,16 +7,19 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+// Helper struct for Users in the database
 type UserStore struct {
 	db *gorm.DB
 }
 
+// Initialise the user helper
 func NewUserStore(db *gorm.DB) *UserStore {
 	return &UserStore{
 		db: db,
 	}
 }
 
+// Update, retrieve or create a user from OAuth data
 func (u *UserStore) FindOrCreate(gu goth.User) (model.User, error) {
 	user := model.User{
 		Name:           gu.Name,
@@ -32,6 +35,7 @@ func (u *UserStore) FindOrCreate(gu goth.User) (model.User, error) {
 	return user, err
 }
 
+// Check if a user with the specified email exists
 func (u *UserStore) Exists(email string) (bool, error) {
 	var count int64
 	err := u.db.Model(&model.User{}).Where("email = ?", email).Count(&count).Error
