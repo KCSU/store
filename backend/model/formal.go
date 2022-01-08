@@ -15,4 +15,5 @@ type Formal struct {
 	SaleEnd      time.Time `json:"saleEnd"`
 	DateTime     time.Time `json:"dateTime"`
 	TicketSales  []Ticket  `json:"-"`
+	Groups       []Group   `json:"groups,omitempty" gorm:"many2many:formal_groups;"`
 }

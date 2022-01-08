@@ -20,5 +20,7 @@ func main() {
 		&model.Formal{},
 		&model.Ticket{},
 		&model.User{},
+		&model.Group{},
+		&model.GroupUser{},
 	)
 }

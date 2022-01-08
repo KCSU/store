@@ -43,7 +43,7 @@ func (f *FormalStore) All() ([]model.Formal, error) {
 // Get a formal by id
 func (f *FormalStore) Find(id int) (model.Formal, error) {
 	var formal model.Formal
-	err := f.db.First(&formal, id).Error
+	err := f.db.Preload("Groups").First(&formal, id).Error
 	return formal, err
 }
 

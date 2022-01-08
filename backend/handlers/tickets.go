@@ -58,7 +58,12 @@ func (h *Handler) GetTickets(c echo.Context) error {
 
 // Buy tickets for a formal, potentially with guest tickets
 func (h *Handler) BuyTicket(c echo.Context) error {
+	// Get the logged-in user
 	userId := auth.GetUserId(c)
+	user, err := h.users.Find(userId)
+	if err != nil {
+		return echo.ErrUnauthorized
+	}
 	// Bind request data
 	t := new(dto.BuyTicketDto)
 	if err := c.Bind(t); err != nil {
@@ -75,6 +80,16 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		// Check whether error is formal existence?
 		return err
 	}
+
+	// Check that the user belongs to the requisite group
+	canBuy, err := h.canBuyTickets(&user, &formal)
+	if err != nil {
+		return err
+	}
+	if !canBuy {
+		return echo.ErrForbidden
+	}
+
 	if len(t.GuestTickets) > int(formal.GuestLimit) {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Too many guest tickets requested.")
 	}
@@ -257,4 +272,22 @@ func (h *Handler) AddTicket(c echo.Context) error {
 	}
 	// TODO: return the new model
 	return c.NoContent(http.StatusCreated)
+}
+
+// Check if the specified user can buy tickets to the specified formal
+func (h *Handler) canBuyTickets(user *model.User, formal *model.Formal) (bool, error) {
+	userGroups, err := h.users.Groups(user)
+	if err != nil {
+		return false, err
+	}
+	s := map[uint]bool{}
+	for _, g := range userGroups {
+		s[g.ID] = true
+	}
+	for _, g := range formal.Groups {
+		if _, ok := s[g.ID]; ok {
+			return true, nil
+		}
+	}
+	return false, nil
 }
