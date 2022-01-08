@@ -35,6 +35,7 @@ func (u *UserStore) FindOrCreate(gu goth.User) (model.User, error) {
 	return user, err
 }
 
+// Get a user by id
 func (u *UserStore) Find(id int) (model.User, error) {
 	var user model.User
 	err := u.db.First(&user, id).Error
@@ -48,6 +49,7 @@ func (u *UserStore) Exists(email string) (bool, error) {
 	return count > 0, err
 }
 
+// List a user's groups
 func (u *UserStore) Groups(user *model.User) ([]model.Group, error) {
 	var groups []model.Group
 	err := u.db.Joins("inner join group_users on id = group_users.group_id").Find(&groups, "group_users.user_email = ?", user.Email).Error

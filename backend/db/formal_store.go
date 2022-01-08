@@ -26,13 +26,6 @@ func (f *FormalStore) Get() ([]model.Formal, error) {
 	return data, err
 }
 
-// Retrieve all upcoming formals with all queued tickets
-func (f *FormalStore) GetWithQueue() ([]model.Formal, error) {
-	var data []model.Formal
-	err := f.db.Preload("TicketSales", "is_queue").Where("date_time > NOW()").Find(&data).Error
-	return data, err
-}
-
 // Retrieve all formals
 func (f *FormalStore) All() ([]model.Formal, error) {
 	var data []model.Formal
