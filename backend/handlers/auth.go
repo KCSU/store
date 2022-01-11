@@ -10,6 +10,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func (h *Handler) GetUser(c echo.Context) error {
+	userId := auth.GetUserId(c)
+	user, err := h.users.Find(userId)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, user)
+}
+
 // OAuth2 callback route handler
 func (h *Handler) AuthCallback(c echo.Context) error {
 	// Fetch the OAuth2 user data
@@ -48,9 +57,18 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": t,
-	})
+	cookie := new(http.Cookie)
+	cookie.Name = "_token"
+	cookie.Value = t
+	// TODO: short-lived, refresh tokens
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	// Cookie is secure in production
+	cookie.Secure = !h.config.Debug
+	cookie.Path = "/"
+	cookie.HttpOnly = true
+	c.SetCookie(cookie)
+
+	return c.JSON(http.StatusOK, user)
 }
 
 // Redirect to the (google) OAuth2 provider

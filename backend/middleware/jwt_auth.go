@@ -17,6 +17,7 @@ func JWTAuth(c *config.Config) echo.MiddlewareFunc {
 	jwtConfig := em.JWTConfig{
 		Claims:       &auth.JwtClaims{},
 		SigningKey:   []byte(c.JwtSecret),
+		TokenLookup:  "cookie:_token",
 		ErrorHandler: jwtErrorHandler,
 	}
 	return em.JWTWithConfig(jwtConfig)

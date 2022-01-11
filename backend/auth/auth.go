@@ -33,17 +33,7 @@ type Auth struct {
 }
 
 // Initialise auth helper from config
-func Init(c *config.Config) *Auth {
-	// TODO: supply cookie store from middleware
-	store := sessions.NewCookieStore([]byte(c.CookieSecret))
-	store.Options = &sessions.Options{
-		Path:     "/",
-		Domain:   "",
-		MaxAge:   86400 * 30,
-		HttpOnly: true,
-		Secure:   false,
-	}
-
+func Init(c *config.Config, store sessions.Store) *Auth {
 	// Create the google OAuth2 provider
 	provider := google.New(
 		c.OauthClientKey,

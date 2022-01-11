@@ -31,16 +31,22 @@ func Init() *echo.Echo {
 	if c.Debug {
 		e.Debug = true
 		// CORS for testing localhost on different ports
-		e.Use(em.CORS())
+		e.Use(em.CORSWithConfig(em.CORSConfig{
+			AllowCredentials: true,
+		}))
 	} else {
 		e.HideBanner = true
 		e.Use(em.Recover())
 	}
+	store := auth.InitSessionStore(c)
 
 	// ROUTE HANDLERS
 	// Create the handler object which stores useful data and methods
-	a := auth.Init(c)
+	a := auth.Init(c, store)
 	h := handlers.NewHandler(*c, d, a)
+
+	// Authentication middleware
+	requireAuth := middleware.JWTAuth(c)
 
 	// TODO: remove
 	e.GET("/", h.GetHello)
@@ -48,9 +54,7 @@ func Init() *echo.Echo {
 	// Auth Routes
 	e.GET("/auth/redirect", h.AuthRedirect)
 	e.GET("/auth/callback", h.AuthCallback)
-
-	// Authentication middleware
-	requireAuth := middleware.JWTAuth(c)
+	e.GET("/auth/user", h.GetUser, requireAuth)
 
 	formals := e.Group("/formals", requireAuth)
 	// Formal routes
