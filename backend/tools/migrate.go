@@ -13,7 +13,7 @@ func main() {
 	c := config.Init()
 	d, err := db.Init(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	// TODO: manual migration
 	d.AutoMigrate(

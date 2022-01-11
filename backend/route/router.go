@@ -20,7 +20,7 @@ func Init() *echo.Echo {
 	// Initialise database connection
 	d, err := db.Init(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 
 	// Create the router

@@ -63,14 +63,14 @@ func main() {
 	c := config.Init()
 	d, err := db.Init(c)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	f := db.NewFormalStore(d)
 	// Query formals
 	formals, err := f.Get()
 
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	for _, formal := range formals {
 		ticketsRemaining := f.TicketsRemaining(&formal, false)
@@ -78,28 +78,28 @@ func main() {
 		// Get all queued tickets
 		tickets, err := getNonGuestQueue(&formal, d)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 
 		successes := getSuccesses(tickets, int(ticketsRemaining))
 		if err := updateSuccesses(successes, d); err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 
 		// Get a list of users with King's tickets
 		successfulUsers, err := getSuccessfulUserIDs(&formal, d)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 
 		guestTickets, err := getGuestQueueByUsers(&formal, successfulUsers, d)
 		if err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 
 		guestSuccesses := getSuccesses(guestTickets, int(guestTicketsRemaining))
 		if err := updateSuccesses(guestSuccesses, d); err != nil {
-			log.Fatal(err)
+			log.Panic(err)
 		}
 	}
 }

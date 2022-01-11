@@ -18,6 +18,7 @@ type Config struct {
 	OauthClientKey   string `split_words:"true"`
 	OauthSecretKey   string `split_words:"true"`
 	OauthCallbackUrl string `split_words:"true"`
+	LookupApiUrl     string `split_words:"true"`
 }
 
 // Load configuration from environment variables or
@@ -26,7 +27,7 @@ func Init() *Config {
 	godotenv.Load() // Handle err?
 	c := &Config{}
 	if err := envconfig.Process("APP", c); err != nil {
-		log.Fatal(err) // TODO: use JSON log?
+		log.Panic(err) // TODO: use JSON log?
 	}
 	return c
 }
