@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,8 +13,11 @@ import (
 
 const hostedDomain = "cam.ac.uk"
 
+type IdTokenValidator func(context.Context, string, string) (*idtoken.Payload, error)
+
 type Auth struct {
-	clientId string
+	clientId       string
+	TokenValidator IdTokenValidator
 }
 
 type OauthUser struct {
@@ -24,7 +28,8 @@ type OauthUser struct {
 
 func Init(c *config.Config) *Auth {
 	return &Auth{
-		clientId: c.OauthClientKey,
+		clientId:       c.OauthClientKey,
+		TokenValidator: idtoken.Validate,
 	}
 }
 
@@ -43,8 +48,8 @@ func (auth *Auth) VerifyGoogleCsrfToken(c echo.Context) error {
 	return nil
 }
 
-func (auth *Auth) VerifyIdToken(token string, c echo.Context) (*OauthUser, error) {
-	id, err := idtoken.Validate(c.Request().Context(), token, auth.clientId)
+func (auth *Auth) VerifyIdToken(token string, c context.Context) (*OauthUser, error) {
+	id, err := auth.TokenValidator(c, token, auth.clientId)
 	if err != nil {
 		return nil, err
 	}

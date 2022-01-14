@@ -27,7 +27,7 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 		return err
 	}
 
-	authUser, err := h.auth.VerifyIdToken(c.FormValue("credential"), c)
+	authUser, err := h.auth.VerifyIdToken(c.FormValue("credential"), c.Request().Context())
 	if err != nil {
 		return err
 	}
