@@ -38,11 +38,10 @@ func Init() *echo.Echo {
 		e.HideBanner = true
 		e.Use(em.Recover())
 	}
-	store := auth.InitSessionStore(c)
 
 	// ROUTE HANDLERS
 	// Create the handler object which stores useful data and methods
-	a := auth.Init(c, store)
+	a := auth.Init(c)
 	h := handlers.NewHandler(*c, d, a)
 
 	// Authentication middleware
@@ -52,7 +51,6 @@ func Init() *echo.Echo {
 	e.GET("/", h.GetHello)
 
 	// Auth Routes
-	e.GET("/auth/redirect", h.AuthRedirect)
 	e.GET("/auth/callback", h.AuthCallback)
 	e.GET("/auth/user", h.GetUser, requireAuth)
 

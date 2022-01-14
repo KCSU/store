@@ -22,16 +22,21 @@ func (h *Handler) GetUser(c echo.Context) error {
 // OAuth2 callback route handler
 func (h *Handler) AuthCallback(c echo.Context) error {
 	// Fetch the OAuth2 user data
-	gothUser, err := h.auth.CompleteUserAuth(c)
+	err := h.auth.VerifyGoogleCsrfToken(c)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return err
+	}
+
+	authUser, err := h.auth.VerifyIdToken(c.FormValue("credential"), c)
+	if err != nil {
+		return err
 	}
 
 	// Create or fetch the user in the database
-	user, err := h.users.FindOrCreate(gothUser)
+	user, err := h.users.FindOrCreate(authUser)
 	if err != nil {
 		// Ensure there is no email address conflict
-		exists, exerr := h.users.Exists(gothUser.Email)
+		exists, exerr := h.users.Exists(authUser.Email)
 		if exerr != nil {
 			return exerr
 		}
@@ -69,14 +74,4 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	c.SetCookie(cookie)
 
 	return c.JSON(http.StatusOK, user)
-}
-
-// Redirect to the (google) OAuth2 provider
-func (h *Handler) AuthRedirect(c echo.Context) error {
-	url, err := h.auth.GetAuthUrl(c)
-	if err != nil {
-		return echo.ErrBadRequest
-	}
-
-	return c.Redirect(http.StatusTemporaryRedirect, url)
 }
