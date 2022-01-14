@@ -19,6 +19,7 @@ import { useBuyTicket } from "../hooks/useBuyTicket";
 import { useDateTime } from "../hooks/useDateTime";
 import { useFormals } from "../hooks/useFormals";
 import { useQueueRequest } from "../hooks/useQueueRequest";
+import { Formal } from "../model/Formal";
 
 interface TicketStatsProps {
   prefix?: string;
@@ -27,7 +28,7 @@ interface TicketStatsProps {
   ticketsRemaining: number;
 }
 
-export const TicketStats: React.FC<TicketStatsProps> = (props) => {
+const TicketStats: React.FC<TicketStatsProps> = (props) => {
   return (
     <WrapItem
       display="block"
@@ -53,30 +54,18 @@ export const TicketStats: React.FC<TicketStatsProps> = (props) => {
   );
 };
 
-// TODO: Date and time!
-export function FormalInfo() {
-  // Get the formal
-  const { formalId } = useParams();
-  const formalIdNum = parseInt(formalId ?? "0");
-  const { data: formals, isLoading, isError } = useFormals();
-  const formal = formals?.find((f) => f.id === formalIdNum);
+interface FormalInfoViewProps {
+  formal: Formal;
+}
 
+function FormalInfoView({formal}: FormalInfoViewProps) {
   // Formal Data
-  const datetime = useDateTime(formal?.dateTime ?? new Date());
-  const prefix = (formal?.guestLimit ?? 0) > 0 ? "King's " : "";
+  const datetime = useDateTime(formal.dateTime);
+  const prefix = formal.guestLimit > 0 ? "King's " : "";
   const mutation = useBuyTicket();
   const navigate = useNavigate();
   // State management
-  const [queueRequest, dispatchQR] = useQueueRequest(formalIdNum);
-
-  if (isLoading) {
-    // TODO: return something better!
-    return <Box></Box>;
-  }
-  if (isError || !formal) {
-    // TODO: return an error!
-    return <Navigate to="/" />;
-  }
+  const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
 
   return (
     // TODO: guest list, responsive meal option
@@ -162,4 +151,26 @@ export function FormalInfo() {
       </Card>
     </Container>
   );
+}
+
+// TODO: Date and time!
+export function FormalInfo() {
+  // Get the formal
+  const { formalId } = useParams();
+  const formalIdNum = parseInt(formalId ?? "0");
+  const { data: formals, isLoading, isError } = useFormals();
+  const formal = formals?.find((f) => f.id === formalIdNum);
+  if (isError) {
+    // TODO: return an error!
+    return <Navigate to="/" />;
+  }
+  if (isLoading && !formal) {
+    // TODO: return something better!
+    return <Box></Box>;
+  }
+  if (!formal) {
+    // Hmmm...
+    return <Box></Box>
+  }
+  return <FormalInfoView formal={formal} />;
 }

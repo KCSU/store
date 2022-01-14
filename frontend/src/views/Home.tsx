@@ -1,4 +1,5 @@
 import {
+  Box,
   Heading,
   SimpleGrid,
   SimpleGridProps,
@@ -18,7 +19,30 @@ const MotionCard = generateMotion<CardProps, "div">(Card);
 const MotionOverview = motion<FormalProps>(FormalOverview);
 const MotionSimpleGrid = motion<SimpleGridProps>(SimpleGrid);
 
-export function Home() {
+function LoadingState() {
+  return (
+    <SimpleGrid
+      key="loadingGrid"
+      templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
+      spacing="40px"
+    >
+      <MotionCard
+        exit={{ scale: 0.5, opacity: 0 }}
+        transition={{ duration: 0.25 }}
+      >
+        <SkeletonCircle size="10" />
+        <SkeletonText mt="4" noOfLines={4} spacing="4" />
+      </MotionCard>
+    </SimpleGrid>
+  );
+}
+
+function ErrorState() {
+  // TODO: implement this
+  return <Box></Box>
+}
+
+function HomeContent() {
   const { data: formals, isLoading, isError } = useFormals();
   const gridVariant = {
     hidden: {},
@@ -38,45 +62,42 @@ export function Home() {
       y: 0,
     },
   };
+  if (isError) {
+    return <ErrorState />;
+  }
+  if (isLoading && !formals) {
+    return <LoadingState />;
+  }
+  return (
+    <MotionSimpleGrid
+      key="loadedGrid"
+      variants={gridVariant}
+      initial="hidden"
+      animate="show"
+      templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
+      spacing="40px"
+    >
+      {formals?.map((f, i) => (
+        <MotionOverview
+          // TODO: use actual DB ID as key
+          key={`formal.${i}`}
+          variants={itemVariant}
+          formal={f}
+        />
+      ))}
+    </MotionSimpleGrid>
+  );
+}
+
+
+export function Home() {
   return (
     <>
       <Heading size="xl" mb={5}>
         Upcoming Formals
       </Heading>
       <AnimatePresence exitBeforeEnter initial={false}>
-        {isLoading ? (
-          <SimpleGrid
-            key="loadingGrid"
-            templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
-            spacing="40px"
-          >
-            <MotionCard
-              exit={{ scale: 0.5, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <SkeletonCircle size="10" />
-              <SkeletonText mt="4" noOfLines={4} spacing="4" />
-            </MotionCard>
-          </SimpleGrid>
-        ) : (
-          <MotionSimpleGrid
-            key="loadedGrid"
-            variants={gridVariant}
-            initial="hidden"
-            animate="show"
-            templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
-            spacing="40px"
-          >
-            {formals?.map((f, i) => (
-              <MotionOverview
-                // TODO: use actual DB ID as key
-                key={`formal.${i}`}
-                variants={itemVariant}
-                formal={f}
-              />
-            ))}
-          </MotionSimpleGrid>
-        )}
+        <HomeContent />
       </AnimatePresence>
     </>
   );
