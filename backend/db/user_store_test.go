@@ -20,7 +20,7 @@ type UserSuite struct {
 	db   *gorm.DB
 	mock sqlmock.Sqlmock
 
-	store *UserStore
+	store UserStore
 }
 
 func (s *UserSuite) SetupSuite() {

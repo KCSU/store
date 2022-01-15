@@ -10,9 +10,9 @@ import (
 // Helper struct containing useful data and methods for handlers to use
 type Handler struct {
 	config  config.Config
-	formals *db.FormalStore
-	tickets *db.TicketStore
-	users   *db.UserStore
+	formals db.FormalStore
+	tickets db.TicketStore
+	users   db.UserStore
 	auth    *auth.Auth
 }
 

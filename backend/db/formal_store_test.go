@@ -21,7 +21,7 @@ type FormalSuite struct {
 	db   *gorm.DB
 	mock sqlmock.Sqlmock
 
-	store *FormalStore
+	store FormalStore
 }
 
 func (s *FormalSuite) SetupSuite() {

@@ -20,7 +20,7 @@ type TicketSuite struct {
 	db   *gorm.DB
 	mock sqlmock.Sqlmock
 
-	store *TicketStore
+	store TicketStore
 }
 
 func (s *TicketSuite) SetupSuite() {

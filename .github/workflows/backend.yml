@@ -3,9 +3,10 @@ name: Backend
 on:
   push:
     branches: [ main ]
+    paths:
+      - backend/**
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
     steps:
