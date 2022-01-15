@@ -10,7 +10,7 @@ import (
 // Handler to fetch a list of upcoming formals
 func (h *Handler) GetFormals(c echo.Context) error {
 	// TODO: handle errors
-	formals, err := h.formals.Get()
+	formals, err := h.Formals.Get()
 	if err != nil {
 		return err
 	}
@@ -18,8 +18,8 @@ func (h *Handler) GetFormals(c echo.Context) error {
 	formalData := make([]dto.FormalDto, len(formals))
 	for i, f := range formals {
 		formalData[i].Formal = f
-		formalData[i].TicketsRemaining = h.formals.TicketsRemaining(&f, false)
-		formalData[i].GuestTicketsRemaining = h.formals.TicketsRemaining(&f, true)
+		formalData[i].TicketsRemaining = h.Formals.TicketsRemaining(&f, false)
+		formalData[i].GuestTicketsRemaining = h.Formals.TicketsRemaining(&f, true)
 	}
 	return c.JSON(http.StatusOK, &formalData)
 }

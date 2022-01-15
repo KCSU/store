@@ -20,7 +20,7 @@ import (
 func (h *Handler) GetTickets(c echo.Context) error {
 	userId := auth.GetUserId(c)
 	// Load tickets from the database
-	tickets, err := h.tickets.Get(userId)
+	tickets, err := h.Tickets.Get(userId)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (h *Handler) GetTickets(c echo.Context) error {
 func (h *Handler) BuyTicket(c echo.Context) error {
 	// Get the logged-in user
 	userId := auth.GetUserId(c)
-	user, err := h.users.Find(userId)
+	user, err := h.Users.Find(userId)
 	if err != nil {
 		return echo.ErrUnauthorized
 	}
@@ -75,7 +75,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 	// }
 
 	// Check that formal permits this many tickets
-	formal, err := h.formals.Find(int(t.FormalId))
+	formal, err := h.Formals.Find(int(t.FormalId))
 	if err != nil {
 		// Check whether error is formal existence?
 		return err
@@ -96,7 +96,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 
 	// Check that ticket does not already exist
 	// TODO: users
-	ticketExists, err := h.tickets.ExistsByFormal(int(t.FormalId), userId)
+	ticketExists, err := h.Tickets.ExistsByFormal(int(t.FormalId), userId)
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		}
 	}
 	// Insert into DB
-	if err := h.tickets.BatchCreate(tickets); err != nil {
+	if err := h.Tickets.BatchCreate(tickets); err != nil {
 		return err
 	}
 	// TODO: h.db.Clauses(clause.OnConflict{DoNothing: true})
@@ -144,7 +144,7 @@ func (h *Handler) CancelTickets(c echo.Context) error {
 	}
 
 	// [Soft-]delete ticket from the database
-	if err := h.tickets.DeleteByFormal(formalID, userId); err != nil {
+	if err := h.Tickets.DeleteByFormal(formalID, userId); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
 		}
@@ -163,7 +163,7 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 	// Fetch ticket from the database
-	ticket, err := h.tickets.Find(ticketID)
+	ticket, err := h.Tickets.Find(ticketID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
@@ -179,7 +179,7 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusForbidden, "Non-guest tickets must be cancelled as a group")
 	}
 	// Delete the ticket from the database
-	if err := h.tickets.Delete(ticketID); err != nil {
+	if err := h.Tickets.Delete(ticketID); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)
@@ -194,7 +194,7 @@ func (h *Handler) EditTicket(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 	// Fetch ticket from the database
-	ticket, err := h.tickets.Find(ticketID)
+	ticket, err := h.Tickets.Find(ticketID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
@@ -210,7 +210,7 @@ func (h *Handler) EditTicket(c echo.Context) error {
 	if err := c.Bind(t); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	if err := h.tickets.Update(ticketID, t); err != nil {
+	if err := h.Tickets.Update(ticketID, t); err != nil {
 		return err
 	}
 	// TODO: return the new model
@@ -235,7 +235,7 @@ func (h *Handler) AddTicket(c echo.Context) error {
 	}
 
 	// Make sure the user already has a ticket to this formal
-	exists, err := h.tickets.ExistsByFormal(formalID, userId)
+	exists, err := h.Tickets.ExistsByFormal(formalID, userId)
 	if err != nil {
 		return err
 	}
@@ -244,11 +244,11 @@ func (h *Handler) AddTicket(c echo.Context) error {
 	}
 
 	// Make sure the user doesn't have too many guest tickets already
-	count, err := h.tickets.CountGuestByFormal(formalID, userId)
+	count, err := h.Tickets.CountGuestByFormal(formalID, userId)
 	if err != nil {
 		return err
 	}
-	formal, err := h.formals.Find(formalID)
+	formal, err := h.Formals.Find(formalID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
@@ -267,7 +267,7 @@ func (h *Handler) AddTicket(c echo.Context) error {
 		MealOption: t.MealOption,
 		UserId:     userId,
 	}
-	if err := h.tickets.Create(&ticket); err != nil {
+	if err := h.Tickets.Create(&ticket); err != nil {
 		return err
 	}
 	// TODO: return the new model
@@ -276,7 +276,7 @@ func (h *Handler) AddTicket(c echo.Context) error {
 
 // Check if the specified user can buy tickets to the specified formal
 func (h *Handler) canBuyTickets(user *model.User, formal *model.Formal) (bool, error) {
-	userGroups, err := h.users.Groups(user)
+	userGroups, err := h.Users.Groups(user)
 	if err != nil {
 		return false, err
 	}

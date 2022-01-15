@@ -12,7 +12,7 @@ import (
 
 func (h *Handler) GetUser(c echo.Context) error {
 	userId := auth.GetUserId(c)
-	user, err := h.users.Find(userId)
+	user, err := h.Users.Find(userId)
 	if err != nil {
 		return err
 	}
@@ -22,21 +22,21 @@ func (h *Handler) GetUser(c echo.Context) error {
 // OAuth2 callback route handler
 func (h *Handler) AuthCallback(c echo.Context) error {
 	// Fetch the OAuth2 user data
-	err := h.auth.VerifyGoogleCsrfToken(c)
+	err := h.Auth.VerifyGoogleCsrfToken(c)
 	if err != nil {
 		return err
 	}
 
-	authUser, err := h.auth.VerifyIdToken(c.FormValue("credential"), c.Request().Context())
+	authUser, err := h.Auth.VerifyIdToken(c.FormValue("credential"), c.Request().Context())
 	if err != nil {
 		return err
 	}
 
 	// Create or fetch the user in the database
-	user, err := h.users.FindOrCreate(authUser)
+	user, err := h.Users.FindOrCreate(authUser)
 	if err != nil {
 		// Ensure there is no email address conflict
-		exists, exerr := h.users.Exists(authUser.Email)
+		exists, exerr := h.Users.Exists(authUser.Email)
 		if exerr != nil {
 			return exerr
 		}
@@ -57,7 +57,7 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	// Generate encoded token and send it as response
-	t, err := token.SignedString([]byte(h.config.JwtSecret))
+	t, err := token.SignedString([]byte(h.Config.JwtSecret))
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	// TODO: short-lived, refresh tokens
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	// Cookie is secure in production
-	cookie.Secure = !h.config.Debug
+	cookie.Secure = !h.Config.Debug
 	cookie.Path = "/"
 	cookie.HttpOnly = true
 	c.SetCookie(cookie)
