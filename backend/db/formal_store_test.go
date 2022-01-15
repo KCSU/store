@@ -1,0 +1,109 @@
+package db_test
+
+import (
+	"database/sql"
+	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	. "github.com/kcsu/store/db"
+	"github.com/kcsu/store/model"
+	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+)
+
+type Suite struct {
+	suite.Suite
+	db   *gorm.DB
+	mock sqlmock.Sqlmock
+
+	store *FormalStore
+}
+
+func (s *Suite) SetupSuite() {
+	var (
+		db  *sql.DB
+		err error
+	)
+	db, s.mock, err = sqlmock.New()
+	require.NoError(s.T(), err)
+
+	pdb := postgres.New(postgres.Config{
+		Conn: db,
+	})
+	s.db, err = gorm.Open(pdb, &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+	require.NoError(s.T(), err)
+	s.store = NewFormalStore(s.db)
+}
+
+func (s *Suite) TestGetFormals() {
+	s.mock.ExpectQuery(`SELECT \* FROM "formals" WHERE date_time > NOW()`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id"}).AddRow(3),
+		)
+	fs, err := s.store.Get()
+	s.Require().NoError(err)
+	s.Len(fs, 1)
+	s.EqualValues(3, fs[0].ID)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *Suite) TestAllFormals() {
+	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id"}).AddRow(56),
+		)
+	fs, err := s.store.All()
+	s.Require().NoError(err)
+	s.Len(fs, 1)
+	s.EqualValues(56, fs[0].ID)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *Suite) TestFindFormal() {
+	formal := model.Formal{
+		Model: model.Model{
+			ID: 4,
+		},
+		Name:   "Test",
+		Groups: []model.Group{},
+	}
+	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name"}).
+				AddRow(formal.ID, formal.Name),
+		)
+	// Should also preload groups
+	s.mock.ExpectQuery(`SELECT \* FROM "formal_groups"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id"}),
+		)
+	f, err := s.store.Find(4)
+	s.Require().NoError(err)
+	s.Equal(formal, f)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *Suite) TestTicketsRemaining() {
+	f := model.Formal{}
+	f.ID = 42
+	f.Tickets = 23
+	mockCount := 10
+	for _, isGuest := range []bool{false, true} {
+		s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
+			WillReturnRows(
+				sqlmock.NewRows([]string{"count(*)"}).AddRow(mockCount),
+			)
+		tr := s.store.TicketsRemaining(&f, isGuest)
+		s.Equal(f.Tickets-uint(mockCount), tr)
+	}
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func TestSuite(t *testing.T) {
+	suite.Run(t, new(Suite))
+}
