@@ -14,7 +14,9 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-type Suite struct {
+// TODO: maybe use mocket for sql mocking?
+
+type FormalSuite struct {
 	suite.Suite
 	db   *gorm.DB
 	mock sqlmock.Sqlmock
@@ -22,7 +24,7 @@ type Suite struct {
 	store *FormalStore
 }
 
-func (s *Suite) SetupSuite() {
+func (s *FormalSuite) SetupSuite() {
 	var (
 		db  *sql.DB
 		err error
@@ -40,7 +42,7 @@ func (s *Suite) SetupSuite() {
 	s.store = NewFormalStore(s.db)
 }
 
-func (s *Suite) TestGetFormals() {
+func (s *FormalSuite) TestGetFormals() {
 	s.mock.ExpectQuery(`SELECT \* FROM "formals" WHERE date_time > NOW()`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id"}).AddRow(3),
@@ -52,7 +54,7 @@ func (s *Suite) TestGetFormals() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
-func (s *Suite) TestAllFormals() {
+func (s *FormalSuite) TestAllFormals() {
 	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id"}).AddRow(56),
@@ -64,7 +66,7 @@ func (s *Suite) TestAllFormals() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
-func (s *Suite) TestFindFormal() {
+func (s *FormalSuite) TestFindFormal() {
 	formal := model.Formal{
 		Model: model.Model{
 			ID: 4,
@@ -88,7 +90,7 @@ func (s *Suite) TestFindFormal() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
-func (s *Suite) TestTicketsRemaining() {
+func (s *FormalSuite) TestTicketsRemaining() {
 	f := model.Formal{}
 	f.ID = 42
 	f.Tickets = 23
@@ -104,6 +106,6 @@ func (s *Suite) TestTicketsRemaining() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
-func TestSuite(t *testing.T) {
-	suite.Run(t, new(Suite))
+func TestFormalSuite(t *testing.T) {
+	suite.Run(t, new(FormalSuite))
 }
