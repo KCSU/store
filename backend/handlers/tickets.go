@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/kcsu/store/auth"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
@@ -18,7 +17,7 @@ import (
 
 // Get a list of the user's tickets, grouped by formal
 func (h *Handler) GetTickets(c echo.Context) error {
-	userId := auth.GetUserId(c)
+	userId := h.Auth.GetUserId(c)
 	// Load tickets from the database
 	tickets, err := h.Tickets.Get(userId)
 	if err != nil {
@@ -59,7 +58,7 @@ func (h *Handler) GetTickets(c echo.Context) error {
 // Buy tickets for a formal, potentially with guest tickets
 func (h *Handler) BuyTicket(c echo.Context) error {
 	// Get the logged-in user
-	userId := auth.GetUserId(c)
+	userId := h.Auth.GetUserId(c)
 	user, err := h.Users.Find(userId)
 	if err != nil {
 		return echo.ErrUnauthorized
@@ -133,7 +132,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 
 // Cancel the user's tickets for a given formal
 func (h *Handler) CancelTickets(c echo.Context) error {
-	userId := auth.GetUserId(c)
+	userId := h.Auth.GetUserId(c)
 
 	// Get the formal ID from query
 	id := c.Param("id")
@@ -155,7 +154,7 @@ func (h *Handler) CancelTickets(c echo.Context) error {
 
 // Cancel a specified ticket
 func (h *Handler) CancelTicket(c echo.Context) error {
-	userId := auth.GetUserId(c)
+	userId := h.Auth.GetUserId(c)
 	id := c.Param("id")
 	ticketID, err := strconv.Atoi(id)
 	if err != nil {
@@ -187,7 +186,7 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 
 // Update a specified ticket
 func (h *Handler) EditTicket(c echo.Context) error {
-	userId := auth.GetUserId(c)
+	userId := h.Auth.GetUserId(c)
 	id := c.Param("id")
 	ticketID, err := strconv.Atoi(id)
 	if err != nil {
@@ -221,7 +220,7 @@ func (h *Handler) EditTicket(c echo.Context) error {
 //
 // TODO: reduce DB calls
 func (h *Handler) AddTicket(c echo.Context) error {
-	userId := auth.GetUserId(c)
+	userId := h.Auth.GetUserId(c)
 	// Parse request data
 	id := c.Param("id")
 	formalID, err := strconv.Atoi(id)

@@ -15,8 +15,14 @@ const hostedDomain = "cam.ac.uk"
 
 type IdTokenValidator func(context.Context, string, string) (*idtoken.Payload, error)
 
-type Auth struct {
-	clientId       string
+type Auth interface {
+	VerifyGoogleCsrfToken(c echo.Context) error
+	VerifyIdToken(token string, c context.Context) (*OauthUser, error)
+	GetUserId(c echo.Context) int
+}
+
+type JwtAuth struct {
+	ClientId       string
 	TokenValidator IdTokenValidator
 }
 
@@ -26,14 +32,14 @@ type OauthUser struct {
 	Email  string
 }
 
-func Init(c *config.Config) *Auth {
-	return &Auth{
-		clientId:       c.OauthClientKey,
+func Init(c *config.Config) Auth {
+	return &JwtAuth{
+		ClientId:       c.OauthClientKey,
 		TokenValidator: idtoken.Validate,
 	}
 }
 
-func (auth *Auth) VerifyGoogleCsrfToken(c echo.Context) error {
+func (auth *JwtAuth) VerifyGoogleCsrfToken(c echo.Context) error {
 	cookie, err := c.Cookie("g_csrf_token")
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "No CSRF token in Cookie")
@@ -48,8 +54,8 @@ func (auth *Auth) VerifyGoogleCsrfToken(c echo.Context) error {
 	return nil
 }
 
-func (auth *Auth) VerifyIdToken(token string, c context.Context) (*OauthUser, error) {
-	id, err := auth.TokenValidator(c, token, auth.clientId)
+func (auth *JwtAuth) VerifyIdToken(token string, c context.Context) (*OauthUser, error) {
+	id, err := auth.TokenValidator(c, token, auth.ClientId)
 	if err != nil {
 		return nil, err
 	}

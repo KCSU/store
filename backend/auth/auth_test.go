@@ -33,7 +33,7 @@ func getCsrfError(form_token string, cookie_token string) error {
 	}
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	a := auth.Auth{}
+	a := auth.JwtAuth{}
 	return a.VerifyGoogleCsrfToken(c)
 }
 
@@ -64,7 +64,7 @@ func mockTokenValidator(payload idtoken.Payload) auth.IdTokenValidator {
 }
 
 func TestVerifyHostedDomain(t *testing.T) {
-	a := auth.Auth{
+	a := auth.JwtAuth{
 		TokenValidator: mockTokenValidator(idtoken.Payload{
 			Claims: map[string]interface{}{
 				// This should fail!!
@@ -78,7 +78,7 @@ func TestVerifyHostedDomain(t *testing.T) {
 }
 
 func TestVerifyEmailSuffix(t *testing.T) {
-	a := auth.Auth{
+	a := auth.JwtAuth{
 		TokenValidator: mockTokenValidator(idtoken.Payload{
 			Claims: map[string]interface{}{
 				"hd":    "cam.ac.uk",
@@ -96,7 +96,7 @@ func TestVerifyUser(t *testing.T) {
 		UserID: "123456",
 		Name:   "James Holden",
 	}
-	a := auth.Auth{
+	a := auth.JwtAuth{
 		TokenValidator: mockTokenValidator(idtoken.Payload{
 			Subject: u.UserID,
 			Claims: map[string]interface{}{

@@ -78,6 +78,7 @@ func TestGetFormals(t *testing.T) {
 			GuestPrice: 27.2,
 		},
 	}
+	// FIXME: refactor to make it easier to add cases?
 	f.On("Get").Return(formals, nil)
 	f.On("TicketsRemaining", &formals[0], true).Return(uint(56))
 	f.On("TicketsRemaining", &formals[0], false).Return(uint(24))

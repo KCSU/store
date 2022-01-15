@@ -11,7 +11,7 @@ import (
 )
 
 func (h *Handler) GetUser(c echo.Context) error {
-	userId := auth.GetUserId(c)
+	userId := h.Auth.GetUserId(c)
 	user, err := h.Users.Find(userId)
 	if err != nil {
 		return err

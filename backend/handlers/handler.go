@@ -13,11 +13,11 @@ type Handler struct {
 	Formals db.FormalStore
 	Tickets db.TicketStore
 	Users   db.UserStore
-	Auth    *auth.Auth
+	Auth    auth.Auth
 }
 
 // Initialise the handler helper
-func NewHandler(c config.Config, d *gorm.DB, a *auth.Auth) *Handler {
+func NewHandler(c config.Config, d *gorm.DB, a auth.Auth) *Handler {
 	return &Handler{
 		Config:  c,
 		Formals: db.NewFormalStore(d),
