@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -28,7 +29,7 @@ type AuthSuite struct {
 	users *um.UserStore
 }
 
-func (a *AuthSuite) SetupSuite() {
+func (a *AuthSuite) SetupTest() {
 	a.auth = new(am.Auth)
 	a.users = new(um.UserStore)
 	a.h = &Handler{
@@ -134,7 +135,43 @@ func (a *AuthSuite) TestAuthCallback() {
 	a.users.AssertExpectations(a.T())
 }
 
-// TODO: test email conflict failure
+func (a *AuthSuite) TestEmailConflict() {
+	// HTTP
+	e := echo.New()
+	credential := "4815162342"
+	f := make(url.Values)
+	f.Set("credential", credential)
+	// FIXME: form params for CSRF?
+	req := httptest.NewRequest(
+		http.MethodPost, "/", strings.NewReader(f.Encode()),
+	)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	oauthUser := auth.OauthUser{
+		Name:   "Naomi Nagata",
+		Email:  "nng56@cam.ac.uk",
+		UserID: "175295",
+	}
+	a.auth.On("VerifyGoogleCsrfToken", c).Return(nil)
+	a.auth.On(
+		"VerifyIdToken", credential, mock.Anything,
+	).Return(&oauthUser, nil)
+	a.users.On("FindOrCreate", &oauthUser).Return(
+		model.User{}, errors.New("invalid data"),
+	)
+	a.users.On("Exists", oauthUser.Email).Return(true, nil)
+	// Test
+	err := a.h.AuthCallback(c)
+
+	var he *echo.HTTPError
+	if a.ErrorAs(err, &he) {
+		a.Equal(he.Code, http.StatusConflict)
+		a.Equal(he.Message, "email is taken")
+	}
+	a.auth.AssertExpectations(a.T())
+	a.users.AssertExpectations(a.T())
+}
 
 func TestUserSuite(t *testing.T) {
 	suite.Run(t, new(AuthSuite))

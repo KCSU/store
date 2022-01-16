@@ -39,17 +39,30 @@ func getCsrfError(form_token string, cookie_token string) error {
 
 func TestCsrfCookie(t *testing.T) {
 	err := getCsrfError("abc123", "")
-	assert.EqualError(t, err, "code=400, message=No CSRF token in Cookie")
+	// TODO: use ErrorAs
+	var he *echo.HTTPError
+	if assert.ErrorAs(t, err, &he) {
+		assert.Equal(t, he.Code, http.StatusBadRequest)
+		assert.Equal(t, he.Message, "No CSRF token in Cookie")
+	}
 }
 
 func TestCsrfForm(t *testing.T) {
 	err := getCsrfError("", "abc123")
-	assert.EqualError(t, err, "code=400, message=No CSRF token in post body")
+	var he *echo.HTTPError
+	if assert.ErrorAs(t, err, &he) {
+		assert.Equal(t, he.Code, http.StatusBadRequest)
+		assert.Equal(t, he.Message, "No CSRF token in post body")
+	}
 }
 
 func TestCsrfEqual(t *testing.T) {
 	err := getCsrfError("abc123", "def456")
-	assert.EqualError(t, err, "code=400, message=Failed to verify double submit cookie")
+	var he *echo.HTTPError
+	if assert.ErrorAs(t, err, &he) {
+		assert.Equal(t, he.Code, http.StatusBadRequest)
+		assert.Equal(t, he.Message, "Failed to verify double submit cookie")
+	}
 }
 
 func TestCsrfValid(t *testing.T) {
