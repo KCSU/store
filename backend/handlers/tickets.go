@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/kcsu/store/model"
@@ -45,13 +46,16 @@ func (h *Handler) GetTickets(c echo.Context) error {
 			}
 			dtos[t.Formal.ID] = myDto
 		}
-
 	}
 	// Convert to slice and return
 	dtoList := make([]dto.TicketDto, 0, len(dtos))
 	for _, val := range dtos {
 		dtoList = append(dtoList, val)
 	}
+	// Sort by datetime
+	sort.Slice(dtoList, func(i, j int) bool {
+		return dtoList[i].Formal.DateTime.Before(dtoList[j].Formal.DateTime)
+	})
 	return c.JSON(http.StatusOK, dtoList)
 }
 
