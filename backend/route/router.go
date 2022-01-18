@@ -51,7 +51,7 @@ func Init() *echo.Echo {
 	e.GET("/", h.GetHello)
 
 	// Auth Routes
-	e.GET("/auth/callback", h.AuthCallback)
+	e.POST("/auth/callback", h.AuthCallback)
 	e.GET("/auth/user", h.GetUser, requireAuth)
 
 	formals := e.Group("/formals", requireAuth)

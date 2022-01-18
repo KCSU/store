@@ -104,7 +104,7 @@ func (a *AuthSuite) TestAuthCallback() {
 		Email:  user.Email,
 		UserID: user.ProviderUserId,
 	}
-	a.auth.On("VerifyGoogleCsrfToken", c).Return(nil)
+	// a.auth.On("VerifyGoogleCsrfToken", c).Return(nil)
 	a.auth.On(
 		"VerifyIdToken", credential, mock.Anything,
 	).Return(&oauthUser, nil)
@@ -153,7 +153,7 @@ func (a *AuthSuite) TestEmailConflict() {
 		Email:  "nng56@cam.ac.uk",
 		UserID: "175295",
 	}
-	a.auth.On("VerifyGoogleCsrfToken", c).Return(nil)
+	// a.auth.On("VerifyGoogleCsrfToken", c).Return(nil)
 	a.auth.On(
 		"VerifyIdToken", credential, mock.Anything,
 	).Return(&oauthUser, nil)

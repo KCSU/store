@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { FaBars } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 import { Sidebar } from "./components/navigation/Sidebar";
 import { Routes } from "./Routes";
 
@@ -24,21 +25,24 @@ function App() {
   // TODO: refactoring with useCallback
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const bg = useColorModeValue("gray.50", "gray.800");
+  const hideSidebarRoutes = ["/login"];
+  const location = useLocation();
+  const showSidebar = !hideSidebarRoutes.includes(location.pathname);
 
   return (
     <Flex height="100vh" bg={bg} pl={4}>
-      <Sidebar
+      {showSidebar && <Sidebar
         variant={variants?.navigation as "drawer" | "sidebar"}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar}
-      />
+      />}
       <Box flex="1" overflowY="auto" height="100%">
       <Container
         // mb={4}
         maxW="container.xl"
         py={6}
       >
-        {variants?.navigationButton && (
+        {variants?.navigationButton && showSidebar && (
           <Flex justifyContent="space-between" alignItems="center" mb={5}>
             <Heading size="xl" as="h1">
               KiFoMaSy

@@ -9,6 +9,7 @@ import {
   Heading,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { useLocation } from "react-router-dom";
 import { SidebarContent } from "./SidebarContent";
 
 interface SidebarProps {

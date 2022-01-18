@@ -40,7 +40,7 @@ func (u *DBUserStore) FindOrCreate(au *auth.OauthUser) (model.User, error) {
 	}
 	err := u.db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "provider_user_id"}},
-		DoNothing: true,
+		DoUpdates: clause.AssignmentColumns([]string{"name"}),
 	}).Create(&user).Error
 	return user, err
 }

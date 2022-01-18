@@ -22,10 +22,10 @@ func (h *Handler) GetUser(c echo.Context) error {
 // OAuth2 callback route handler
 func (h *Handler) AuthCallback(c echo.Context) error {
 	// Fetch the OAuth2 user data
-	err := h.Auth.VerifyGoogleCsrfToken(c)
-	if err != nil {
-		return err
-	}
+	// err := h.Auth.VerifyGoogleCsrfToken(c)
+	// if err != nil {
+	// 	return err
+	// }
 
 	authUser, err := h.Auth.VerifyIdToken(c.FormValue("credential"), c.Request().Context())
 	if err != nil {

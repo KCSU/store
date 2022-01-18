@@ -2,8 +2,10 @@ import { Box, BoxProps } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Route, Routes as ReactRoutes, useLocation } from "react-router";
 import { generateMotion } from "./components/utility/generateMotion";
+import { RequireAuth } from "./components/utility/RequireAuth";
 import { FormalInfo } from "./views/FormalInfo";
 import { Home } from "./views/Home";
+import { Login } from "./views/Login";
 import { Settings } from "./views/Settings";
 import { Tickets } from "./views/Tickets";
 
@@ -33,10 +35,13 @@ export function Routes() {
         }}
       >
         <ReactRoutes location={location}>
-          <Route path="/" element={<Home />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/formals/:formalId" element={<FormalInfo />} />
-          <Route path="/tickets" element={<Tickets />} />
+          <Route path="/login" element={<Login/>} />
+          <Route element={<RequireAuth/>}>
+            <Route path="/" element={<Home />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/formals/:formalId" element={<FormalInfo />} />
+            <Route path="/tickets" element={<Tickets />} />
+          </Route>
         </ReactRoutes>
       </MotionBox>
     </AnimatePresence>
