@@ -10,6 +10,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const cookieName = "_token"
+
 func (h *Handler) GetUser(c echo.Context) error {
 	userId := h.Auth.GetUserId(c)
 	user, err := h.Users.Find(userId)
@@ -63,7 +65,7 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	}
 
 	cookie := new(http.Cookie)
-	cookie.Name = "_token"
+	cookie.Name = cookieName
 	cookie.Value = t
 	// TODO: short-lived, refresh tokens
 	cookie.Expires = time.Now().Add(24 * time.Hour)
@@ -74,4 +76,16 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	c.SetCookie(cookie)
 
 	return c.JSON(http.StatusOK, user)
+}
+
+func (h *Handler) Logout(c echo.Context) error {
+	c.SetCookie(&http.Cookie{
+		Name:     cookieName,
+		Value:    "",
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   !h.Config.Debug,
+		MaxAge:   -1,
+	})
+	return c.NoContent(http.StatusOK)
 }

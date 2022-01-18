@@ -173,6 +173,30 @@ func (a *AuthSuite) TestEmailConflict() {
 	a.users.AssertExpectations(a.T())
 }
 
+func (a *AuthSuite) TestLogout() {
+	// HTTP
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodPost, "/logout", nil)
+	req.AddCookie(&http.Cookie{
+		Name:     "_token",
+		Value:    "abcdefg",
+		HttpOnly: true,
+		Path:     "/",
+	})
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	// Test
+	err := a.h.Logout(c)
+	a.NoError(err)
+	a.Equal(http.StatusOK, rec.Code)
+	a.Len(rec.Result().Cookies(), 1)
+	cookie := rec.Result().Cookies()[0]
+	a.Equal("_token", cookie.Name)
+	a.Equal("", cookie.Value)
+	a.Equal(-1, cookie.MaxAge)
+	a.Equal(true, cookie.HttpOnly)
+}
+
 func TestUserSuite(t *testing.T) {
 	suite.Run(t, new(AuthSuite))
 }
