@@ -73,7 +73,7 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	c.SetCookie(cookie)
 
 	// TODO: Redirect instead?
-	return c.JSON(http.StatusOK, user)
+	return c.Redirect(http.StatusTemporaryRedirect, h.Config.OauthRedirectUrl)
 }
 
 // This function needs tests:

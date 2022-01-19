@@ -1,126 +1,49 @@
 package auth_test
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
-	"github.com/kcsu/store/auth"
+	. "github.com/kcsu/store/auth"
+	"github.com/kcsu/store/config"
 	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"google.golang.org/api/idtoken"
+	"github.com/quasoft/memstore"
+	"github.com/stretchr/testify/suite"
 )
 
-func getCsrfError(form_token string, cookie_token string) error {
+type OAuthSuite struct {
+	suite.Suite
+	auth Auth
+}
+
+func (a *OAuthSuite) SetupTest() {
+	store := memstore.NewMemStore([]byte{})
+	a.auth = Init(&config.Config{}, store)
+}
+
+func (a *OAuthSuite) TestGetAuthUrl() {
 	e := echo.New()
-	var req *http.Request
-	if form_token != "" {
-		f := make(url.Values)
-		f.Set("g_csrf_token", form_token)
-		req = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(f.Encode()))
-	} else {
-		req = httptest.NewRequest(http.MethodPost, "/", nil)
-	}
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
-	if cookie_token != "" {
-		req.AddCookie(&http.Cookie{
-			Name:  "g_csrf_token",
-			Value: cookie_token,
-		})
-	}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	a := auth.JwtAuth{}
-	return a.VerifyGoogleCsrfToken(c)
+	rawUrl, err := a.auth.GetAuthUrl(c)
+	a.Require().NoError(err)
+	url, err := url.Parse(rawUrl)
+	a.Require().NoError(err)
+	a.Equal("accounts.google.com", url.Hostname())
+	a.Equal("cam.ac.uk", url.Query().Get("hd"))
+	a.Equal("email profile openid", url.Query().Get("scope"))
 }
 
-func TestCsrfCookie(t *testing.T) {
-	err := getCsrfError("abc123", "")
-	// TODO: use ErrorAs
-	var he *echo.HTTPError
-	if assert.ErrorAs(t, err, &he) {
-		assert.Equal(t, he.Code, http.StatusBadRequest)
-		assert.Equal(t, he.Message, "No CSRF token in Cookie")
-	}
-}
+// TODO:
+// func (a *OAuthSuite) TestCompleteUserAuth() {
+// 	e := echo.New()
+// 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+// 	rec := httptest.NewRecorder()
+// }
 
-func TestCsrfForm(t *testing.T) {
-	err := getCsrfError("", "abc123")
-	var he *echo.HTTPError
-	if assert.ErrorAs(t, err, &he) {
-		assert.Equal(t, he.Code, http.StatusBadRequest)
-		assert.Equal(t, he.Message, "No CSRF token in post body")
-	}
-}
-
-func TestCsrfEqual(t *testing.T) {
-	err := getCsrfError("abc123", "def456")
-	var he *echo.HTTPError
-	if assert.ErrorAs(t, err, &he) {
-		assert.Equal(t, he.Code, http.StatusBadRequest)
-		assert.Equal(t, he.Message, "Failed to verify double submit cookie")
-	}
-}
-
-func TestCsrfValid(t *testing.T) {
-	err := getCsrfError("abc123", "abc123")
-	assert.NoError(t, err)
-}
-
-func mockTokenValidator(payload idtoken.Payload) auth.IdTokenValidator {
-	return func(c context.Context, s1, s2 string) (*idtoken.Payload, error) {
-		return &payload, nil
-	}
-}
-
-func TestVerifyHostedDomain(t *testing.T) {
-	a := auth.JwtAuth{
-		TokenValidator: mockTokenValidator(idtoken.Payload{
-			Claims: map[string]interface{}{
-				// This should fail!!
-				"hd":    "ox.ac.uk",
-				"email": "abc12@cam.ac.uk",
-			},
-		}),
-	}
-	_, err := a.VerifyIdToken("", context.Background())
-	assert.EqualError(t, err, "invalid hosted domain: should be cam.ac.uk")
-}
-
-func TestVerifyEmailSuffix(t *testing.T) {
-	a := auth.JwtAuth{
-		TokenValidator: mockTokenValidator(idtoken.Payload{
-			Claims: map[string]interface{}{
-				"hd":    "cam.ac.uk",
-				"email": "abc12@ox.ac.uk",
-			},
-		}),
-	}
-	_, err := a.VerifyIdToken("", context.Background())
-	assert.EqualError(t, err, "invalid email domain: should be cam.ac.uk")
-}
-
-func TestVerifyUser(t *testing.T) {
-	u := auth.OauthUser{
-		Email:  "abc12@cam.ac.uk",
-		UserID: "123456",
-		Name:   "James Holden",
-	}
-	a := auth.JwtAuth{
-		TokenValidator: mockTokenValidator(idtoken.Payload{
-			Subject: u.UserID,
-			Claims: map[string]interface{}{
-				"hd":    "cam.ac.uk",
-				"email": u.Email,
-				"name":  u.Name,
-			},
-		}),
-	}
-	user, err := a.VerifyIdToken("", context.Background())
-	if assert.NoError(t, err) {
-		assert.Equal(t, user, &u)
-	}
+func TestOAuthSuite(t *testing.T) {
+	suite.Run(t, new(OAuthSuite))
 }

@@ -18,6 +18,7 @@ type Config struct {
 	OauthClientKey   string `split_words:"true"`
 	OauthSecretKey   string `split_words:"true"`
 	OauthCallbackUrl string `split_words:"true"`
+	OauthRedirectUrl string `split_words:"true"`
 	LookupApiUrl     string `split_words:"true"`
 }
 

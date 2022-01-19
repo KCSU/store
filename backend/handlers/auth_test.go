@@ -21,6 +21,7 @@ import (
 )
 
 const jwtSecret = "jwtSecret"
+const redirect = "https://example.com/redirect"
 
 type AuthSuite struct {
 	suite.Suite
@@ -37,6 +38,7 @@ func (a *AuthSuite) SetupTest() {
 		Users: a.users,
 	}
 	a.h.Config.JwtSecret = jwtSecret
+	a.h.Config.OauthRedirectUrl = redirect
 }
 
 func (a *AuthSuite) TestGetUser() {
@@ -91,14 +93,6 @@ func (a *AuthSuite) TestAuthCallback() {
 		ProviderUserId: "109632",
 	}
 	user.ID = 415
-	userJson := `{
-		"id": 415,
-		"createdAt": "0001-01-01T00:00:00Z",
-		"updatedAt": "0001-01-01T00:00:00Z",
-		"deletedAt": null,
-		"name": "John Locke",
-		"email": "jl815@cam.ac.uk"
-	}`
 	oauthUser := goth.User{
 		Name:   user.Name,
 		Email:  user.Email,
@@ -112,8 +106,10 @@ func (a *AuthSuite) TestAuthCallback() {
 	// Test
 	err := a.h.AuthCallback(c)
 	a.NoError(err)
-	a.Equal(http.StatusOK, rec.Code)
-	a.JSONEq(userJson, rec.Body.String())
+	a.Equal(http.StatusTemporaryRedirect, rec.Code)
+	location, err := rec.Result().Location()
+	a.NoError(err)
+	a.Equal(redirect, location.String())
 	// Check JWT
 	if a.Len(rec.Result().Cookies(), 1) {
 		cookie := rec.Result().Cookies()[0]
