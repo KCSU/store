@@ -80,7 +80,7 @@ function HomeContent() {
       {formals?.map((f, i) => (
         <MotionOverview
           // TODO: use actual DB ID as key
-          key={`formal.${i}`}
+          key={`formal.${f.id}`}
           variants={itemVariant}
           formal={f}
         />
@@ -97,7 +97,7 @@ export function Home() {
         Upcoming Formals
       </Heading>
       <AnimatePresence exitBeforeEnter initial={false}>
-        <HomeContent />
+        {HomeContent()}
       </AnimatePresence>
     </>
   );

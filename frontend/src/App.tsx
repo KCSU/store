@@ -9,6 +9,7 @@ import {
   useBreakpointValue,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { FaBars } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
@@ -31,11 +32,13 @@ function App() {
 
   return (
     <Flex height="100vh" bg={bg} pl={4}>
+      <AnimatePresence initial={false}>
       {showSidebar && <Sidebar
         variant={variants?.navigation as "drawer" | "sidebar"}
         isOpen={isSidebarOpen}
         onClose={toggleSidebar}
       />}
+      </AnimatePresence>
       <Box flex="1" overflowY="auto" height="100%">
       <Container
         // mb={4}

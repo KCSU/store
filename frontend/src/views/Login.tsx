@@ -15,9 +15,9 @@ export function Login() {
   const from: string = location.state?.from ?? "/";
   const filter = useColorModeValue("invert()", undefined);
   const redirectUrl = import.meta.env.VITE_API_BASE_URL + 'auth/redirect';
-  // if (user && !isError && !isLoading) {
-  //   return <Navigate to={from} />;
-  // }
+  if (user && !isError && !isLoading) {
+    return <Navigate to={from} />;
+  }
   return (
     <VStack mt={40}>
       <Heading as="h1" size="xl">
