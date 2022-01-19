@@ -12,6 +12,8 @@ import (
 
 const cookieName = "_token"
 
+// TODO: Rework entirely
+
 func (h *Handler) GetUser(c echo.Context) error {
 	userId := h.Auth.GetUserId(c)
 	user, err := h.Users.Find(userId)
@@ -24,18 +26,13 @@ func (h *Handler) GetUser(c echo.Context) error {
 // OAuth2 callback route handler
 func (h *Handler) AuthCallback(c echo.Context) error {
 	// Fetch the OAuth2 user data
-	// err := h.Auth.VerifyGoogleCsrfToken(c)
-	// if err != nil {
-	// 	return err
-	// }
-
-	authUser, err := h.Auth.VerifyIdToken(c.FormValue("credential"), c.Request().Context())
+	authUser, err := h.Auth.CompleteUserAuth(c)
 	if err != nil {
 		return err
 	}
 
 	// Create or fetch the user in the database
-	user, err := h.Users.FindOrCreate(authUser)
+	user, err := h.Users.FindOrCreate(&authUser)
 	if err != nil {
 		// Ensure there is no email address conflict
 		exists, exerr := h.Users.Exists(authUser.Email)
@@ -75,7 +72,20 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	cookie.HttpOnly = true
 	c.SetCookie(cookie)
 
+	// TODO: Redirect instead?
 	return c.JSON(http.StatusOK, user)
+}
+
+// This function needs tests:
+
+// Redirect to the (google) OAuth2 provider
+func (h *Handler) AuthRedirect(c echo.Context) error {
+	url, err := h.Auth.GetAuthUrl(c)
+	if err != nil {
+		return echo.ErrBadRequest
+	}
+
+	return c.Redirect(http.StatusTemporaryRedirect, url)
 }
 
 func (h *Handler) Logout(c echo.Context) error {

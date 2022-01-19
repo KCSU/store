@@ -16,7 +16,7 @@ import (
 	um "github.com/kcsu/store/mocks/db"
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/mock"
+	"github.com/markbates/goth"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -99,15 +99,15 @@ func (a *AuthSuite) TestAuthCallback() {
 		"name": "John Locke",
 		"email": "jl815@cam.ac.uk"
 	}`
-	oauthUser := auth.OauthUser{
+	oauthUser := goth.User{
 		Name:   user.Name,
 		Email:  user.Email,
 		UserID: user.ProviderUserId,
 	}
 	// a.auth.On("VerifyGoogleCsrfToken", c).Return(nil)
 	a.auth.On(
-		"VerifyIdToken", credential, mock.Anything,
-	).Return(&oauthUser, nil)
+		"CompleteUserAuth", c,
+	).Return(oauthUser, nil)
 	a.users.On("FindOrCreate", &oauthUser).Return(user, nil)
 	// Test
 	err := a.h.AuthCallback(c)
@@ -148,15 +148,14 @@ func (a *AuthSuite) TestEmailConflict() {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
-	oauthUser := auth.OauthUser{
+	oauthUser := goth.User{
 		Name:   "Naomi Nagata",
 		Email:  "nng56@cam.ac.uk",
 		UserID: "175295",
 	}
-	// a.auth.On("VerifyGoogleCsrfToken", c).Return(nil)
 	a.auth.On(
-		"VerifyIdToken", credential, mock.Anything,
-	).Return(&oauthUser, nil)
+		"CompleteUserAuth", c,
+	).Return(oauthUser, nil)
 	a.users.On("FindOrCreate", &oauthUser).Return(
 		model.User{}, errors.New("invalid data"),
 	)

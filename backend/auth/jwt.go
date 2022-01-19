@@ -18,7 +18,7 @@ type JwtClaims struct {
 // Load claims from the current context
 //
 // Requires authentication middleware
-func (auth *JwtAuth) GetClaims(c echo.Context) *JwtClaims {
+func (auth *GoogleAuth) GetClaims(c echo.Context) *JwtClaims {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(*JwtClaims)
 	return claims
@@ -27,7 +27,7 @@ func (auth *JwtAuth) GetClaims(c echo.Context) *JwtClaims {
 // Load the user's id from the current context
 //
 // Requires authentication middleware
-func (auth *JwtAuth) GetUserId(c echo.Context) int {
+func (auth *GoogleAuth) GetUserId(c echo.Context) int {
 	claims := auth.GetClaims(c)
 	id, err := strconv.Atoi(claims.Subject)
 	if err != nil {

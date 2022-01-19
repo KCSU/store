@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/kcsu/store/auth"
 	"github.com/kcsu/store/model"
+	"github.com/markbates/goth"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -10,7 +10,7 @@ import (
 // Helper for Users in the database
 type UserStore interface {
 	// Update, retrieve or create a user from OAuth data
-	FindOrCreate(au *auth.OauthUser) (model.User, error)
+	FindOrCreate(gu *goth.User) (model.User, error)
 	// Get a user by id
 	Find(id int) (model.User, error)
 	// Check if a user with the specified email exists
@@ -32,11 +32,11 @@ func NewUserStore(db *gorm.DB) UserStore {
 }
 
 // Update, retrieve or create a user from OAuth data
-func (u *DBUserStore) FindOrCreate(au *auth.OauthUser) (model.User, error) {
+func (u *DBUserStore) FindOrCreate(gu *goth.User) (model.User, error) {
 	user := model.User{
-		Name:           au.Name,
-		Email:          au.Email,
-		ProviderUserId: au.UserID,
+		Name:           gu.Name,
+		Email:          gu.Email,
+		ProviderUserId: gu.UserID,
 	}
 	err := u.db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "provider_user_id"}},

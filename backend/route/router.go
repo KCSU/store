@@ -41,7 +41,8 @@ func Init() *echo.Echo {
 
 	// ROUTE HANDLERS
 	// Create the handler object which stores useful data and methods
-	a := auth.Init(c)
+	store := auth.InitSessionStore(c)
+	a := auth.Init(c, store)
 	h := handlers.NewHandler(*c, d, a)
 
 	// Authentication middleware
@@ -51,7 +52,8 @@ func Init() *echo.Echo {
 	e.GET("/", h.GetHello)
 
 	// Auth Routes
-	e.POST("/auth/callback", h.AuthCallback)
+	e.GET("/auth/redirect", h.AuthRedirect)
+	e.GET("/auth/callback", h.AuthCallback)
 	e.GET("/auth/user", h.GetUser, requireAuth)
 	e.POST("/auth/logout", h.Logout, requireAuth)
 

@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/kcsu/store/auth"
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
+	"github.com/markbates/goth"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
@@ -43,7 +43,7 @@ func (s *UserSuite) SetupSuite() {
 }
 
 func (s *UserSuite) TestFindOrCreate() {
-	au := auth.OauthUser{
+	au := goth.User{
 		UserID: "abc123",
 		Name:   "Chrisjen Avasarala",
 		Email:  "cja67@cam.ac.uk",

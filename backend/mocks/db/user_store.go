@@ -3,8 +3,7 @@
 package mocks
 
 import (
-	auth "github.com/kcsu/store/auth"
-
+	goth "github.com/markbates/goth"
 	mock "github.com/stretchr/testify/mock"
 
 	model "github.com/kcsu/store/model"
@@ -57,20 +56,20 @@ func (_m *UserStore) Find(id int) (model.User, error) {
 	return r0, r1
 }
 
-// FindOrCreate provides a mock function with given fields: au
-func (_m *UserStore) FindOrCreate(au *auth.OauthUser) (model.User, error) {
-	ret := _m.Called(au)
+// FindOrCreate provides a mock function with given fields: gu
+func (_m *UserStore) FindOrCreate(gu *goth.User) (model.User, error) {
+	ret := _m.Called(gu)
 
 	var r0 model.User
-	if rf, ok := ret.Get(0).(func(*auth.OauthUser) model.User); ok {
-		r0 = rf(au)
+	if rf, ok := ret.Get(0).(func(*goth.User) model.User); ok {
+		r0 = rf(gu)
 	} else {
 		r0 = ret.Get(0).(model.User)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*auth.OauthUser) error); ok {
-		r1 = rf(au)
+	if rf, ok := ret.Get(1).(func(*goth.User) error); ok {
+		r1 = rf(gu)
 	} else {
 		r1 = ret.Error(1)
 	}
