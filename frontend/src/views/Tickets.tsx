@@ -16,30 +16,31 @@ export function Tickets() {
       <Heading size="xl" mb={5}>
         My Tickets
       </Heading>
-      {/* {queue.length > 0 && (
+      {queue.length > 0 && (
         <>
           <Heading size="md" as="h3" mb={4}>
             Ticket Queue
           </Heading>
           <Card mb={5}>
-            <SimpleGrid gap={2} minChildWidth="300px">
+            <SimpleGrid gap={2} templateColumns="repeat(auto-fill, minmax(350px, 1fr))">
               {queue.map((t, i) => {
-                return <TicketOverview ticket={t} key={i} queue/>;
+                return <TicketOverview ticket={t} key={t.formal.id} queue/>;
               })}
             </SimpleGrid>
           </Card>
         </>
-      )} */}
+      )}
       <Heading size="md" as="h3" mb={4}>
         Upcoming Formals
       </Heading>
-      <Card>
-        <SimpleGrid gap={2} minChildWidth="300px">
+      {/* <Card> */}
+        <SimpleGrid gap={2} templateColumns="repeat(auto-fill, minmax(350px, 1fr))">
           {tickets.map((t, i) => {
-            return <TicketOverview ticket={t} key={i} />;
+            return <TicketOverview ticket={t} key={t.formal.id} />;
+  
           })}
         </SimpleGrid>
-      </Card>
+      {/* </Card> */}
     </>
   );
 }

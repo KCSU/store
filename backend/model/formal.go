@@ -16,4 +16,5 @@ type Formal struct {
 	DateTime     time.Time `json:"dateTime"`
 	TicketSales  []Ticket  `json:"-"`
 	Groups       []Group   `json:"groups,omitempty" gorm:"many2many:formal_groups;"`
+	// TODO: boolean for public guestlist
 }

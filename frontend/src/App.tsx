@@ -31,36 +31,45 @@ function App() {
   const showSidebar = !hideSidebarRoutes.includes(location.pathname);
 
   return (
-    <Flex height="100vh" bg={bg} pl={4}>
+    <Flex height="100vh" bg={bg} pl={4} overflowX="visible">
       <AnimatePresence initial={false}>
-      {showSidebar && <Sidebar
-        variant={variants?.navigation as "drawer" | "sidebar"}
-        isOpen={isSidebarOpen}
-        onClose={toggleSidebar}
-      />}
-      </AnimatePresence>
-      <Box flex="1" overflowY="auto" height="100%">
-      <Container
-        // mb={4}
-        maxW="container.xl"
-        py={6}
-      >
-        {variants?.navigationButton && showSidebar && (
-          <Flex justifyContent="space-between" alignItems="center" mb={5}>
-            <Heading size="xl" as="h1">
-              KiFoMaSy
-            </Heading>
-            <IconButton
-              size="sm"
-              aria-label="open sidebar"
-              onClick={toggleSidebar}
-            >
-              <FaBars />
-            </IconButton>
-          </Flex>
+        {showSidebar && (
+          <Sidebar
+            variant={variants?.navigation as "drawer" | "sidebar"}
+            isOpen={isSidebarOpen}
+            onClose={toggleSidebar}
+          />
         )}
-        <Routes />
-      </Container>
+      </AnimatePresence>
+      <Box
+        flex="1"
+        height="100%"
+        overflowY={{
+          md: "auto",
+          base: "visible",
+        }}
+      >
+        <Container
+          // mb={4}
+          maxW="container.xl"
+          py={6}
+        >
+          {variants?.navigationButton && showSidebar && (
+            <Flex justifyContent="space-between" alignItems="center" mb={5}>
+              <Heading size="xl" as="h1">
+                KiFoMaSy
+              </Heading>
+              <IconButton
+                size="sm"
+                aria-label="open sidebar"
+                onClick={toggleSidebar}
+              >
+                <FaBars />
+              </IconButton>
+            </Flex>
+          )}
+          <Routes />
+        </Container>
       </Box>
     </Flex>
   );

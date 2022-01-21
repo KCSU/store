@@ -103,7 +103,9 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
   // const borderColor = useColorModeValue("gray.300", "gray.600")
   const datetime = useDateTime(ticket.formal.dateTime);
   return (
-    <Card borderWidth="1px" boxShadow="none" borderRadius="md" p={3}>
+    <Card p={3} borderRadius="md"
+     //borderWidth="1px" boxShadow="none" borderRadius="md" p={3}
+    >
       <HStack>
         <Heading size="md" as="h4">
           {ticket.formal.name}
@@ -116,21 +118,35 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
           <Tr>
             <Th>Type</Th>
             <Th>Meal Option</Th>
-            <Th isNumeric>Price</Th>
+            <Th isNumeric minW={20} pl={0}>Price</Th>
           </Tr>
         </Thead>
         <Tbody>
           <Tr>
             <Td>King's Ticket</Td>
-            <Td>{ticket.ticket.option}</Td>
-            <Td isNumeric>{formatMoney(ticket.formal.price)}</Td>
+            <Td
+              maxW={8}
+              textOverflow="ellipsis"
+              overflow="hidden"
+              whiteSpace="nowrap"
+            >
+              {ticket.ticket.option}
+            </Td>
+            <Td isNumeric minW={20} pl={0}>{formatMoney(ticket.formal.price)}</Td>
           </Tr>
           {ticket.guestTickets.map((gt, j) => {
             return (
               <Tr key={j}>
                 <Td>Guest Ticket</Td>
-                <Td>{gt.option}</Td>
-                <Td isNumeric>{formatMoney(ticket.formal.guestPrice)}</Td>
+                <Td
+                  maxW={8}
+                  textOverflow="ellipsis"
+                  overflow="hidden"
+                  whiteSpace="nowrap"
+                >
+                  {gt.option}
+                </Td>
+                <Td isNumeric minW={20} pl={0}>{formatMoney(ticket.formal.guestPrice)}</Td>
               </Tr>
             );
           })}
@@ -140,8 +156,7 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
             <Td border="none">
               <Text fontSize="md">Total</Text>
             </Td>
-            <Td border="none"></Td>
-            <Td isNumeric border="none">
+            <Td isNumeric border="none" colSpan={2}>
               <Text fontSize="md">{formatMoney(price)}</Text>
             </Td>
           </Tr>

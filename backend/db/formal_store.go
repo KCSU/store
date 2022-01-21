@@ -55,12 +55,16 @@ func (f *DBFormalStore) Find(id int) (model.Formal, error) {
 // Get the number of tickets remaining for a specified formal
 func (f *DBFormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uint {
 	var query string
+	var baseTickets uint
 	if isGuest {
+		baseTickets = formal.GuestTickets
 		query = "is_guest AND NOT is_queue"
 	} else {
+		baseTickets = formal.Tickets
 		query = "NOT is_guest AND NOT is_queue"
 	}
-	return formal.Tickets - uint(
+
+	return baseTickets - uint(
 		f.db.Model(formal).Where(query).Association("TicketSales").Count(),
 	)
 }

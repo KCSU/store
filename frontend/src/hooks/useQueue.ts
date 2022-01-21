@@ -6,6 +6,5 @@ import { useTickets } from "./useTickets";
 // and all sorts of other fun stuff
 export function useQueue(): Ticket[] {
     // we will remove this later
-    const ticket = useTickets()[1];
-    return [ticket];
+    return [];
 }

@@ -94,15 +94,20 @@ func (s *FormalSuite) TestTicketsRemaining() {
 	f := model.Formal{}
 	f.ID = 42
 	f.Tickets = 23
+	f.GuestTickets = 27
 	mockCount := 10
-	for _, isGuest := range []bool{false, true} {
-		s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
-			WillReturnRows(
-				sqlmock.NewRows([]string{"count(*)"}).AddRow(mockCount),
-			)
-		tr := s.store.TicketsRemaining(&f, isGuest)
-		s.Equal(f.Tickets-uint(mockCount), tr)
-	}
+	s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"count(*)"}).AddRow(mockCount),
+		)
+	tr := s.store.TicketsRemaining(&f, false)
+	s.Equal(f.Tickets-uint(mockCount), tr)
+	s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"count(*)"}).AddRow(mockCount),
+		)
+	tr = s.store.TicketsRemaining(&f, true)
+	s.Equal(f.GuestTickets-uint(mockCount), tr)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
