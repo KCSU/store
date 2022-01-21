@@ -15,7 +15,7 @@ export function Routes() {
   const location = useLocation();
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <MotionBox mr={4}
+      <MotionBox mr={{md: 4}}
         key={location.pathname}
         initial={{
           opacity: 0,

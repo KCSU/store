@@ -6,6 +6,7 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   Badge,
+  Box,
   Button,
   Heading,
   HStack,
@@ -17,6 +18,7 @@ import {
   Tfoot,
   Th,
   Thead,
+  Tooltip,
   Tr,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -103,8 +105,10 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
   // const borderColor = useColorModeValue("gray.300", "gray.600")
   const datetime = useDateTime(ticket.formal.dateTime);
   return (
-    <Card p={3} borderRadius="md"
-     //borderWidth="1px" boxShadow="none" borderRadius="md" p={3}
+    <Card
+      p={3}
+      borderRadius="md"
+      //borderWidth="1px" boxShadow="none" borderRadius="md" p={3}
     >
       <HStack>
         <Heading size="md" as="h4">
@@ -113,55 +117,67 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
         {queue && <Badge colorScheme="brand">In Queue</Badge>}
       </HStack>
       <Text as="b">{datetime}</Text>
-      <Table size="sm" my={2}>
-        <Thead>
-          <Tr>
-            <Th>Type</Th>
-            <Th>Meal Option</Th>
-            <Th isNumeric minW={20} pl={0}>Price</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          <Tr>
-            <Td>King's Ticket</Td>
-            <Td
-              maxW={8}
-              textOverflow="ellipsis"
-              overflow="hidden"
-              whiteSpace="nowrap"
-            >
-              {ticket.ticket.option}
-            </Td>
-            <Td isNumeric minW={20} pl={0}>{formatMoney(ticket.formal.price)}</Td>
-          </Tr>
-          {ticket.guestTickets.map((gt, j) => {
-            return (
-              <Tr key={j}>
-                <Td>Guest Ticket</Td>
+      <Box overflowX="auto" whiteSpace="nowrap">
+        <Table size="sm" my={2} minW={{ base: "400px", sm: "0" }}>
+          <Thead>
+            <Tr>
+              <Th>Type</Th>
+              <Th>Meal Option</Th>
+              <Th isNumeric minW={20} pl={0}>
+                Price
+              </Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            <Tr>
+              <Td>King's Ticket</Td>
+              <Tooltip label={ticket.ticket.option}>
                 <Td
                   maxW={8}
                   textOverflow="ellipsis"
                   overflow="hidden"
                   whiteSpace="nowrap"
                 >
-                  {gt.option}
+                  {ticket.ticket.option}
                 </Td>
-                <Td isNumeric minW={20} pl={0}>{formatMoney(ticket.formal.guestPrice)}</Td>
-              </Tr>
-            );
-          })}
-        </Tbody>
-        <Tfoot fontWeight="bold">
-          <Tr>
-            <Td border="none">
-              <Text fontSize="md">Total</Text>
-            </Td>
-            <Td isNumeric border="none" colSpan={2}>
-              <Text fontSize="md">{formatMoney(price)}</Text>
-            </Td>
-          </Tr>
-        </Tfoot>
-      </Table>
+              </Tooltip>
+              <Td isNumeric minW={20} pl={0}>
+                {formatMoney(ticket.formal.price)}
+              </Td>
+            </Tr>
+            {ticket.guestTickets.map((gt, j) => {
+              return (
+                <Tr key={j}>
+                  <Td>Guest Ticket</Td>
+                  <Tooltip label={gt.option}>
+                    <Td
+                      maxW={8}
+                      textOverflow="ellipsis"
+                      overflow="hidden"
+                      whiteSpace="nowrap"
+                    >
+                      {gt.option}
+                    </Td>
+                  </Tooltip>
+                  <Td isNumeric minW={20} pl={0}>
+                    {formatMoney(ticket.formal.guestPrice)}
+                  </Td>
+                </Tr>
+              );
+            })}
+          </Tbody>
+          <Tfoot fontWeight="bold">
+            <Tr>
+              <Td border="none">
+                <Text fontSize="md">Total</Text>
+              </Td>
+              <Td isNumeric border="none" colSpan={2}>
+                <Text fontSize="md">{formatMoney(price)}</Text>
+              </Td>
+            </Tr>
+          </Tfoot>
+        </Table>
+      </Box>
       <HStack justifyContent="flex-end">
         <Button size="sm" variant="outline" leftIcon={<FaEdit />}>
           Edit

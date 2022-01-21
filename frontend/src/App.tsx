@@ -31,7 +31,7 @@ function App() {
   const showSidebar = !hideSidebarRoutes.includes(location.pathname);
 
   return (
-    <Flex height="100vh" bg={bg} pl={4} overflowX="visible">
+    <Flex height="100vh" bg={bg} pl={{md:4}}>
       <AnimatePresence initial={false}>
         {showSidebar && (
           <Sidebar
@@ -44,10 +44,7 @@ function App() {
       <Box
         flex="1"
         height="100%"
-        overflowY={{
-          md: "auto",
-          base: "visible",
-        }}
+        overflowY="auto"
       >
         <Container
           // mb={4}

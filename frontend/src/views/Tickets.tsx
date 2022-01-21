@@ -6,6 +6,10 @@ import { useTickets } from "../hooks/useTickets";
 
 export function Tickets() {
   const queue = useQueue();
+  const templateColumns = {
+    sm: "repeat(auto-fill, minmax(400px, 1fr))",
+    base: "1fr"
+  };
   // TODO: loading indicators
   const {data: tickets, isLoading, isError} = useTickets();
   if (!tickets || isLoading || isError) {
@@ -22,7 +26,7 @@ export function Tickets() {
             Ticket Queue
           </Heading>
           <Card mb={5}>
-            <SimpleGrid gap={2} templateColumns="repeat(auto-fill, minmax(350px, 1fr))">
+            <SimpleGrid gap={2} templateColumns={templateColumns}>
               {queue.map((t, i) => {
                 return <TicketOverview ticket={t} key={t.formal.id} queue/>;
               })}
@@ -34,7 +38,7 @@ export function Tickets() {
         Upcoming Formals
       </Heading>
       {/* <Card> */}
-        <SimpleGrid gap={2} templateColumns="repeat(auto-fill, minmax(350px, 1fr))">
+        <SimpleGrid gap={2} templateColumns={templateColumns}>
           {tickets.map((t, i) => {
             return <TicketOverview ticket={t} key={t.formal.id} />;
   
