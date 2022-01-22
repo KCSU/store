@@ -1,17 +1,16 @@
-import { Box, Heading, SimpleGrid } from "@chakra-ui/react";
+import { Box, Heading, SimpleGrid, Spinner } from "@chakra-ui/react";
+import { QueueOverview } from "../components/display/QueueOverview";
 import { TicketOverview } from "../components/display/TicketOverview";
 import { Card } from "../components/utility/Card";
-import { useQueue } from "../hooks/useQueue";
 import { useTickets } from "../hooks/useTickets";
 
 export function Tickets() {
-  const queue = useQueue();
   const templateColumns = {
     sm: "repeat(auto-fill, minmax(400px, 1fr))",
-    base: "1fr"
+    base: "1fr",
   };
   // TODO: loading indicators
-  const {data: tickets, isLoading, isError} = useTickets();
+  const { data: tickets, isLoading, isError } = useTickets();
   if (!tickets || isLoading || isError) {
     return <Box></Box>;
   }
@@ -20,31 +19,39 @@ export function Tickets() {
       <Heading size="xl" mb={5}>
         My Tickets
       </Heading>
-      {queue.length > 0 && (
+      {tickets.queue.length > 0 && (
         <>
           <Heading size="md" as="h3" mb={4}>
-            Ticket Queue
+            Ticket Queue <Spinner size="sm" speed="1s" ml={3}/>
           </Heading>
-          <Card mb={5}>
-            <SimpleGrid gap={2} templateColumns={templateColumns}>
-              {queue.map((t, i) => {
-                return <TicketOverview ticket={t} key={t.formal.id} queue/>;
-              })}
-            </SimpleGrid>
-          </Card>
+          <SimpleGrid gap={2} templateColumns={templateColumns} mb={5} autoFlow="dense">
+            {tickets.queue.map((t, i) => {
+              if ("guestTickets" in t) {
+                return <Box gridRow="span 2" key={t.ticket.id} overflowX="auto">
+                  <TicketOverview ticket={t} queue />
+                </Box>;
+              }
+              return <Box key={`${t.formal.id}.${t.ticket.id}`}>
+                <QueueOverview
+                  ticket={t}
+                />
+              </Box>;
+            })}
+          </SimpleGrid>
         </>
       )}
-      <Heading size="md" as="h3" mb={4}>
-        Upcoming Formals
-      </Heading>
-      {/* <Card> */}
-        <SimpleGrid gap={2} templateColumns={templateColumns}>
-          {tickets.map((t, i) => {
-            return <TicketOverview ticket={t} key={t.formal.id} />;
-  
-          })}
-        </SimpleGrid>
-      {/* </Card> */}
+      {tickets.tickets.length > 0 && (
+        <>
+          <Heading size="md" as="h3" mb={4}>
+            Upcoming Formals
+          </Heading>
+          <SimpleGrid gap={2} templateColumns={templateColumns}>
+            {tickets.tickets.map((t, i) => {
+              return <TicketOverview ticket={t} key={t.ticket.id} />;
+            })}
+          </SimpleGrid>
+        </>
+      )}
     </>
   );
 }

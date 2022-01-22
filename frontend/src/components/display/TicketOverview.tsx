@@ -27,7 +27,7 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { formatMoney } from "../../helpers/formatMoney";
 import { useCancelTickets } from "../../hooks/useCancelTickets";
 import { useDateTime } from "../../hooks/useDateTime";
-import { Ticket } from "../../model/Ticket";
+import { FormalTicket } from "../../model/Ticket";
 import { Card } from "../utility/Card";
 
 interface CancelTicketButtonProps {
@@ -94,7 +94,7 @@ function CancelTicketButton({ isQueue, formalId }: CancelTicketButtonProps) {
 }
 
 interface TicketOverviewProps {
-  ticket: Ticket;
+  ticket: FormalTicket;
   queue?: boolean;
 }
 
@@ -131,16 +131,17 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
           <Tbody>
             <Tr>
               <Td>King's Ticket</Td>
-              <Tooltip label={ticket.ticket.option}>
-                <Td
-                  maxW={8}
-                  textOverflow="ellipsis"
-                  overflow="hidden"
-                  whiteSpace="nowrap"
-                >
+
+              <Td
+                maxW={8}
+                textOverflow="ellipsis"
+                overflow="hidden"
+                whiteSpace="nowrap"
+              >
+                <Tooltip label={ticket.ticket.option}>
                   {ticket.ticket.option}
-                </Td>
-              </Tooltip>
+                </Tooltip>
+              </Td>
               <Td isNumeric minW={20} pl={0}>
                 {formatMoney(ticket.formal.price)}
               </Td>
@@ -149,16 +150,14 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
               return (
                 <Tr key={j}>
                   <Td>Guest Ticket</Td>
-                  <Tooltip label={gt.option}>
-                    <Td
-                      maxW={8}
-                      textOverflow="ellipsis"
-                      overflow="hidden"
-                      whiteSpace="nowrap"
-                    >
-                      {gt.option}
-                    </Td>
-                  </Tooltip>
+                  <Td
+                    maxW={8}
+                    textOverflow="ellipsis"
+                    overflow="hidden"
+                    whiteSpace="nowrap"
+                  >
+                    <Tooltip label={gt.option}>{gt.option}</Tooltip>
+                  </Td>
                   <Td isNumeric minW={20} pl={0}>
                     {formatMoney(ticket.formal.guestPrice)}
                   </Td>
@@ -184,7 +183,7 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
         </Button>
         <CancelTicketButton formalId={ticket.formal.id} isQueue={queue} />
       </HStack>
-      {queue && (
+      {/* {queue && (
         <Progress
           colorScheme="brand"
           borderRadius={3}
@@ -192,7 +191,7 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
           isIndeterminate
           mt={3}
         />
-      )}
+      )} */}
     </Card>
   );
 }

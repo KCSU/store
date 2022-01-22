@@ -78,7 +78,7 @@ function HomeContent() {
       spacing="40px"
     >
       {formals?.map((f, i) => (
-        <MotionOverview
+        <MotionOverview layout="position"
           // TODO: use actual DB ID as key
           key={`formal.${f.id}`}
           variants={itemVariant}

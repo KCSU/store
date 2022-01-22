@@ -34,7 +34,7 @@ func NewFormalStore(db *gorm.DB) FormalStore {
 // Retrieve all upcoming formals
 func (f *DBFormalStore) Get() ([]model.Formal, error) {
 	var data []model.Formal
-	err := f.db.Where("date_time > NOW()").Find(&data).Error
+	err := f.db.Where("date_time > NOW()").Order("date_time").Find(&data).Error
 	return data, err
 }
 
