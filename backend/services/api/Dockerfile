@@ -1,15 +1,14 @@
-FROM golang:alpine
-WORKDIR /app
+FROM golang:1.17-alpine as build
+WORKDIR /go/src/app
 COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
 # Copy the code into the container
 COPY . .
 ENV SERVICE api
-RUN go build -o app services/${SERVICE}/main.go
+RUN CGO_ENABLED=0 go build -o /go/bin/app services/${SERVICE}/main.go
 
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=0 /app/app ./
-CMD [ "./app" ]
+FROM gcr.io/distroless/static
+COPY --from=build /go/bin/app /
+# TODO: expose ports?
+CMD [ "/app" ]
