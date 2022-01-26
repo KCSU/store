@@ -9,27 +9,31 @@ import { CreatableSelect } from "chakra-react-select";
 import { Card } from "../utility/Card";
 
 interface TicketOptionsProps {
-  options: string[];
   value?: string;
   onChange?: (value: string) => void;
   hasShadow?: boolean;
 }
 
 export const TicketOptions: React.FC<TicketOptionsProps> = ({
-  options,
   value,
   onChange,
   children,
-  hasShadow = true
+  hasShadow = true,
 }) => {
+  const options = ["Normal", "Vegetarian", "Vegan", "Pescetarian"];
   const handleChange = (option: Record<string, string>) => {
-    onChange?.(option?.value ?? '')
+    onChange?.(option?.value ?? "");
   };
   const bg = useColorModeValue("white", "gray.700");
   return (
-    <Card bg={bg} borderRadius={5} p={3} {...(!hasShadow && {
-      boxShadow: 'none'
-    })}>
+    <Card
+      bg={bg}
+      borderRadius={5}
+      p={3}
+      {...(!hasShadow && {
+        boxShadow: "none",
+      })}
+    >
       {children}
       <FormControl as={HStack} spacing={4} alignItems="center">
         <FormLabel m={0}>Meal Option:</FormLabel>
@@ -40,7 +44,7 @@ export const TicketOptions: React.FC<TicketOptionsProps> = ({
             selectedOptionColor="brand"
             value={{
               label: value,
-              value
+              value,
             }}
             onChange={handleChange}
             size="sm"

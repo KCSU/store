@@ -1,7 +1,6 @@
 import { Box, Heading, SimpleGrid, Spinner } from "@chakra-ui/react";
 import { QueueOverview } from "../components/display/QueueOverview";
 import { TicketOverview } from "../components/display/TicketOverview";
-import { Card } from "../components/utility/Card";
 import { useTickets } from "../hooks/useTickets";
 
 export function Tickets() {
@@ -47,7 +46,9 @@ export function Tickets() {
           </Heading>
           <SimpleGrid gap={2} templateColumns={templateColumns}>
             {tickets.tickets.map((t, i) => {
-              return <TicketOverview ticket={t} key={t.ticket.id} />;
+              return <Box key={t.ticket.id}>
+                <TicketOverview ticket={t} />
+              </Box>;
             })}
           </SimpleGrid>
         </>

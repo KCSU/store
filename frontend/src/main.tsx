@@ -8,11 +8,20 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { BrowserRouter } from "react-router-dom";
 import theme from "./config/theme";
 import "./config/datetime";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryCache, QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from 'react-query/devtools'
+import axios from "axios";
 
 // TODO: move to config
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError(error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        queryClient.invalidateQueries('authUser');
+      }
+    }
+  })
+})
 
 ReactDOM.render(
   <React.StrictMode>

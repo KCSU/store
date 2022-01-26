@@ -43,7 +43,6 @@ export function TicketBuyForm({
         </Text>
       </Box>
       <TicketOptions
-        options={formal.options}
         hasShadow={hasShadow}
         value={ticket.option}
         onChange={value => onChange({type: 'option', value})}
@@ -55,7 +54,6 @@ export function TicketBuyForm({
       {guestTickets.map((t, i) => (
         <TicketOptions
           key={`guestTickets.${i}`}
-          options={formal.options}
           hasShadow={hasShadow}
           value={t.option}
           onChange={value => onChange({type: 'guestTicket', index: i, value})}
