@@ -26,11 +26,15 @@ const routes = [
   }
 ];
 
-export function SidebarContent() {
+interface SidebarContentProps {
+  onClose?: () => void;
+}
+
+export function SidebarContent({onClose}: SidebarContentProps) {
   return (
     <VStack spacing="12px">
       {routes.map(({ to, title, icon, end }) => (
-        <SidebarItem to={to} icon={icon} end={end} key={to}>
+        <SidebarItem to={to} icon={icon} onClick={onClose} end={end} key={to}>
           {title}
         </SidebarItem>
       ))}

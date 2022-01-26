@@ -12,6 +12,7 @@ import { IconBox } from "../utility/IconBox";
 interface SidebarItemProps {
   icon: As<any>;
   to: To;
+  onClick?: () => void;
   end?: boolean;
 }
 
@@ -19,6 +20,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
   children,
   icon,
   to,
+  onClick,
   end,
 }) => {
   const activeBg = useColorModeValue("white", "gray.700");
@@ -32,6 +34,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
     <Button
       as={Link}
       to={to}
+      onClick={onClick}
       boxSize="initial"
       justifyContent="flex-start"
       alignItems="center"

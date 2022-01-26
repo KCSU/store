@@ -45,7 +45,7 @@ export function Sidebar({ isOpen, variant, onClose }: SidebarProps) {
       <Heading mb="12px" size="xl" as="h1">
         KiFoMaSy
       </Heading>
-      <SidebarContent /*onClick={onClose}*/ />
+      <SidebarContent onClose={onClose} />
     </MotionBox>
   ) : (
     <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
@@ -54,7 +54,7 @@ export function Sidebar({ isOpen, variant, onClose }: SidebarProps) {
           <DrawerCloseButton />
           <DrawerHeader>KiFoMaSy</DrawerHeader>
           <DrawerBody>
-            <SidebarContent /*onClick={onClose}*/ />
+            <SidebarContent onClose={onClose} />
           </DrawerBody>
         </DrawerContent>
       </DrawerOverlay>
