@@ -67,6 +67,7 @@ func main() {
 	}
 	f := db.NewFormalStore(d)
 	// Query formals
+	// TODO: only get those whose sales have started
 	formals, err := f.Get()
 
 	if err != nil {

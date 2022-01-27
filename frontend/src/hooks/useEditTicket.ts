@@ -18,6 +18,10 @@ export function useEditTicket(ticketId: number) {
           const newTix = tickets.map((t) => updateTicket(t, ticketId, option));
           queryClient.setQueryData("tickets", newTix);
         }
+        toast({
+          title: "Changes Saved",
+          status: "success"
+        })
       },
       onError(error) {
         if (axios.isAxiosError(error)) {

@@ -14,11 +14,11 @@ const routes = [
     title: "Tickets",
     icon: FaTicketAlt,
   },
-  {
-    to: "/profile",
-    title: "My Profile",
-    icon: FaUser
-  },
+  // {
+  //   to: "/profile",
+  //   title: "My Profile",
+  //   icon: FaUser
+  // },
   {
     to: "/settings",
     title: "Settings",

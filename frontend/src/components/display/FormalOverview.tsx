@@ -119,6 +119,7 @@ function FormalStats({ formal }: FormalProps) {
 const BuyButton = forwardRef<FormalProps, "button">(
   ({ formal, ...props }, ref) => {
     const text = getBuyText(formal);
+    // What if ticket already bought??
     const disabled = formal.saleEnd < new Date();
     return (
       <Button
@@ -135,14 +136,62 @@ const BuyButton = forwardRef<FormalProps, "button">(
   }
 );
 
+interface BuyTicketModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  formal: Formal;
+}
+
+function BuyTicketModal({ isOpen, onClose, formal }: BuyTicketModalProps) {
+  const navigate = useNavigate();
+  const modalBg = useColorModeValue("gray.50", "gray.800");
+  const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
+  const mutation = useBuyTicket();
+  return (
+    <Modal isOpen={isOpen} onClose={onClose}>
+      <ModalOverlay />
+      <ModalContent bg={modalBg}>
+        <ModalHeader>Ticket Purchase</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <TicketBuyForm
+            value={queueRequest}
+            formal={formal}
+            onChange={dispatchQR}
+          />
+        </ModalBody>
+
+        <ModalFooter>
+          <Button
+            isLoading={mutation.isLoading}
+            colorScheme="brand"
+            mr={3}
+            onClick={async () => {
+              await mutation.mutateAsync(queueRequest);
+              onClose();
+              // TODO: fix this
+              setTimeout(() => navigate("/tickets"), 300);
+            }}
+          >
+            {getBuyText(formal)}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            isDisabled={mutation.isLoading}
+          >
+            Cancel
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
+
 export const FormalOverview = forwardRef<FormalProps, "div">(
   ({ formal }, ref) => {
-    const navigate = useNavigate();
-    const modalBg = useColorModeValue("gray.50", "gray.800");
     const { isOpen, onOpen, onClose } = useDisclosure();
     const datetime = useDateTime(formal.dateTime);
-    const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
-    const mutation = useBuyTicket();
     return (
       <Card ref={ref}>
         <HStack mb="2">
@@ -159,40 +208,7 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
           </Button>
           <BuyButton formal={formal} onClick={onOpen}></BuyButton>
         </HStack>
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent bg={modalBg}>
-            <ModalHeader>Ticket Purchase</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <TicketBuyForm
-                value={queueRequest}
-                formal={formal}
-                onChange={dispatchQR}
-              />
-            </ModalBody>
-
-            <ModalFooter>
-              <Button
-                isLoading={mutation.isLoading}
-                colorScheme="brand"
-                mr={3}
-                onClick={async () => {
-                  await mutation.mutateAsync(queueRequest);
-                  onClose();
-                  // TODO: fix this
-                  setTimeout(() => navigate("/tickets"), 300);
-                }}
-              >
-                {getBuyText(formal)}
-              </Button>
-              <Button variant="ghost" onClick={onClose}
-              isDisabled={mutation.isLoading}>
-                Cancel
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+        <BuyTicketModal formal={formal} onClose={onClose} isOpen={isOpen} />
       </Card>
     );
   }

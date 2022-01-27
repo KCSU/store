@@ -35,7 +35,7 @@ export function useProcessedTickets(tickets: FormalTicket[]): Tickets {
       }
     }
     return result;
-  }, tickets);
+  }, [tickets]);
 }
 
 export function useTickets() {
