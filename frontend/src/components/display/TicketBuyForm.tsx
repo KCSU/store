@@ -17,6 +17,7 @@ import { formatMoney } from "../../helpers/formatMoney";
 import { QueueRequestAction } from "../../hooks/useQueueRequest";
 import { Formal } from "../../model/Formal";
 import { QueueRequest } from "../../model/QueueRequest";
+import { PriceStat } from "./PriceStat";
 import { TicketOptions } from "./TicketOptions";
 
 interface TicketBuyFormProps {
@@ -81,13 +82,7 @@ export function TicketBuyForm({
           Add Guest Ticket
         </Button>
       )}
-      <Stat textAlign="center">
-        <StatLabel>Overall ticket price:</StatLabel>
-        <StatNumber>
-          {formatMoney(formal.price + formal.guestPrice * guestTickets.length)}
-        </StatNumber>
-        <StatHelpText>Will be added to college bill</StatHelpText>
-      </Stat>
+      <PriceStat formal={formal} guestTickets={guestTickets}/>
     </VStack>
   );
 }

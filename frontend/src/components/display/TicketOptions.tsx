@@ -12,12 +12,14 @@ interface TicketOptionsProps {
   value?: string;
   onChange?: (value: string) => void;
   hasShadow?: boolean;
+  footer?: React.ReactNode;
 }
 
 export const TicketOptions: React.FC<TicketOptionsProps> = ({
   value,
   onChange,
   children,
+  footer,
   hasShadow = true,
 }) => {
   const options = ["Normal", "Vegetarian", "Vegan", "Pescetarian"];
@@ -55,6 +57,7 @@ export const TicketOptions: React.FC<TicketOptionsProps> = ({
           ></CreatableSelect>
         </Box>
       </FormControl>
+      {footer}
     </Card>
   );
 };

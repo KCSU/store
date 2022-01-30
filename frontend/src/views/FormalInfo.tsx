@@ -3,15 +3,14 @@ import {
   Button,
   Container,
   Heading,
-  Icon,
   Text,
   VStack,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { FaArrowLeft } from "react-icons/fa";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { TicketBuyForm } from "../components/display/TicketBuyForm";
+import { BackButton } from "../components/utility/BackButton";
 import { Card } from "../components/utility/Card";
 import { formatMoney } from "../helpers/formatMoney";
 import { getBuyText } from "../helpers/getBuyText";
@@ -70,16 +69,7 @@ function FormalInfoView({formal}: FormalInfoViewProps) {
   return (
     // TODO: guest list, responsive meal option
     <Container maxW="container.md" p={0}>
-      <Button
-        as={Link}
-        // size="sm"
-        to="/"
-        variant="ghost"
-        mb={4}
-        leftIcon={<Icon as={FaArrowLeft} />}
-      >
-        Back Home
-      </Button>
+      <BackButton>Back Home</BackButton>
       <Card mb={5}>
         <Heading as="h3" size="lg" mb={1}>
           {formal.name}

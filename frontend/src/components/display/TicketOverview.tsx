@@ -24,6 +24,7 @@ import {
 } from "@chakra-ui/react";
 import { useRef } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
 import { useCancelTickets } from "../../hooks/useCancelTickets";
 import { useDateTime } from "../../hooks/useDateTime";
@@ -178,7 +179,13 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
         </Table>
       </Box>
       <HStack justifyContent="flex-end">
-        <Button size="sm" variant="outline" leftIcon={<FaEdit />}>
+        <Button
+          size="sm"
+          variant="outline"
+          leftIcon={<FaEdit />}
+          as={Link}
+          to={`/tickets/${ticket.ticket.id}`}
+        >
           Edit
         </Button>
         <CancelTicketButton formalId={ticket.formal.id} isQueue={queue} />

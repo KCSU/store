@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import { Route, Routes as ReactRoutes, useLocation } from "react-router";
 import { generateMotion } from "./components/utility/generateMotion";
 import { RequireAuth } from "./components/utility/RequireAuth";
+import { EditTickets } from "./views/EditTickets";
 import { FormalInfo } from "./views/FormalInfo";
 import { Home } from "./views/Home";
 import { Login } from "./views/Login";
@@ -41,6 +42,7 @@ export function Routes() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/formals/:formalId" element={<FormalInfo />} />
             <Route path="/tickets" element={<TicketsView />} />
+            <Route path="/tickets/:id" element={<EditTickets />}/>
           </Route>
         </ReactRoutes>
       </MotionBox>
