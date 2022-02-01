@@ -12,21 +12,15 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
 } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { FaEdit, FaSave, FaTrashAlt } from "react-icons/fa";
 import { formatMoney } from "../../helpers/formatMoney";
-import { useCancelTicket } from "../../hooks/useCancelTicket";
 import { useDateTime } from "../../hooks/useDateTime";
 import { useEditTicket } from "../../hooks/useEditTicket";
 import { QueueTicket } from "../../model/Queue";
 import { Card } from "../utility/Card";
+import { CancelGuestDialog } from "./CancelGuestDialog";
 import { TicketOptions } from "./TicketOptions";
 
 interface QueueOverviewProps {
@@ -58,7 +52,7 @@ export function QueueOverview({ ticket }: QueueOverviewProps) {
         >
           Edit
         </Button>
-        <CancelQueueButton ticketId={ticket.ticket.id} />
+        <CancelGuestButton ticketId={ticket.ticket.id} />
         {/* <CancelTicketButton formalId={ticket.formal.id} isQueue={queue} /> */}
       </HStack>
       <EditQueueTicket isOpen={isOpen} onClose={onClose} ticket={ticket} />
@@ -120,14 +114,12 @@ function EditQueueTicket({ isOpen, onClose, ticket }: EditQueueTicketProps) {
   );
 }
 
-interface CancelQueueButtonProps {
+interface CancelGuestButtonProps {
   ticketId: number;
 }
 
-function CancelQueueButton({ ticketId }: CancelQueueButtonProps) {
+function CancelGuestButton({ ticketId }: CancelGuestButtonProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = useRef(null);
-  const mutation = useCancelTicket();
 
   return (
     <>
@@ -139,44 +131,8 @@ function CancelQueueButton({ ticketId }: CancelQueueButtonProps) {
       >
         Cancel
       </Button>
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Cancel Ticket
-            </AlertDialogHeader>
-
-            <AlertDialogBody>
-              Are you sure you want to cancel your ticket?
-            </AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button
-                colorScheme="red"
-                onClick={async () => {
-                  await mutation.mutateAsync(ticketId);
-                  onClose();
-                }}
-                isLoading={mutation.isLoading}
-              >
-                Cancel Request
-              </Button>
-              <Button
-                ref={cancelRef}
-                onClick={onClose}
-                ml={3}
-                isDisabled={mutation.isLoading}
-              >
-                Go Back
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+      <CancelGuestDialog isOpen={isOpen} onClose={onClose} ticketId={ticketId}/>
     </>
   );
 }
+
