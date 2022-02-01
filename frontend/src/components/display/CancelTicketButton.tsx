@@ -15,7 +15,9 @@ import { useCancelTickets } from "../../hooks/useCancelTickets";
 export interface CancelTicketButtonProps {
   formalId: number;
   size?: string;
-  confirmText: string | React.ReactNode;
+  confirmText: string;
+  body?: string;
+  title?: string;
   onSuccess?: () => void;
 }
 
@@ -23,6 +25,8 @@ export function CancelTicketButton({
   formalId,
   size="sm",
   confirmText,
+  body,
+  title,
   onSuccess = () => {}
 }: CancelTicketButtonProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -48,11 +52,11 @@ export function CancelTicketButton({
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Cancel Ticket
+              {title ?? 'Cancel Ticket'}
             </AlertDialogHeader>
 
             <AlertDialogBody>
-              Are you sure you want to cancel your ticket?
+              {body ?? 'Are you sure you want to cancel your ticket?'}
             </AlertDialogBody>
 
             <AlertDialogFooter>

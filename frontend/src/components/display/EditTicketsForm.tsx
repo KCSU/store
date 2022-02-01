@@ -46,6 +46,8 @@ export function EditTicketsForm({
           size="md"
           formalId={formal.id}
           confirmText="Cancel Tickets"
+          title="Cancel Tickets"
+          body={`Are you sure you want to cancel your tickets for "${formal.name}"?`}
           onSuccess={() => navigate("/tickets")}
         />
         <Button
