@@ -1,16 +1,9 @@
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Badge,
   Box,
   Button,
   Heading,
   HStack,
-  Progress,
   Table,
   Tbody,
   Td,
@@ -20,79 +13,14 @@ import {
   Thead,
   Tooltip,
   Tr,
-  useDisclosure,
 } from "@chakra-ui/react";
-import { useRef } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
-import { useCancelTickets } from "../../hooks/useCancelTickets";
 import { useDateTime } from "../../hooks/useDateTime";
 import { FormalTicket } from "../../model/Ticket";
 import { Card } from "../utility/Card";
-
-interface CancelTicketButtonProps {
-  formalId: number;
-  isQueue: boolean;
-}
-
-function CancelTicketButton({ isQueue, formalId }: CancelTicketButtonProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = useRef(null);
-  const mutation = useCancelTickets();
-
-  return (
-    <>
-      <Button
-        size="sm"
-        colorScheme="red"
-        leftIcon={<FaTrashAlt />}
-        onClick={onOpen}
-      >
-        Cancel {isQueue ? " Request" : " Ticket"}
-      </Button>
-
-      <AlertDialog
-        isOpen={isOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={onClose}
-      >
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Cancel Ticket
-            </AlertDialogHeader>
-
-            <AlertDialogBody>
-              Are you sure you want to cancel your ticket?
-            </AlertDialogBody>
-
-            <AlertDialogFooter>
-              <Button
-                colorScheme="red"
-                onClick={async () => {
-                  await mutation.mutateAsync(formalId);
-                  onClose();
-                }}
-                isLoading={mutation.isLoading}
-              >
-                Cancel {isQueue ? " Request" : " Ticket"}
-              </Button>
-              <Button
-                ref={cancelRef}
-                onClick={onClose}
-                ml={3}
-                isDisabled={mutation.isLoading}
-              >
-                Go Back
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-    </>
-  );
-}
+import { CancelTicketButton } from "./CancelTicketButton";
 
 interface TicketOverviewProps {
   ticket: FormalTicket;
@@ -188,7 +116,9 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
         >
           Edit
         </Button>
-        <CancelTicketButton formalId={ticket.formal.id} isQueue={queue} />
+        <CancelTicketButton formalId={ticket.formal.id} confirmText={
+          `Cancel ${queue ? " Request" : " Ticket"}`
+        }/>
       </HStack>
       {/* {queue && (
         <Progress

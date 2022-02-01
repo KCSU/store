@@ -9,6 +9,7 @@ export function useCancelTicket() {
         onSuccess() {
             // TODO: just delete? also other instances
             // Also TODO: brief delay??
+            // Toast?
             queryClient.invalidateQueries('tickets');
         }
     })
