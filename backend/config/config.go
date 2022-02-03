@@ -27,7 +27,7 @@ type Config struct {
 func Init() *Config {
 	godotenv.Load() // Handle err?
 	c := &Config{}
-	if err := envconfig.Process("APP", c); err != nil {
+	if err := envconfig.Process("", c); err != nil {
 		log.Panic(err) // TODO: use JSON log?
 	}
 	return c
