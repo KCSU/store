@@ -39,6 +39,8 @@ func Init() *echo.Echo {
 		e.Use(em.Recover())
 	}
 
+	api := e.Group("/api")
+
 	// ROUTE HANDLERS
 	// Create the handler object which stores useful data and methods
 	store := auth.InitSessionStore(c)
@@ -49,21 +51,19 @@ func Init() *echo.Echo {
 	requireAuth := middleware.JWTAuth(c)
 
 	// TODO: remove
-	e.GET("/", h.GetHello)
+	api.GET("/", h.GetHello)
 
 	// Auth Routes
-	e.GET("/auth/redirect", h.AuthRedirect)
-	e.GET("/auth/callback", h.AuthCallback)
-	e.GET("/auth/user", h.GetUser, requireAuth)
-	e.POST("/auth/logout", h.Logout, requireAuth)
+	api.GET("/auth/user", h.GetUser, requireAuth)
+	api.POST("/auth/logout", h.Logout, requireAuth)
 
-	formals := e.Group("/formals", requireAuth)
+	formals := api.Group("/formals", requireAuth)
 	// Formal routes
 	formals.GET("", h.GetFormals)
 	formals.POST("/:id/tickets", h.AddTicket)
 	formals.DELETE("/:id/tickets", h.CancelTickets)
 
-	tickets := e.Group("/tickets", requireAuth)
+	tickets := api.Group("/tickets", requireAuth)
 	// Ticket routes
 	tickets.GET("", h.GetTickets)
 	tickets.POST("", h.BuyTicket)
