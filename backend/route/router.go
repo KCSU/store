@@ -54,10 +54,11 @@ func Init() *echo.Echo {
 	api.GET("/", h.GetHello)
 
 	// Auth Routes
-	api.GET("/auth/redirect", h.AuthRedirect)
-	api.GET("/auth/callback", h.AuthCallback)
-	api.GET("/auth/user", h.GetUser, requireAuth)
-	api.POST("/auth/logout", h.Logout, requireAuth)
+	auth := api.Group("/auth")
+	auth.GET("/redirect", h.AuthRedirect)
+	auth.GET("/callback", h.AuthCallback)
+	auth.GET("/user", h.GetUser, requireAuth)
+	auth.POST("/logout", h.Logout, requireAuth)
 
 	formals := api.Group("/formals", requireAuth)
 	// Formal routes
