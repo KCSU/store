@@ -54,8 +54,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     environment: production
+    defaults:
+      run:
+        working-directory: backend
     # TODO: one for each via matrix
     steps:
+    # TODO: migrate db
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
