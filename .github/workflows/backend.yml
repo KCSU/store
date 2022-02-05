@@ -59,14 +59,34 @@ jobs:
         working-directory: backend
     # TODO: one for each via matrix
     steps:
-    # TODO: migrate db
+      - uses: actions/checkout@v2
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - run: go run ./tools/migrate
+        name: Migrate DB
+        env:
+          DB_CONNECTION: '${{ secrets.DB_CONNECTION }}'
       - id: 'auth'
         uses: 'google-github-actions/auth@v0'
         with:
           credentials_json: '${{ secrets.GCR_JSON_KEY }}'
-      - name: 'Deploy to Cloud Run'
+      - name: Deploy api to Cloud Run
         uses: 'google-github-actions/deploy-cloudrun@v0'
         with:
           image: 'eu.gcr.io/kifomasy/api:edge'
           region: europe-west1
-          service: 'api'
+          service: api
+      - name: Deploy lookup to Cloud Run
+        uses: 'google-github-actions/deploy-cloudrun@v0'
+        with:
+          image: 'eu.gcr.io/kifomasy/lookup:edge'
+          region: europe-west1
+          service: lookup
+      - name: Deploy queue to Cloud Run
+        uses: 'google-github-actions/deploy-cloudrun@v0'
+        with:
+          image: 'eu.gcr.io/kifomasy/queue:edge'
+          region: europe-west1
+          service: queue

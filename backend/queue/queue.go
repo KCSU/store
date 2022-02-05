@@ -85,6 +85,7 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 			return err
 		}
 
+		// TODO: make this fair to people who only want one!
 		guestTickets, err := GetGuestQueueByUsers(&formal, successfulUsers, d)
 		if err != nil {
 			return err
