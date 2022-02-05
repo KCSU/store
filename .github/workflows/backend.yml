@@ -64,4 +64,5 @@ jobs:
         uses: 'google-github-actions/deploy-cloudrun@v0'
         with:
           image: 'eu.gcr.io/kifomasy/api:edge'
+          region: europe-west1
           service: 'api'

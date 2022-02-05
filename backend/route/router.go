@@ -50,10 +50,12 @@ func Init() *echo.Echo {
 	// Authentication middleware
 	requireAuth := middleware.JWTAuth(c)
 
-	// TODO: remove
+	// TODO: change to health
 	api.GET("/", h.GetHello)
 
 	// Auth Routes
+	api.GET("/auth/redirect", h.AuthRedirect)
+	api.GET("/auth/callback", h.AuthCallback)
 	api.GET("/auth/user", h.GetUser, requireAuth)
 	api.POST("/auth/logout", h.Logout, requireAuth)
 
