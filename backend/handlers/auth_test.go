@@ -17,6 +17,7 @@ import (
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth"
+	"github.com/quasoft/memstore"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -86,6 +87,8 @@ func (a *AuthSuite) TestAuthCallback() {
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	sess := memstore.NewMemStore()
+	c.Set("_session_store", sess)
 	// Mock
 	user := model.User{
 		Name:           "John Locke",
@@ -111,22 +114,21 @@ func (a *AuthSuite) TestAuthCallback() {
 	a.NoError(err)
 	a.Equal(redirect, location.String())
 	// Check JWT
-	if a.Len(rec.Result().Cookies(), 1) {
-		cookie := rec.Result().Cookies()[0]
-		a.Equal(cookie.Name, "_token")
-		token, err := jwt.ParseWithClaims(
-			cookie.Value, &auth.JwtClaims{},
-			func(t *jwt.Token) (interface{}, error) {
-				return []byte(jwtSecret), nil
-			},
-		)
-		a.NoError(err)
-		a.True(token.Valid)
-		claims := token.Claims.(*auth.JwtClaims)
-		a.Equal(strconv.Itoa(int(user.ID)), claims.Subject)
-		a.Equal(user.Name, claims.Name)
-		a.Equal(user.Email, claims.Email)
-	}
+	session, err := sess.Get(req, "__session")
+	a.NoError(err)
+	a.NotNil(session.Values["_token"])
+	token, err := jwt.ParseWithClaims(
+		session.Values["_token"].(string), &auth.JwtClaims{},
+		func(t *jwt.Token) (interface{}, error) {
+			return []byte(jwtSecret), nil
+		},
+	)
+	a.NoError(err)
+	a.True(token.Valid)
+	claims := token.Claims.(*auth.JwtClaims)
+	a.Equal(strconv.Itoa(int(user.ID)), claims.Subject)
+	a.Equal(user.Name, claims.Name)
+	a.Equal(user.Email, claims.Email)
 	a.auth.AssertExpectations(a.T())
 	a.users.AssertExpectations(a.T())
 }
@@ -172,24 +174,14 @@ func (a *AuthSuite) TestLogout() {
 	// HTTP
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodPost, "/logout", nil)
-	req.AddCookie(&http.Cookie{
-		Name:     "_token",
-		Value:    "abcdefg",
-		HttpOnly: true,
-		Path:     "/",
-	})
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	sess := memstore.NewMemStore()
+	c.Set("_session_store", sess)
 	// Test
 	err := a.h.Logout(c)
 	a.NoError(err)
 	a.Equal(http.StatusOK, rec.Code)
-	a.Len(rec.Result().Cookies(), 1)
-	cookie := rec.Result().Cookies()[0]
-	a.Equal("_token", cookie.Name)
-	a.Equal("", cookie.Value)
-	a.Equal(-1, cookie.MaxAge)
-	a.Equal(true, cookie.HttpOnly)
 }
 
 func TestUserSuite(t *testing.T) {

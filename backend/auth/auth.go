@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	sessionName  = "_oauth_session"
+	sessionName  = "__session"
 	providerName = "google"
 	hostedDomain = "cam.ac.uk"
 )

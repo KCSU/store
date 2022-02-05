@@ -8,6 +8,7 @@ import (
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/handlers"
 	"github.com/kcsu/store/middleware"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	em "github.com/labstack/echo/v4/middleware"
 )
@@ -39,13 +40,14 @@ func Init() *echo.Echo {
 		e.Use(em.Recover())
 	}
 
-	api := e.Group("/api")
-
 	// ROUTE HANDLERS
 	// Create the handler object which stores useful data and methods
 	store := auth.InitSessionStore(c)
+	e.Use(session.Middleware(store))
 	a := auth.Init(c, store)
 	h := handlers.NewHandler(*c, d, a)
+
+	api := e.Group("/api")
 
 	// Authentication middleware
 	requireAuth := middleware.JWTAuth(c)

@@ -7,9 +7,11 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/kcsu/store/auth"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 )
 
+const sessionName = "__session"
 const cookieName = "_token"
 
 // TODO: Rework entirely
@@ -61,16 +63,12 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 		return err
 	}
 
-	cookie := new(http.Cookie)
-	cookie.Name = cookieName
-	cookie.Value = t
-	// TODO: short-lived, refresh tokens
-	cookie.Expires = time.Now().Add(24 * time.Hour)
-	// Cookie is secure in production
-	cookie.Secure = !h.Config.Debug
-	cookie.Path = "/"
-	cookie.HttpOnly = true
-	c.SetCookie(cookie)
+	sess, err := session.Get(sessionName, c)
+	if err != nil {
+		return err
+	}
+	sess.Values[cookieName] = t
+	sess.Save(c.Request(), c.Response())
 
 	// TODO: Redirect instead?
 	return c.Redirect(http.StatusTemporaryRedirect, h.Config.OauthRedirectUrl)
@@ -89,13 +87,11 @@ func (h *Handler) AuthRedirect(c echo.Context) error {
 }
 
 func (h *Handler) Logout(c echo.Context) error {
-	c.SetCookie(&http.Cookie{
-		Name:     cookieName,
-		Value:    "",
-		HttpOnly: true,
-		Path:     "/",
-		Secure:   !h.Config.Debug,
-		MaxAge:   -1,
-	})
+	sess, err := session.Get(sessionName, c)
+	if err != nil {
+		return err
+	}
+	delete(sess.Values, cookieName)
+	sess.Save(c.Request(), c.Response())
 	return c.NoContent(http.StatusOK)
 }
