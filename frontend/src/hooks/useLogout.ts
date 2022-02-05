@@ -5,7 +5,7 @@ export function useLogout() {
   const queryClient = useQueryClient();
   return useMutation(
     () => {
-      return api.post<void>("auth/logout");
+      return api.post<void>("oauth/logout");
     },
     {
       onSuccess() {

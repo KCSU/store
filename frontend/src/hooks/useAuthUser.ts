@@ -6,7 +6,7 @@ import { User } from "../model/User";
 export function useAuthUser() {
     return useQuery<User | undefined>('authUser', async () => {
         try {
-            const r = await api.get<User>("auth/user");
+            const r = await api.get<User>("oauth/user");
             return r.data;
         } catch (err) {
             if (axios.isAxiosError(err) && err.response?.status === 401) {

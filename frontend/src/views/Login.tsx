@@ -14,7 +14,7 @@ export function Login() {
   const { data: user, isError, isLoading } = useAuthUser();
   const from: string = (location.state as any)?.from ?? "/";
   const filter = useColorModeValue("invert()", undefined);
-  const redirectUrl = import.meta.env.VITE_API_BASE_URL + 'auth/redirect';
+  const redirectUrl = import.meta.env.VITE_API_BASE_URL + 'oauth/redirect';
   if (user && !isError && !isLoading) {
     return <Navigate to={from} />;
   }

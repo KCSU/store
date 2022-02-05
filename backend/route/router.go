@@ -54,7 +54,7 @@ func Init() *echo.Echo {
 	api.GET("/", h.GetHello)
 
 	// Auth Routes
-	auth := api.Group("/auth")
+	auth := api.Group("/oauth")
 	auth.GET("/redirect", h.AuthRedirect)
 	auth.GET("/callback", h.AuthCallback)
 	auth.GET("/user", h.GetUser, requireAuth)
