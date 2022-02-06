@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
@@ -77,7 +78,6 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 	// 	return err
 	// }
 
-	// Check that formal permits this many tickets
 	formal, err := h.Formals.Find(int(t.FormalId))
 	if err != nil {
 		// Check whether error is formal existence?
@@ -93,6 +93,12 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		return echo.ErrForbidden
 	}
 
+	// Check that tickets are still on sale
+	if time.Now().After(formal.SaleEnd) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Sales have closed.")
+	}
+
+	// Check that formal permits this many tickets
 	if len(t.GuestTickets) > int(formal.GuestLimit) {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Too many guest tickets requested.")
 	}
@@ -146,6 +152,17 @@ func (h *Handler) CancelTickets(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 
+	formal, err := h.Formals.Find(formalID)
+	if err != nil {
+		// Check whether error is formal existence?
+		return err
+	}
+
+	// Check that tickets are still on sale
+	if time.Now().After(formal.SaleEnd) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Sales have closed.")
+	}
+
 	// [Soft-]delete ticket from the database
 	if err := h.Tickets.DeleteByFormal(formalID, userId); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -166,13 +183,19 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 	// Fetch ticket from the database
-	ticket, err := h.Tickets.Find(ticketID)
+	ticket, err := h.Tickets.FindWithFormal(ticketID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
 		}
 		return err
 	}
+
+	// Cannot cancel after sales have ended
+	if time.Now().After(ticket.Formal.SaleEnd) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Sales have closed.")
+	}
+
 	// Check the ticket really belongs to the logged-in user
 	if ticket.UserId != userId {
 		return echo.ErrForbidden
@@ -197,13 +220,19 @@ func (h *Handler) EditTicket(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 	// Fetch ticket from the database
-	ticket, err := h.Tickets.Find(ticketID)
+	ticket, err := h.Tickets.FindWithFormal(ticketID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
 		}
 		return err
 	}
+
+	// Cannot edit after sales have ended
+	if time.Now().After(ticket.Formal.SaleEnd) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Sales have closed.")
+	}
+
 	// Check the ticket really belongs to the logged-in user
 	if ticket.UserId != userId {
 		return echo.ErrForbidden
@@ -258,6 +287,12 @@ func (h *Handler) AddTicket(c echo.Context) error {
 		}
 		return err
 	}
+
+	// Check that tickets are still on sale
+	if time.Now().After(formal.SaleEnd) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Sales have closed.")
+	}
+
 	if int64(formal.GuestLimit)-count <= 0 {
 		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Too many guest tickets requested.")
 	}

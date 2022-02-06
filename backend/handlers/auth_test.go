@@ -177,11 +177,18 @@ func (a *AuthSuite) TestLogout() {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	sess := memstore.NewMemStore()
+	s, err := sess.New(req, "__session")
+	a.Require().NoError(err)
+	s.Values["_token"] = "token"
+	s.Save(req, rec)
 	c.Set("_session_store", sess)
 	// Test
-	err := a.h.Logout(c)
+	err = a.h.Logout(c)
 	a.NoError(err)
 	a.Equal(http.StatusOK, rec.Code)
+	s, err = sess.Get(req, "__session")
+	a.NoError(err)
+	a.NotContains(s.Values, "_token")
 }
 
 func TestUserSuite(t *testing.T) {

@@ -15,6 +15,8 @@ type TicketStore interface {
 	Get(userId int) ([]model.Ticket, error)
 	// Get a ticket by its id
 	Find(id int) (model.Ticket, error)
+	// Get a ticket by its id with formal relation
+	FindWithFormal(id int) (model.Ticket, error)
 	// Update a ticket meal option by id
 	Update(id int, ticket *dto.TicketRequestDto) error
 	// Create tickets in batch
@@ -54,6 +56,13 @@ func (t *DBTicketStore) Get(userId int) ([]model.Ticket, error) {
 func (t *DBTicketStore) Find(id int) (model.Ticket, error) {
 	var ticket model.Ticket
 	err := t.db.First(&ticket, id).Error
+	return ticket, err
+}
+
+// Get a ticket by its id
+func (t *DBTicketStore) FindWithFormal(id int) (model.Ticket, error) {
+	var ticket model.Ticket
+	err := t.db.Preload("Formal").First(&ticket, id).Error
 	return ticket, err
 }
 

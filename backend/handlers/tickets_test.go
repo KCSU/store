@@ -228,6 +228,7 @@ func (t *TicketSuite) TestBuyTicket() {
 					{Model: model.Model{ID: 2}},
 					{Model: model.Model{ID: 4}},
 				},
+				SaleEnd: time.Now().AddDate(0, 0, 1),
 			},
 			false,
 			&wants{http.StatusForbidden, "Forbidden"},
@@ -250,6 +251,7 @@ func (t *TicketSuite) TestBuyTicket() {
 					{Model: model.Model{ID: 3}},
 					{Model: model.Model{ID: 4}},
 				},
+				SaleEnd: time.Now().AddDate(0, 0, 1),
 			},
 			false,
 			&wants{http.StatusUnprocessableEntity, "Too many guest tickets requested."},
@@ -272,9 +274,33 @@ func (t *TicketSuite) TestBuyTicket() {
 					{Model: model.Model{ID: 3}},
 					{Model: model.Model{ID: 1}},
 				},
+				SaleEnd: time.Now().AddDate(0, 0, 1),
 			},
 			true,
 			&wants{http.StatusConflict, "Ticket already exists."},
+		},
+		{
+			"Sales Closed",
+			`{
+				"formalId": 4,
+				"ticket": {"option": "Normal"},
+				"guestTickets": [
+					{"option": "Pescetarian"},
+					{"option": "Vegan"}
+				]	
+			}`,
+			model.Formal{
+				Model:      model.Model{ID: 4},
+				Name:       "Wrong Group Formal",
+				GuestLimit: 3,
+				Groups: []model.Group{
+					{Model: model.Model{ID: 1}},
+					{Model: model.Model{ID: 2}},
+				},
+				SaleEnd: time.Now().AddDate(0, 0, -3),
+			},
+			false,
+			&wants{http.StatusUnprocessableEntity, "Sales have closed."},
 		},
 		{
 			"Should Create",
@@ -294,6 +320,7 @@ func (t *TicketSuite) TestBuyTicket() {
 					{Model: model.Model{ID: 1}},
 					{Model: model.Model{ID: 2}},
 				},
+				SaleEnd: time.Now().AddDate(0, 0, 1),
 			},
 			false,
 			nil,
@@ -346,6 +373,9 @@ func (t *TicketSuite) TestCancelTickets() {
 	c.SetParamNames("id")
 	formalId := 7
 	c.SetParamValues(strconv.Itoa(formalId))
+	t.formals.On("Find", formalId).Return(model.Formal{
+		SaleEnd: time.Now().AddDate(0, 0, 7),
+	}, nil)
 	// Mock
 	t.tickets.On("DeleteByFormal", formalId, userId).Return(nil)
 	err := t.h.CancelTickets(c)
@@ -377,6 +407,13 @@ func (t *TicketSuite) TestCancelTicket() {
 			IsGuest:  false,
 			IsQueue:  true,
 		}, &wants{http.StatusForbidden, "Non-guest tickets must be cancelled as a group"}},
+		{"Sales Closed", model.Ticket{
+			UserId:   userId,
+			FormalID: 55,
+			IsGuest:  true,
+			IsQueue:  true,
+			Formal:   &model.Formal{SaleEnd: time.Now().AddDate(0, 0, -5)},
+		}, &wants{http.StatusUnprocessableEntity, "Sales have closed."}},
 		{"Should Cancel", model.Ticket{
 			UserId:   userId,
 			FormalID: 55,
@@ -395,7 +432,13 @@ func (t *TicketSuite) TestCancelTicket() {
 			ticketId := 84
 			c.SetParamValues(strconv.Itoa(ticketId))
 			// Mock
-			t.tickets.On("Find", ticketId).Return(test.ticket, nil).Once()
+			ticket := test.ticket
+			if ticket.Formal == nil {
+				ticket.Formal = &model.Formal{
+					SaleEnd: time.Now().AddDate(0, 0, 1),
+				}
+			}
+			t.tickets.On("FindWithFormal", ticketId).Return(ticket, nil).Once()
 			if test.wants == nil {
 				t.tickets.On("Delete", ticketId).Return(nil).Once()
 			}
@@ -434,6 +477,15 @@ func (t *TicketSuite) TestEditTicket() {
 			IsGuest:  true,
 			IsQueue:  false,
 		}, "Vegetarian", &wants{http.StatusForbidden, "Forbidden"}},
+		{"Sale Closed", model.Ticket{
+			UserId:   userId,
+			FormalID: 55,
+			IsGuest:  true,
+			IsQueue:  true,
+			Formal: &model.Formal{
+				SaleEnd: time.Now().AddDate(0, 0, -7),
+			},
+		}, "Normal", &wants{http.StatusUnprocessableEntity, "Sales have closed."}},
 		{"Should Update", model.Ticket{
 			UserId:   userId,
 			FormalID: 55,
@@ -461,7 +513,12 @@ func (t *TicketSuite) TestEditTicket() {
 			c.SetParamValues(strconv.Itoa(ticketId))
 			// Mock
 			test.ticket.ID = uint(ticketId)
-			t.tickets.On("Find", ticketId).Return(test.ticket, nil).Once()
+			if test.ticket.Formal == nil {
+				test.ticket.Formal = &model.Formal{
+					SaleEnd: time.Now().AddDate(0, 0, 12),
+				}
+			}
+			t.tickets.On("FindWithFormal", ticketId).Return(test.ticket, nil).Once()
 			if test.wants == nil {
 				t.tickets.On(
 					"Update", ticketId,
@@ -500,13 +557,23 @@ func (t *TicketSuite) TestAddTicket() {
 		"Should Add",
 		model.Formal{
 			GuestLimit: 4,
+			SaleEnd:    time.Now().AddDate(0, 0, 1),
 		},
 		"Vegetarian",
 		nil,
 	}, {
+		"Sale Closed",
+		model.Formal{
+			GuestLimit: 4,
+			SaleEnd:    time.Now().AddDate(0, 0, -1),
+		},
+		"Normal",
+		&wants{http.StatusUnprocessableEntity, "Sales have closed."},
+	}, {
 		"Guest Limit",
 		model.Formal{
 			GuestLimit: 2,
+			SaleEnd:    time.Now().AddDate(0, 0, 1),
 		},
 		"Pescetarian",
 		&wants{http.StatusUnprocessableEntity, "Too many guest tickets requested."},
