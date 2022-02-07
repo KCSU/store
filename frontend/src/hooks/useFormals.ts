@@ -22,6 +22,6 @@ export function useFormals() {
     const response = await api.get<FormalDto[]>("formals");
     return response.data.map(parseFormal);
   }, {
-    staleTime: 60 * 1000 // 1 minute
+    staleTime: 5 * 60 * 1000 // 5 minutes
   })
 }

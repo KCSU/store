@@ -12,6 +12,7 @@ import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { TicketBuyForm } from "../components/display/TicketBuyForm";
 import { BackButton } from "../components/utility/BackButton";
 import { Card } from "../components/utility/Card";
+import { canBuyTicket } from "../helpers/canBuyTicket";
 import { formatMoney } from "../helpers/formatMoney";
 import { getBuyText } from "../helpers/getBuyText";
 import { useBuyTicket } from "../hooks/useBuyTicket";
@@ -65,6 +66,7 @@ function FormalInfoView({formal}: FormalInfoViewProps) {
   const navigate = useNavigate();
   // State management
   const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
+  const canBuy = canBuyTicket(formal);
 
   return (
     // TODO: guest list, responsive meal option
@@ -119,7 +121,7 @@ function FormalInfoView({formal}: FormalInfoViewProps) {
               {formal.menu}
             </Text>
           </Box>
-          <VStack align="stretch" borderWidth="1px" borderRadius="md" p={3}>
+          { canBuy && <VStack align="stretch" borderWidth="1px" borderRadius="md" p={3}>
             <TicketBuyForm
               formal={formal}
               hasShadow={false}
@@ -136,7 +138,7 @@ function FormalInfoView({formal}: FormalInfoViewProps) {
             >
               {getBuyText(formal)}
             </Button>
-          </VStack>
+          </VStack>}
         </VStack>
       </Card>
     </Container>

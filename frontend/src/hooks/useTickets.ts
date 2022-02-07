@@ -43,7 +43,16 @@ export function useTickets() {
     const {data} = await api.get<FormalTicket[]>("tickets");
     return data;
   }, {
-    staleTime: 60 * 1000, // 1 minute,
-    refetchInterval: 60 * 1000
+    // TODO: change this
+    staleTime: 5 * 60 * 1000, // 1 minute,
+    refetchInterval(data) {
+      if (!data) {
+        return false;
+      }
+      if (data.some(t => t.ticket.isQueue || t.guestTickets.some(gt => gt.isQueue))) {
+        return 60 * 1000;
+      }
+      return false;
+    }
   });
 }
