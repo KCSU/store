@@ -1,13 +1,13 @@
 import { useToast } from "@chakra-ui/react";
-import axios from "axios";
-import { useMutation, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import { api } from "../config/api";
 import { FormalTicket } from "../model/Ticket";
+import { useCustomMutation } from "./useCustomMutation";
 
 export function useEditTicket(ticketId: number) {
   const queryClient = useQueryClient();
   const toast = useToast();
-  return useMutation(
+  return useCustomMutation(
     (option: string) => {
       return api.put<void>(`tickets/${ticketId}`, { option });
     },
@@ -22,16 +22,7 @@ export function useEditTicket(ticketId: number) {
           title: "Changes Saved",
           status: "success"
         })
-      },
-      onError(error) {
-        if (axios.isAxiosError(error)) {
-          toast({
-            title: "Error",
-            description: error.response?.data.message,
-            status: "error",
-          });
-        }
-      },
+      }
     }
   );
 }

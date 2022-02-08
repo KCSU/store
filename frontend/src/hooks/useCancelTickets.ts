@@ -1,9 +1,10 @@
-import { useMutation, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import { api } from "../config/api";
+import { useCustomMutation } from "./useCustomMutation";
 
 export function useCancelTickets() {
     const queryClient = useQueryClient();
-    return useMutation((formalId: number) => {
+    return useCustomMutation((formalId: number) => {
         return api.delete<void>(`formals/${formalId}/tickets`);
     }, {
         onSuccess() {

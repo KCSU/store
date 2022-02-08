@@ -1,13 +1,11 @@
-import { useToast } from "@chakra-ui/react";
-import axios from "axios";
-import { useMutation, useQueryClient } from "react-query";
+import { useQueryClient } from "react-query";
 import { api } from "../config/api";
 import { QueueRequest } from "../model/QueueRequest";
+import { useCustomMutation } from "./useCustomMutation";
 
 export function useBuyTicket() {
   const queryClient = useQueryClient();
-  const toast = useToast();
-  return useMutation(
+  return useCustomMutation(
     async (qr: QueueRequest) => {
       // TODO: return type?
       return api.post<void>("tickets", qr);
@@ -16,16 +14,7 @@ export function useBuyTicket() {
       onSuccess() {
         // Alternatively, setQueryData?
         queryClient.invalidateQueries("tickets");
-      },
-      onError(error) {
-        if (axios.isAxiosError(error)) {
-          toast({
-            title: "Error",
-            description: error.response?.data.message,
-            status: "error",
-          });
-        }
-      },
+      }
     }
   );
 }

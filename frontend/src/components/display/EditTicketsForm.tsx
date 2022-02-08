@@ -21,7 +21,7 @@ import {
 import { useState } from "react";
 import { FaPlus, FaSave, FaTrashAlt, FaUndo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useCanBuyTicket } from "../../hooks/useCanBuyTicket";
+import { useCanBuyTicket, useCanEditTicket } from "../../hooks/useCanBuyTicket";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
 import { useAddTicket } from "../../hooks/useAddTicket";
@@ -44,11 +44,13 @@ export function EditTicketsForm({
 }: EditTicketsFormProps) {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const canEdit = useCanEditTicket(formal);
   return (
     <VStack spacing={3}>
-      <SingleTicketForm formal={formal} ticket={ticket} hasShadow={hasShadow} />
+      <SingleTicketForm formal={formal} ticket={ticket} hasShadow={hasShadow} isDisabled={!canEdit} />
       {guestTickets.map((t, i) => (
         <SingleTicketForm
+          isDisabled={!canEdit}
           key={`guestTickets.${i}`}
           formal={formal}
           ticket={t}
@@ -57,6 +59,7 @@ export function EditTicketsForm({
       ))}
       <HStack spacing={4}>
         <CancelTicketButton
+          isDisabled={!canEdit}
           size="md"
           formalId={formal.id}
           confirmText="Cancel Tickets"
@@ -67,7 +70,7 @@ export function EditTicketsForm({
         <Button
           colorScheme="brand"
           leftIcon={<FaPlus />}
-          isDisabled={guestTickets.length >= formal.guestLimit}
+          isDisabled={guestTickets.length >= formal.guestLimit || !canEdit}
           onClick={onOpen}
         >
           Add Guest Ticket
@@ -83,12 +86,14 @@ interface SingleTicketFormProps {
   formal: Formal;
   ticket: Ticket;
   hasShadow?: boolean;
+  isDisabled?: boolean;
 }
 
 function SingleTicketForm({
   formal,
   ticket,
   hasShadow,
+  isDisabled = false
 }: SingleTicketFormProps) {
   const mutation = useEditTicket(ticket.id);
   const [option, setOption] = useState(ticket.option);
@@ -108,7 +113,7 @@ function SingleTicketForm({
         size="sm"
         colorScheme="brand"
         leftIcon={<FaSave />}
-        isDisabled={option === ticket.option}
+        isDisabled={option === ticket.option || isDisabled}
         isLoading={mutation.isLoading}
         onClick={() => mutation.mutate(option)}
       >
@@ -119,7 +124,8 @@ function SingleTicketForm({
   return (
     <TicketOptions
       hasShadow={hasShadow}
-      // TODO: state
+      // TODO: state, isDisabled
+      isDisabled={isDisabled}
       value={option}
       onChange={setOption}
       footer={footer}
@@ -136,6 +142,7 @@ function SingleTicketForm({
               <IconButton
                 justifySelf="flex-end"
                 colorScheme="red"
+                isDisabled={isDisabled}
                 icon={<FaTrashAlt />}
                 aria-label="Cancel Ticket"
                 size="sm"

@@ -5,6 +5,7 @@ import {
   FormLabel,
   Box,
 } from "@chakra-ui/react";
+import { isDisabled } from "@chakra-ui/utils";
 import { CreatableSelect } from "chakra-react-select";
 import { Card } from "../utility/Card";
 
@@ -12,6 +13,7 @@ interface TicketOptionsProps {
   value?: string;
   onChange?: (value: string) => void;
   hasShadow?: boolean;
+  isDisabled?: boolean;
   footer?: React.ReactNode;
 }
 
@@ -20,6 +22,7 @@ export const TicketOptions: React.FC<TicketOptionsProps> = ({
   onChange,
   children,
   footer,
+  isDisabled,
   hasShadow = true,
 }) => {
   const options = ["Normal", "Vegetarian", "Vegan", "Pescetarian"];
@@ -37,7 +40,7 @@ export const TicketOptions: React.FC<TicketOptionsProps> = ({
       })}
     >
       {children}
-      <FormControl as={HStack} spacing={4} alignItems="center">
+      <FormControl isDisabled={isDisabled} as={HStack} spacing={4} alignItems="center">
         <FormLabel m={0}>Meal Option:</FormLabel>
         <Box flex="1">
           <CreatableSelect

@@ -17,6 +17,7 @@ import {
 import { FaEdit } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
+import { useCanEditTicket } from "../../hooks/useCanBuyTicket";
 import { useDateTime } from "../../hooks/useDateTime";
 import { FormalTicket } from "../../model/Ticket";
 import { Card } from "../utility/Card";
@@ -31,6 +32,7 @@ interface TicketOverviewProps {
 export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
   const price =
     ticket.formal.price + ticket.formal.guestPrice * ticket.guestTickets.length;
+  const canEdit = useCanEditTicket(ticket.formal);
   // const borderColor = useColorModeValue("gray.300", "gray.600")
   const datetime = useDateTime(ticket.formal.dateTime);
   return (
@@ -106,7 +108,7 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
           </Tfoot>
         </Table>
       </Box>
-      <HStack justifyContent="flex-end">
+      { canEdit && <HStack justifyContent="flex-end">
         <Button
           size="sm"
           variant="outline"
@@ -119,7 +121,7 @@ export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
         <CancelTicketButton formalId={ticket.formal.id} confirmText={
           `Cancel ${queue ? " Request" : " Ticket"}`
         }/>
-      </HStack>
+      </HStack>}
       {/* {queue && (
         <Progress
           colorScheme="brand"

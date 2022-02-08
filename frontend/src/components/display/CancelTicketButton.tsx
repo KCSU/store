@@ -18,6 +18,7 @@ export interface CancelTicketButtonProps {
   confirmText: string;
   body?: string;
   title?: string;
+  isDisabled?: boolean;
   onSuccess?: () => void;
 }
 
@@ -25,6 +26,7 @@ export function CancelTicketButton({
   formalId,
   size="sm",
   confirmText,
+  isDisabled,
   body,
   title,
   onSuccess = () => {}
@@ -39,6 +41,7 @@ export function CancelTicketButton({
         size={size}
         colorScheme="red"
         leftIcon={<FaTrashAlt />}
+        isDisabled={isDisabled}
         onClick={onOpen}
       >
         {confirmText}

@@ -121,14 +121,12 @@ const BuyButton = forwardRef<FormalProps, "button">(
   ({ formal, ...props }, ref) => {
     const text = getBuyText(formal);
     // What if ticket already bought??
-    const isDisabled = !useCanBuyTicket(formal);
     return (
       <Button
         ref={ref}
         size="sm"
         rightIcon={<Icon as={FaArrowRight} />}
         colorScheme="brand"
-        isDisabled={isDisabled}
         {...props}
       >
         {text}
@@ -195,6 +193,7 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
   ({ formal }, ref) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const datetime = useDateTime(formal.dateTime);
+    const canBuy = useCanBuyTicket(formal);
     return (
       <Card ref={ref}>
         <HStack mb="2">
@@ -209,7 +208,7 @@ export const FormalOverview = forwardRef<FormalProps, "div">(
           <Button size="sm" as={Link} to={`/formals/${formal.id}`}>
             More Info
           </Button>
-          <BuyButton formal={formal} onClick={onOpen}></BuyButton>
+          {canBuy && <BuyButton formal={formal} onClick={onOpen}></BuyButton>}
         </HStack>
         <BuyTicketModal formal={formal} onClose={onClose} isOpen={isOpen} />
       </Card>
