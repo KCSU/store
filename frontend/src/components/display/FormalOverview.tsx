@@ -26,7 +26,7 @@ import {
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { canBuyTicket } from "../../helpers/canBuyTicket";
+import { useCanBuyTicket } from "../../hooks/useCanBuyTicket";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
 import { useBuyTicket } from "../../hooks/useBuyTicket";
@@ -121,7 +121,7 @@ const BuyButton = forwardRef<FormalProps, "button">(
   ({ formal, ...props }, ref) => {
     const text = getBuyText(formal);
     // What if ticket already bought??
-    const isDisabled = !canBuyTicket(formal);
+    const isDisabled = !useCanBuyTicket(formal);
     return (
       <Button
         ref={ref}
@@ -148,7 +148,7 @@ function BuyTicketModal({ isOpen, onClose, formal }: BuyTicketModalProps) {
   const modalBg = useColorModeValue("gray.50", "gray.800");
   const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
   const mutation = useBuyTicket();
-  const isDisabled = !canBuyTicket(formal);
+  const isDisabled = !useCanBuyTicket(formal);
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />

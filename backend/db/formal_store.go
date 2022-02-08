@@ -11,6 +11,8 @@ import (
 type FormalStore interface {
 	// Retrieve all upcoming formals
 	Get() ([]model.Formal, error)
+	// Retrieve all upcoming formals with groups
+	GetWithGroups() ([]model.Formal, error)
 	// Retrieve all formals
 	All() ([]model.Formal, error)
 	// Get a formal by id
@@ -35,6 +37,13 @@ func NewFormalStore(db *gorm.DB) FormalStore {
 func (f *DBFormalStore) Get() ([]model.Formal, error) {
 	var data []model.Formal
 	err := f.db.Where("date_time > NOW()").Order("date_time").Find(&data).Error
+	return data, err
+}
+
+// Retrieve all upcoming formals with groups
+func (f *DBFormalStore) GetWithGroups() ([]model.Formal, error) {
+	var data []model.Formal
+	err := f.db.Where("date_time > NOW()").Order("date_time").Preload("Groups").Find(&data).Error
 	return data, err
 }
 

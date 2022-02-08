@@ -54,6 +54,29 @@ func (s *FormalSuite) TestGetFormals() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestGetFormalsWithGroups() {
+	s.mock.ExpectQuery(`SELECT \* FROM "formals" WHERE date_time > NOW()`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id"}).AddRow(3),
+		)
+	// Should also preload groups
+	s.mock.ExpectQuery(`SELECT \* FROM "formal_groups"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"group_id", "formal_id"}).AddRow(42, 3),
+		)
+	s.mock.ExpectQuery(`SELECT \* FROM "groups"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id"}).AddRow(42),
+		)
+	fs, err := s.store.GetWithGroups()
+	s.Require().NoError(err)
+	s.Len(fs, 1)
+	s.EqualValues(3, fs[0].ID)
+	s.Len(fs[0].Groups, 1)
+	s.EqualValues(42, fs[0].Groups[0].ID)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *FormalSuite) TestAllFormals() {
 	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
 		WillReturnRows(
@@ -82,7 +105,7 @@ func (s *FormalSuite) TestFindFormal() {
 	// Should also preload groups
 	s.mock.ExpectQuery(`SELECT \* FROM "formal_groups"`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id"}),
+			sqlmock.NewRows([]string{"group_id"}),
 		)
 	f, err := s.store.Find(4)
 	s.Require().NoError(err)

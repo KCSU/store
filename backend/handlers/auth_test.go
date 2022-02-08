@@ -61,10 +61,20 @@ func (a *AuthSuite) TestGetUser() {
 		"updatedAt":"0001-01-01T00:00:00Z",
 		"deletedAt":null,
 		"name":"Kara Thrace",
-		"email":"kt494@cam.ac.uk"
+		"email":"kt494@cam.ac.uk",
+		"groups": [
+			{
+				"id": 34,
+				"name": "Battlestar"
+			}
+		]
 	}`
 	a.auth.On("GetUserId", c).Return(int(user.ID))
 	a.users.On("Find", int(user.ID)).Return(user, nil)
+	a.users.On("Groups", &user).Return([]model.Group{{
+		Model: model.Model{ID: 34},
+		Name:  "Battlestar",
+	}}, nil)
 	// Test
 	err := a.h.GetUser(c)
 	a.NoError(err)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/kcsu/store/auth"
+	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 )
@@ -22,7 +23,21 @@ func (h *Handler) GetUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, user)
+	groups, err := h.Users.Groups(&user)
+	if err != nil {
+		return err
+	}
+	userDto := dto.UserDto{
+		User:   user,
+		Groups: make([]dto.GroupDto, len(groups)),
+	}
+	for i, g := range groups {
+		userDto.Groups[i] = dto.GroupDto{
+			ID:   g.ID,
+			Name: g.Name,
+		}
+	}
+	return c.JSON(http.StatusOK, userDto)
 }
 
 // OAuth2 callback route handler

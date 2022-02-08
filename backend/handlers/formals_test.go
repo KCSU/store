@@ -29,7 +29,8 @@ const expectedJSON = `[
 		"saleEnd": "0001-01-01T00:00:00Z",
 		"dateTime": "0001-01-01T00:00:00Z",
 		"ticketsRemaining": 24,
-		"guestTicketsRemaining": 56
+		"guestTicketsRemaining": 56,
+		"groups": []
 	},
 	{
 		"id": 6,
@@ -47,7 +48,17 @@ const expectedJSON = `[
 		"saleEnd": "0001-01-01T00:00:00Z",
 		"dateTime": "0001-01-01T00:00:00Z",
 		"ticketsRemaining": 64,
-		"guestTicketsRemaining": 31
+		"guestTicketsRemaining": 31,
+		"groups": [
+			{
+				"id": 2,
+				"name": "Group A"
+			},
+			{
+				"id": 4,
+				"name": "Group B"
+			}
+		]
 	}
 ]`
 
@@ -76,10 +87,20 @@ func TestGetFormals(t *testing.T) {
 			Menu:       "Another menu",
 			Price:      15.6,
 			GuestPrice: 27.2,
+			Groups: []model.Group{
+				{
+					Model: model.Model{ID: 2},
+					Name:  "Group A",
+				},
+				{
+					Model: model.Model{ID: 4},
+					Name:  "Group B",
+				},
+			},
 		},
 	}
 	// FIXME: refactor to make it easier to add cases?
-	f.On("Get").Return(formals, nil)
+	f.On("GetWithGroups").Return(formals, nil)
 	f.On("TicketsRemaining", &formals[0], true).Return(uint(56))
 	f.On("TicketsRemaining", &formals[0], false).Return(uint(24))
 	f.On("TicketsRemaining", &formals[1], true).Return(uint(31))

@@ -1,3 +1,5 @@
+import { Group } from "./Group";
+
 export interface Formal {
     id: number;
     name: string;
@@ -15,5 +17,5 @@ export interface Formal {
     dateTime: Date;
     // guestList: 
     // hidden?
-    // groups?
+    groups: Group[];
 }
