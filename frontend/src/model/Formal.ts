@@ -17,5 +17,5 @@ export interface Formal {
     dateTime: Date;
     // guestList: 
     // hidden?
-    groups: Group[];
+    groups?: Group[];
 }

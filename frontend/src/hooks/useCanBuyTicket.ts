@@ -10,9 +10,10 @@ export function useCanBuyTicket(formal: Formal): boolean {
     }
     return useMemo(() => {
         let canBuy = dayjs(formal.saleEnd).isAfter(Date.now());
-        canBuy &&= formal.groups.some(
+        // TODO: always get groups!!
+        canBuy &&= formal.groups?.some(
             g => user.groups.some(h => h.id === g.id)
-        )
+        ) ?? true;
         return canBuy;
     }, [user, formal])
 }
