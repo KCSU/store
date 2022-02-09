@@ -12,6 +12,7 @@ import (
 	"time"
 
 	. "github.com/kcsu/store/handlers"
+	"github.com/kcsu/store/middleware"
 	am "github.com/kcsu/store/mocks/auth"
 	sm "github.com/kcsu/store/mocks/db"
 	"github.com/kcsu/store/model"
@@ -28,6 +29,7 @@ type TicketSuite struct {
 	users    *sm.UserStore
 	tickets  *sm.TicketStore
 	formals  *sm.FormalStore
+	e        *echo.Echo
 	mockUser *model.User
 }
 
@@ -62,6 +64,9 @@ func (t *TicketSuite) SetupTest() {
 		Email:          "lry555@cam.ac.uk",
 		ProviderUserId: "abcdefg",
 	}
+	t.e = echo.New()
+	// Should this be empty for unit tests? A mock nil-validator?
+	t.e.Validator = middleware.NewValidator()
 	t.users.On("Find", userId).Maybe().Return(*t.mockUser, nil)
 }
 
@@ -184,11 +189,10 @@ func (t *TicketSuite) TestGetTickets() {
 			]
 		}
 	]`
-	// HTTP
-	e := echo.New()
+	// HT
 	req := httptest.NewRequest(http.MethodGet, "/tickets", nil)
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c := t.e.NewContext(req, rec)
 	t.tickets.On("Get", userId).Return(tickets, nil)
 	err := t.h.GetTickets(c)
 	t.NoError(err)
@@ -329,13 +333,12 @@ func (t *TicketSuite) TestBuyTicket() {
 	for _, test := range tests {
 		t.Run(test.name, func() {
 			// HTTP
-			e := echo.New()
 			req := httptest.NewRequest(
 				http.MethodPost, "/tickets", strings.NewReader(test.body),
 			)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+			c := t.e.NewContext(req, rec)
 			// Mock
 			t.formals.On("Find", int(test.formal.ID)).Return(test.formal, nil).Once()
 			t.users.On("Groups", t.mockUser).Return(userGroups, nil)
@@ -365,11 +368,10 @@ func (t *TicketSuite) TestBuyTicket() {
 }
 
 func (t *TicketSuite) TestCancelTickets() {
-	// HTTP
-	e := echo.New()
+	// HT
 	req := new(http.Request)
 	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
+	c := t.e.NewContext(req, rec)
 	c.SetParamNames("id")
 	formalId := 7
 	c.SetParamValues(strconv.Itoa(formalId))
@@ -424,10 +426,9 @@ func (t *TicketSuite) TestCancelTicket() {
 	for _, test := range tests {
 		t.Run(test.name, func() {
 			// HTTP
-			e := echo.New()
 			req := new(http.Request)
 			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+			c := t.e.NewContext(req, rec)
 			c.SetParamNames("id")
 			ticketId := 84
 			c.SetParamValues(strconv.Itoa(ticketId))
@@ -502,13 +503,12 @@ func (t *TicketSuite) TestEditTicket() {
 				"option": test.option,
 			})
 			t.Require().NoError(err)
-			e := echo.New()
 			req := httptest.NewRequest(
 				http.MethodPut, route, bytes.NewReader(body),
 			)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+			c := t.e.NewContext(req, rec)
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.Itoa(ticketId))
 			// Mock
@@ -583,7 +583,6 @@ func (t *TicketSuite) TestAddTicket() {
 			// HTTP
 			formalId := 56
 			path := fmt.Sprintf("/formals/%d", formalId)
-			e := echo.New()
 			body, err := json.Marshal(map[string]string{
 				"option": test.option,
 			})
@@ -591,7 +590,7 @@ func (t *TicketSuite) TestAddTicket() {
 			req := httptest.NewRequest(http.MethodPost, path, bytes.NewReader(body))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
+			c := t.e.NewContext(req, rec)
 			c.SetParamNames("id")
 			c.SetParamValues(strconv.Itoa(formalId))
 			// Mock

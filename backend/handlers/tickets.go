@@ -73,10 +73,9 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 	if err := c.Bind(t); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	// TODO:
-	// if err := c.Validate(t); err != nil {
-	// 	return err
-	// }
+	if err := c.Validate(t); err != nil {
+		return err
+	}
 
 	formal, err := h.Formals.Find(int(t.FormalId))
 	if err != nil {
@@ -242,6 +241,9 @@ func (h *Handler) EditTicket(c echo.Context) error {
 	if err := c.Bind(t); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	if err := c.Validate(t); err != nil {
+		return err
+	}
 	if err := h.Tickets.Update(ticketID, t); err != nil {
 		return err
 	}
@@ -262,8 +264,11 @@ func (h *Handler) AddTicket(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 	t := new(dto.TicketRequestDto)
-	if err := c.Bind(&t); err != nil {
+	if err := c.Bind(t); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(t); err != nil {
+		return err
 	}
 
 	// Make sure the user already has a ticket to this formal

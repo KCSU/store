@@ -26,6 +26,7 @@ func Init() *echo.Echo {
 
 	// Create the router
 	e := echo.New()
+	e.Validator = middleware.NewValidator()
 
 	// Configure global middleware
 	e.Use(em.Logger())

@@ -16,7 +16,13 @@ require (
 	gorm.io/gorm v1.22.5
 )
 
-require github.com/gorilla/context v1.1.1 // indirect
+require (
+	github.com/go-playground/locales v0.14.0 // indirect
+	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/go-playground/validator/v10 v10.10.0 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
+	github.com/leodido/go-urn v1.2.1 // indirect
+)
 
 require (
 	cloud.google.com/go/compute v1.0.0 // indirect
