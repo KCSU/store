@@ -15,6 +15,7 @@ func (h *Handler) GetFormals(c echo.Context) error {
 		return err
 	}
 	// Create JSON response
+	// TODO: DRY!!!!!
 	formalData := make([]dto.FormalDto, len(formals))
 	for i, f := range formals {
 		formalData[i].Formal = f

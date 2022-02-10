@@ -35,6 +35,20 @@ func (_m *FormalStore) All() ([]model.Formal, error) {
 	return r0, r1
 }
 
+// Create provides a mock function with given fields: formal
+func (_m *FormalStore) Create(formal *model.Formal) error {
+	ret := _m.Called(formal)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Formal) error); ok {
+		r0 = rf(formal)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Find provides a mock function with given fields: id
 func (_m *FormalStore) Find(id int) (model.Formal, error) {
 	ret := _m.Called(id)
@@ -72,6 +86,29 @@ func (_m *FormalStore) Get() ([]model.Formal, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func() error); ok {
 		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetGroups provides a mock function with given fields: ids
+func (_m *FormalStore) GetGroups(ids []int) ([]model.Group, error) {
+	ret := _m.Called(ids)
+
+	var r0 []model.Group
+	if rf, ok := ret.Get(0).(func([]int) []model.Group); ok {
+		r0 = rf(ids)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Group)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func([]int) error); ok {
+		r1 = rf(ids)
 	} else {
 		r1 = ret.Error(1)
 	}

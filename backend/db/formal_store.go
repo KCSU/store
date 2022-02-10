@@ -19,6 +19,10 @@ type FormalStore interface {
 	Find(id int) (model.Formal, error)
 	// Get the number of tickets remaining for a specified formal
 	TicketsRemaining(formal *model.Formal, isGuest bool) uint
+	// Create a formal
+	Create(formal *model.Formal) error
+	// Find all groups with specified ids
+	GetGroups(ids []int) ([]model.Group, error)
 }
 
 // Helper struct for using Formals in the database
@@ -76,4 +80,17 @@ func (f *DBFormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uin
 	return baseTickets - uint(
 		f.db.Model(formal).Where(query).Association("TicketSales").Count(),
 	)
+}
+
+// Find all groups with specified ids
+func (f *DBFormalStore) GetGroups(ids []int) ([]model.Group, error) {
+	// TODO: test this
+	var groups []model.Group
+	err := f.db.Find(&groups, ids).Error
+	return groups, err
+}
+
+func (f *DBFormalStore) Create(formal *model.Formal) error {
+	err := f.db.Omit("Groups.*").Create(formal).Error
+	return err
 }

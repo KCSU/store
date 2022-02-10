@@ -7,6 +7,7 @@ import (
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/handlers"
+	"github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -48,10 +49,22 @@ func Init() *echo.Echo {
 	a := auth.Init(c, store)
 	h := handlers.NewHandler(*c, d, a)
 
-	api := e.Group("/api")
-
 	// Authentication middleware
 	requireAuth := middleware.JWTAuth(c)
+	api := e.Group("/api")
+	ApiRoutes(api, h, requireAuth)
+
+	if c.Debug {
+		// Do not include admin routes in production yet!
+		adminApi := api.Group("/admin", requireAuth)
+		ah := admin.NewHandler(h)
+		AdminRoutes(adminApi, ah)
+	}
+
+	return e
+}
+
+func ApiRoutes(api *echo.Group, h *handlers.Handler, requireAuth echo.MiddlewareFunc) {
 
 	// TODO: change to health
 	api.GET("/", h.GetHello)
@@ -75,6 +88,11 @@ func Init() *echo.Echo {
 	tickets.POST("", h.BuyTicket)
 	tickets.DELETE("/:id", h.CancelTicket)
 	tickets.PUT("/:id", h.EditTicket)
+}
 
-	return e
+func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
+	formals := a.Group("/formals")
+	formals.GET("", ah.GetFormals)
+	formals.GET("/:id", ah.GetFormal)
+	formals.POST("", ah.CreateFormal)
 }
