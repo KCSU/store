@@ -166,3 +166,17 @@ func (_m *FormalStore) Update(formal *model.Formal) error {
 
 	return r0
 }
+
+// UpdateGroups provides a mock function with given fields: formal, groups
+func (_m *FormalStore) UpdateGroups(formal model.Formal, groups []model.Group) error {
+	ret := _m.Called(formal, groups)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(model.Formal, []model.Group) error); ok {
+		r0 = rf(formal, groups)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

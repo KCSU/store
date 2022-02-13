@@ -206,6 +206,45 @@ func (s *FormalSuite) TestUpdateFormal() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestUpdateFormalGroups() {
+	groups := []model.Group{
+		{
+			Model: model.Model{ID: 3},
+			Name:  "Group 1",
+		},
+		{
+			Model: model.Model{ID: 56},
+			Name:  "Group 2",
+		},
+	}
+	formalId := 32
+	formal := model.Formal{
+		Model: model.Model{ID: uint(formalId)},
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "formals"`).
+		WithArgs(sqlmock.AnyArg(), formalId).
+		WillReturnResult(
+			sqlmock.NewResult(int64(formalId), 1),
+		)
+	s.mock.ExpectExec(`INSERT INTO "formal_groups"`).
+		WithArgs(formalId, 3, formalId, 56).
+		WillReturnResult(
+			sqlmock.NewResult(56, 1),
+		)
+	s.mock.ExpectCommit()
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`DELETE FROM "formal_groups"`).
+		WithArgs(formalId, 3, 56).
+		WillReturnResult(
+			sqlmock.NewResult(0, 0),
+		)
+	s.mock.ExpectCommit()
+	err := s.store.UpdateGroups(formal, groups)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func TestFormalSuite(t *testing.T) {
 	suite.Run(t, new(FormalSuite))
 }

@@ -96,4 +96,5 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	formals.POST("", ah.CreateFormal)
 	formals.GET("/:id", ah.GetFormal)
 	formals.PUT("/:id", ah.UpdateFormal)
+	formals.PUT("/:id/groups", ah.UpdateFormalGroups)
 }

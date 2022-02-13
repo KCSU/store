@@ -105,10 +105,47 @@ func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 	if err := c.Validate(f); err != nil {
 		return err
 	}
+	// FIXME: CHECK THE FORMAL EXISTS
 	formal := f.Formal()
 	formal.ID = uint(formalID)
 	if err := ah.Formals.Update(&formal); err != nil {
 		return err
 	}
+	return c.NoContent(http.StatusOK)
+}
+
+func (ah *AdminHandler) UpdateFormalGroups(c echo.Context) error {
+	// Get the formal ID from query
+	id := c.Param("id")
+	formalID, err := strconv.Atoi(id)
+	if err != nil {
+		// TODO: NewHTTPError?
+		return echo.ErrNotFound
+	}
+	ids := []int{}
+	if err := c.Bind(&ids); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	formal, err := ah.Formals.Find(formalID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	// Validate ids?
+	groups, err := ah.Formals.GetGroups(ids)
+	if err != nil {
+		return err
+	}
+
+	if len(groups) != len(ids) {
+		return echo.NewHTTPError(http.StatusUnprocessableEntity, "Selected groups do not exist.")
+	}
+
+	if err := ah.Formals.UpdateGroups(formal, groups); err != nil {
+		return err
+	}
+
 	return c.NoContent(http.StatusOK)
 }

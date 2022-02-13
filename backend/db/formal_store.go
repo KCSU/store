@@ -25,6 +25,8 @@ type FormalStore interface {
 	GetGroups(ids []int) ([]model.Group, error)
 	// Update a formal
 	Update(formal *model.Formal) error
+	// Update groups for a formal
+	UpdateGroups(formal model.Formal, groups []model.Group) error
 }
 
 // Helper struct for using Formals in the database
@@ -99,4 +101,10 @@ func (f *DBFormalStore) Create(formal *model.Formal) error {
 
 func (f *DBFormalStore) Update(formal *model.Formal) error {
 	return f.db.Omit("CreatedAt").Save(formal).Error
+}
+
+func (f *DBFormalStore) UpdateGroups(formal model.Formal, groups []model.Group) error {
+	return f.db.Model(&formal).
+		Omit("Groups.*").Association("Groups").
+		Replace(&groups)
 }

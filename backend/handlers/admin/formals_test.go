@@ -399,6 +399,98 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 	}
 }
 
+func (s *AdminFormalSuite) TestUpdateFormalGroups() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name   string
+		body   string
+		ids    []int
+		formal model.Formal
+		groups []model.Group
+		wants  *wants
+	}
+	tests := []test{
+		{
+			"Invalid Groups",
+			`[2, 45, 3]`,
+			[]int{2, 45, 3},
+			model.Formal{
+				Model: model.Model{ID: 12},
+				Name:  "My Formal",
+			},
+			[]model.Group{{
+				Model: model.Model{ID: 45},
+				Name:  "A Group",
+			}},
+			&wants{
+				http.StatusUnprocessableEntity,
+				"Selected groups do not exist.",
+			},
+		},
+		{
+			"Should Update",
+			`[11, 13]`,
+			[]int{11, 13},
+			model.Formal{
+				Model: model.Model{ID: 12},
+				Name:  "My Formal",
+			},
+			[]model.Group{
+				{
+					Model: model.Model{ID: 11},
+					Name:  "A Group",
+				},
+				{
+					Model: model.Model{ID: 13},
+					Name:  "B Group",
+				},
+			},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			// HTTP
+			req := httptest.NewRequest(
+				http.MethodPut, "/formals/12/groups", strings.NewReader(test.body),
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.Itoa(int(test.formal.ID)))
+
+			s.formals.On("Find", int(test.formal.ID)).Return(test.formal, nil).Once()
+			s.formals.On("GetGroups", test.ids).Return(test.groups, nil).Once()
+			// Mock
+			if test.wants == nil {
+				s.formals.On(
+					"UpdateGroups", test.formal, test.groups,
+				).Return(nil).Once()
+			}
+
+			// Test
+			err := s.h.UpdateFormalGroups(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+			s.formals.AssertExpectations(s.T())
+		})
+	}
+}
+
 func TestAdminFormalSuite(t *testing.T) {
 	suite.Run(t, new(AdminFormalSuite))
 }
