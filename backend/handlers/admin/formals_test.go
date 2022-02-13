@@ -3,6 +3,7 @@ package admin_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -300,6 +301,92 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 			if test.wants == nil {
 				s.NoError(err)
 				s.Equal(http.StatusCreated, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+			s.formals.AssertExpectations(s.T())
+		})
+	}
+}
+
+func (s *AdminFormalSuite) TestUpdateFormal() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name   string
+		body   string
+		formal model.Formal
+		wants  *wants
+	}
+	tests := []test{
+		{
+			"Should Update",
+			`{
+				"name": "Some formal",
+				"menu": "Some menu",
+				"price": 20,
+				"guestPrice": 11.5,
+				"guestLimit": 0,
+				"tickets": 55,
+				"guestTickets": 25,
+				"saleStart": "2022-02-10T11:30:00Z",
+				"saleEnd": "2022-03-01T17:45:00Z",
+				"dateTime": "2022-03-05T20:30:00Z"
+			}`,
+			model.Formal{
+				Model:        model.Model{ID: 34},
+				Name:         "Some formal",
+				Menu:         "Some menu",
+				Price:        20,
+				GuestPrice:   11.5,
+				GuestLimit:   0,
+				Tickets:      55,
+				GuestTickets: 25,
+				SaleStart: time.Date(
+					2022, 02, 10, 11, 30,
+					0, 0, time.UTC,
+				),
+				SaleEnd: time.Date(
+					2022, 03, 01, 17, 45,
+					0, 0, time.UTC,
+				),
+				DateTime: time.Date(
+					2022, 03, 05, 20, 30,
+					0, 0, time.UTC,
+				),
+			},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			// HTTP
+			req := httptest.NewRequest(
+				http.MethodPut, "/formals/34", strings.NewReader(test.body),
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.Itoa(int(test.formal.ID)))
+			// Mock
+			if test.wants == nil {
+				s.formals.On("Update", &test.formal).Return(nil).Once()
+			}
+
+			// Test
+			err := s.h.UpdateFormal(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
 			} else {
 				var he *echo.HTTPError
 				if s.ErrorAs(err, &he) {

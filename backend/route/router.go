@@ -93,6 +93,7 @@ func ApiRoutes(api *echo.Group, h *handlers.Handler, requireAuth echo.Middleware
 func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	formals := a.Group("/formals")
 	formals.GET("", ah.GetFormals)
-	formals.GET("/:id", ah.GetFormal)
 	formals.POST("", ah.CreateFormal)
+	formals.GET("/:id", ah.GetFormal)
+	formals.PUT("/:id", ah.UpdateFormal)
 }

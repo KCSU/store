@@ -152,3 +152,17 @@ func (_m *FormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uint
 
 	return r0
 }
+
+// Update provides a mock function with given fields: formal
+func (_m *FormalStore) Update(formal *model.Formal) error {
+	ret := _m.Called(formal)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Formal) error); ok {
+		r0 = rf(formal)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

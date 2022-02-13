@@ -17,4 +17,5 @@ type Formal struct {
 	TicketSales  []Ticket  `json:"-"`
 	Groups       []Group   `json:"groups,omitempty" gorm:"many2many:formal_groups;"`
 	// TODO: boolean for public guestlist
+	// Use pointers for updates?
 }

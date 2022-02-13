@@ -89,3 +89,26 @@ func (ah *AdminHandler) CreateFormal(c echo.Context) error {
 	// FIXME: JSON response?
 	return c.NoContent(http.StatusCreated)
 }
+
+func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
+	// Get the formal ID from query
+	id := c.Param("id")
+	formalID, err := strconv.Atoi(id)
+	if err != nil {
+		// TODO: NewHTTPError?
+		return echo.ErrNotFound
+	}
+	f := new(dto.UpdateFormalDto)
+	if err := c.Bind(f); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(f); err != nil {
+		return err
+	}
+	formal := f.Formal()
+	formal.ID = uint(formalID)
+	if err := ah.Formals.Update(&formal); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}

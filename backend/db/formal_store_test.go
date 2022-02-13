@@ -3,6 +3,7 @@ package db_test
 import (
 	"database/sql"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	. "github.com/kcsu/store/db"
@@ -131,6 +132,77 @@ func (s *FormalSuite) TestTicketsRemaining() {
 		)
 	tr = s.store.TicketsRemaining(&f, true)
 	s.Equal(f.GuestTickets-uint(mockCount), tr)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *FormalSuite) TestGetGroups() {
+	ids := []int{2, 4, 7}
+	targetGroups := []model.Group{
+		{Model: model.Model{ID: 2}, Name: "A"},
+		{Model: model.Model{ID: 4}, Name: "B"},
+		{Model: model.Model{ID: 7}, Name: "C"},
+	}
+	s.mock.ExpectQuery(`SELECT \* FROM "groups"`).WithArgs(2, 4, 7).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name"}).
+				AddRow(2, "A").AddRow(4, "B").AddRow(7, "C"),
+		)
+	groups, err := s.store.GetGroups(ids)
+	s.NoError(err)
+	s.Equal(targetGroups, groups)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *FormalSuite) TestCreateFormal() {
+	formal := model.Formal{
+		Name: "Test",
+		Groups: []model.Group{
+			{Model: model.Model{ID: 5}},
+		},
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectQuery(`INSERT INTO "formals"`).WillReturnRows(
+		sqlmock.NewRows([]string{"id"}).AddRow(12),
+	)
+	s.mock.ExpectExec(`INSERT INTO "formal_groups"`).WithArgs(12, 5).
+		WillReturnResult(
+			sqlmock.NewResult(12, 1),
+		)
+	s.mock.ExpectCommit()
+	err := s.store.Create(&formal)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *FormalSuite) TestUpdateFormal() {
+	// We need to check all fields are updated, even zeroes
+	f := model.Formal{
+		Model: model.Model{
+			ID: 34,
+		},
+		Name:         "Test",
+		Menu:         "A Menu",
+		Price:        13,
+		GuestPrice:   0,
+		GuestLimit:   0,
+		Tickets:      150,
+		GuestTickets: 50,
+		SaleStart:    time.Date(2021, 5, 6, 10, 0, 0, 0, time.UTC),
+		SaleEnd:      time.Date(2021, 5, 7, 11, 0, 0, 0, time.UTC),
+		DateTime:     time.Date(2021, 6, 1, 17, 0, 0, 0, time.UTC),
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "formals"`).WithArgs(
+		sqlmock.AnyArg(), nil,
+		f.Name, f.Menu, f.Price,
+		f.GuestPrice, f.GuestLimit, f.Tickets, f.GuestTickets,
+		f.SaleStart, f.SaleEnd, f.DateTime, f.ID,
+	).WillReturnResult(
+		sqlmock.NewResult(int64(f.ID), 1),
+	)
+	s.mock.ExpectCommit()
+	err := s.store.Update(&f)
+	s.NoError(err)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 

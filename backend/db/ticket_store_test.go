@@ -93,6 +93,35 @@ func (s *TicketSuite) TestFindTicket() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *TicketSuite) TestFindTicketWithFormal() {
+	ticket := model.Ticket{
+		FormalID: 21,
+		IsGuest:  false,
+		IsQueue:  true,
+		Formal: &model.Formal{
+			Model: model.Model{ID: 21},
+			Name:  "Test Formal",
+		},
+	}
+	ticket.ID = 34
+	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
+		WithArgs(ticket.ID).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "formal_id", "is_guest", "is_queue"}).
+				AddRow(ticket.ID, ticket.FormalID, ticket.IsGuest, ticket.IsQueue),
+		)
+	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
+		WithArgs(ticket.FormalID).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name"}).
+				AddRow(ticket.Formal.ID, ticket.Formal.Name),
+		)
+	t, err := s.store.FindWithFormal(int(ticket.ID))
+	s.NoError(err)
+	s.Equal(ticket, t)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *TicketSuite) TestUpdateTicket() {
 	id := 312
 	mealOption := "Vegetarian"
