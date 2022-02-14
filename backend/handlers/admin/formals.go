@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Fetch a list of all formals
 func (ah *AdminHandler) GetFormals(c echo.Context) error {
 	formals, err := ah.Formals.All()
 	if err != nil {
@@ -34,6 +35,7 @@ func (ah *AdminHandler) GetFormals(c echo.Context) error {
 	return c.JSON(http.StatusOK, &formalData)
 }
 
+// Fetch a specified formal
 func (ah *AdminHandler) GetFormal(c echo.Context) error {
 	// Get the formal ID from query
 	id := c.Param("id")
@@ -65,6 +67,7 @@ func (ah *AdminHandler) GetFormal(c echo.Context) error {
 	return c.JSON(http.StatusOK, &formalDto)
 }
 
+// Create a formal
 func (ah *AdminHandler) CreateFormal(c echo.Context) error {
 	f := new(dto.CreateFormalDto)
 	if err := c.Bind(f); err != nil {
@@ -90,6 +93,7 @@ func (ah *AdminHandler) CreateFormal(c echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
+// Update details for a formal
 func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 	// Get the formal ID from query
 	id := c.Param("id")
@@ -114,6 +118,7 @@ func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Update the list of groups who can buy tickets for the formal
 func (ah *AdminHandler) UpdateFormalGroups(c echo.Context) error {
 	// Get the formal ID from query
 	id := c.Param("id")

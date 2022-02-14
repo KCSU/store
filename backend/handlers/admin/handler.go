@@ -7,6 +7,7 @@ import (
 	"github.com/kcsu/store/handlers"
 )
 
+// Helper struct containing useful data and methods for admin handlers to use
 type AdminHandler struct {
 	Config  config.Config
 	Formals db.FormalStore

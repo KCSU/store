@@ -1,6 +1,12 @@
-import { VStack } from "@chakra-ui/layout";
-import { FaCog, FaHome, FaTicketAlt, FaUser } from "react-icons/fa";
-import { SidebarItem } from "./SidebarItem";
+import { Heading, VStack } from "@chakra-ui/layout";
+import {
+  FaCalendarDay,
+  FaCog,
+  FaHome,
+  FaTicketAlt,
+  FaUser,
+} from "react-icons/fa";
+import { AdminSidebarItem, SidebarItem } from "./SidebarItem";
 
 const routes = [
   {
@@ -22,15 +28,41 @@ const routes = [
   {
     to: "/settings",
     title: "Settings",
-    icon: FaCog
-  }
+    icon: FaCog,
+  },
+];
+
+const adminRoutes = [
+  {
+    to: "/admin/formals",
+    title: "Manage Formals",
+    resource: "formals",
+    action: "read",
+    icon: FaCalendarDay,
+  },
 ];
 
 interface SidebarContentProps {
   onClose?: () => void;
 }
 
-export function SidebarContent({onClose}: SidebarContentProps) {
+export function SidebarContent({ onClose }: SidebarContentProps) {
+  const adminItems = adminRoutes.map(
+    ({ to, title, icon, resource, action }) => (
+      <AdminSidebarItem
+        key={to}
+        to={to}
+        icon={icon}
+        onClick={onClose}
+        // end={false}
+        resource={resource}
+        action={action}
+      >
+        {title}
+      </AdminSidebarItem>
+    )
+  );
+  const showAdmin = adminItems.some((item) => item !== null);
   return (
     <VStack spacing="12px">
       {routes.map(({ to, title, icon, end }) => (
@@ -38,6 +70,12 @@ export function SidebarContent({onClose}: SidebarContentProps) {
           {title}
         </SidebarItem>
       ))}
+      {showAdmin && (
+        <Heading as="h3" size="sm" alignSelf="flex-start" pt={4}>
+          Admin
+        </Heading>
+      )}
+      {adminItems}
     </VStack>
   );
-};
+}

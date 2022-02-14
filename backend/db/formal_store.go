@@ -94,15 +94,18 @@ func (f *DBFormalStore) GetGroups(ids []int) ([]model.Group, error) {
 	return groups, err
 }
 
+// Create a formal
 func (f *DBFormalStore) Create(formal *model.Formal) error {
 	err := f.db.Omit("Groups.*").Create(formal).Error
 	return err
 }
 
+// Update a formal
 func (f *DBFormalStore) Update(formal *model.Formal) error {
 	return f.db.Omit("CreatedAt").Save(formal).Error
 }
 
+// Update groups for a formal
 func (f *DBFormalStore) UpdateGroups(formal model.Formal, groups []model.Group) error {
 	return f.db.Model(&formal).
 		Omit("Groups.*").Association("Groups").

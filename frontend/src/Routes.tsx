@@ -2,7 +2,9 @@ import { Box, BoxProps } from "@chakra-ui/react";
 import { AnimatePresence } from "framer-motion";
 import { Route, Routes as ReactRoutes, useLocation } from "react-router";
 import { generateMotion } from "./components/utility/generateMotion";
+import { RequireAdmin } from "./components/utility/RequireAdmin";
 import { RequireAuth } from "./components/utility/RequireAuth";
+import { FormalList } from "./views/admin/FormalList";
 import { EditTickets } from "./views/EditTickets";
 import { FormalInfo } from "./views/FormalInfo";
 import { Home } from "./views/Home";
@@ -43,6 +45,12 @@ export function Routes() {
             <Route path="/formals/:formalId" element={<FormalInfo />} />
             <Route path="/tickets" element={<TicketsView />} />
             <Route path="/tickets/:id" element={<EditTickets />}/>
+            {/* ADMIN ROUTES */}
+            <Route path="/admin/formals" element={
+              <RequireAdmin resource="formals" action="read">
+                <FormalList />
+              </RequireAdmin>
+            }/>
           </Route>
         </ReactRoutes>
       </MotionBox>

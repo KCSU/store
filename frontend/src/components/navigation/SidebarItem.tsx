@@ -7,6 +7,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { To, useResolvedPath, useMatch, Link } from "react-router-dom";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { IconBox } from "../utility/IconBox";
 
 interface SidebarItemProps {
@@ -82,3 +83,14 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
     </Button>
   );
 };
+
+type AdminSidebarItemProps = SidebarItemProps & {
+  resource: string;
+  action: string;
+}
+
+export const AdminSidebarItem: React.FC<AdminSidebarItemProps> = ({resource, action, ...props}) => {
+  const hasAccess = useHasPermission(resource, action);
+  // return <SidebarItem {...props}/>;
+  return hasAccess ? <SidebarItem {...props}/> : null;
+}

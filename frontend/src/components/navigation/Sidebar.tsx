@@ -22,6 +22,7 @@ interface SidebarProps {
 const MotionBox = generateMotion<BoxProps, "div">(Box);
 
 // TODO: Close button & Hamburger button
+// TODO: move into routes for better visibility control
 export function Sidebar({ isOpen, variant, onClose }: SidebarProps) {
   const bg = useColorModeValue("gray.50", "gray.800");
   return variant === "sidebar" ? (
