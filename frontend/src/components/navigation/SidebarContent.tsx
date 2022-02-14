@@ -62,7 +62,7 @@ export function SidebarContent({ onClose }: SidebarContentProps) {
       </AdminSidebarItem>
     )
   );
-  const showAdmin = adminItems.some((item) => item !== null);
+  const showAdmin = import.meta.env.DEV; // Should check if user has any permissions
   return (
     <VStack spacing="12px">
       {routes.map(({ to, title, icon, end }) => (
