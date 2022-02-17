@@ -5,7 +5,7 @@ import { Formal } from "../../model/Formal";
 
 export function useAllFormals() {
   return useQuery<Formal[]>(
-    "formals",
+    "admin/formals",
     async () => {
       const response = await api.get<FormalDto[]>("admin/formals");
       return response.data.map(parseFormal);

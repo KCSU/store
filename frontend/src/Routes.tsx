@@ -16,6 +16,20 @@ import { TicketsView } from "./views/TicketsView";
 const MotionBox = generateMotion<BoxProps, 'div'>(Box);
 
 export function Routes() {
+  const adminRoutes = [
+    {
+      path: "/admin/formals",
+      element: <AdminFormalListView/>,
+      resource: "formals",
+      action: "read"
+    },
+    {
+      path: "/admin/formals/:id",
+      element: <AdminEditFormalView/>,
+      resource: "formals",
+      action: "read"
+    }
+  ];
   const location = useLocation();
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
@@ -46,17 +60,15 @@ export function Routes() {
             <Route path="/formals/:formalId" element={<FormalView />} />
             <Route path="/tickets" element={<TicketsView />} />
             <Route path="/tickets/:id" element={<EditFormalTicketsView />}/>
-            {/* ADMIN ROUTES */}
-            <Route path="/admin/formals" element={
-              <RequireAdmin resource="formals" action="read">
-                <AdminFormalListView />
-              </RequireAdmin>
-            }/>
-            <Route path="/admin/formals/:id" element={
-              <RequireAdmin resource="formals" action="read">
-                <AdminEditFormalView />
-              </RequireAdmin>
-            }/>
+            {
+              adminRoutes.map(({path, element, resource, action}) => (
+                <Route path={path} element={
+                  <RequireAdmin resource={resource} action={action}>
+                    {element}
+                  </RequireAdmin>
+                }/>
+              ))
+            }
           </Route>
         </ReactRoutes>
       </MotionBox>

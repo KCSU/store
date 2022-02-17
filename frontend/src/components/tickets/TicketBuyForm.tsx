@@ -5,10 +5,6 @@ import {
   Heading,
   HStack,
   Icon,
-  Stat,
-  StatHelpText,
-  StatLabel,
-  StatNumber,
   Text,
   VStack,
 } from "@chakra-ui/react";
