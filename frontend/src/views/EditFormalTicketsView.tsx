@@ -1,10 +1,10 @@
 import { Container, Heading } from "@chakra-ui/react";
 import { useParams } from "react-router-dom";
-import { EditTicketsForm } from "../components/display/EditTicketsForm";
+import { EditTicketsForm } from "../components/tickets/EditTicketsForm";
 import { BackButton } from "../components/utility/BackButton";
 import { useTickets } from "../hooks/useTickets";
 
-export function EditTickets() {
+export function EditFormalTicketsView() {
     const {id} = useParams();
     const ticketId = parseInt(id ?? "0");
     const {data, isLoading, isError} = useTickets();

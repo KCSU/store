@@ -34,7 +34,7 @@ import { useDateTime } from "../../hooks/useDateTime";
 import { useQueueRequest } from "../../hooks/useQueueRequest";
 import { Formal } from "../../model/Formal";
 import { Card } from "../utility/Card";
-import { TicketBuyForm } from "./TicketBuyForm";
+import { TicketBuyForm } from "../tickets/TicketBuyForm";
 
 export interface FormalProps {
   formal: Formal;

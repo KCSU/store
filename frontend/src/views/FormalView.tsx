@@ -9,7 +9,7 @@ import {
   WrapItem,
 } from "@chakra-ui/react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { TicketBuyForm } from "../components/display/TicketBuyForm";
+import { TicketBuyForm } from "../components/tickets/TicketBuyForm";
 import { BackButton } from "../components/utility/BackButton";
 import { Card } from "../components/utility/Card";
 import { useCanBuyTicket } from "../hooks/useCanBuyTicket";
@@ -21,14 +21,14 @@ import { useFormals } from "../hooks/useFormals";
 import { useQueueRequest } from "../hooks/useQueueRequest";
 import { Formal } from "../model/Formal";
 
-interface TicketStatsProps {
+interface FormalTicketStatsProps {
   prefix?: string;
   price: number;
   tickets: number;
   ticketsRemaining: number;
 }
 
-const TicketStats: React.FC<TicketStatsProps> = (props) => {
+const FormalTicketStats: React.FC<FormalTicketStatsProps> = (props) => {
   return (
     <WrapItem
       display="block"
@@ -54,11 +54,11 @@ const TicketStats: React.FC<TicketStatsProps> = (props) => {
   );
 };
 
-interface FormalInfoViewProps {
+interface FormalCardProps {
   formal: Formal;
 }
 
-function FormalInfoView({formal}: FormalInfoViewProps) {
+function FormalCard({formal}: FormalCardProps) {
   // Formal Data
   const datetime = useDateTime(formal.dateTime);
   const prefix = formal.guestLimit > 0 ? "King's " : "";
@@ -81,14 +81,14 @@ function FormalInfoView({formal}: FormalInfoViewProps) {
         </Text>
         <VStack alignItems="stretch">
           <Wrap justifyContent="space-between">
-            <TicketStats
+            <FormalTicketStats
               price={formal.price}
               tickets={formal.tickets}
               ticketsRemaining={formal.ticketsRemaining}
               prefix={prefix}
-            ></TicketStats>
+            ></FormalTicketStats>
             {formal.guestLimit > 0 ? (
-              <TicketStats
+              <FormalTicketStats
                 price={formal.guestPrice}
                 tickets={formal.guestTickets}
                 ticketsRemaining={formal.guestTicketsRemaining}
@@ -98,7 +98,7 @@ function FormalInfoView({formal}: FormalInfoViewProps) {
                 <Text as="i">
                   (up to {formal.guestLimit} per King's member)
                 </Text>
-              </TicketStats>
+              </FormalTicketStats>
             ) : (
               <WrapItem
                 display="block"
@@ -146,7 +146,7 @@ function FormalInfoView({formal}: FormalInfoViewProps) {
 }
 
 // TODO: Date and time!
-export function FormalInfo() {
+export function FormalView() {
   // Get the formal
   const { formalId } = useParams();
   const formalIdNum = parseInt(formalId ?? "0");
@@ -164,5 +164,5 @@ export function FormalInfo() {
     // Hmmm...
     return <Box></Box>
   }
-  return <FormalInfoView formal={formal} />;
+  return <FormalCard formal={formal} />;
 }

@@ -4,13 +4,13 @@ import { Route, Routes as ReactRoutes, useLocation } from "react-router";
 import { generateMotion } from "./components/utility/generateMotion";
 import { RequireAdmin } from "./components/utility/RequireAdmin";
 import { RequireAuth } from "./components/utility/RequireAuth";
-import { EditFormal } from "./views/admin/EditFormal";
-import { FormalList } from "./views/admin/FormalList";
-import { EditTickets } from "./views/EditTickets";
-import { FormalInfo } from "./views/FormalInfo";
-import { Home } from "./views/Home";
-import { Login } from "./views/Login";
-import { Settings } from "./views/Settings";
+import { AdminEditFormalView } from "./views/admin/AdminEditFormalView";
+import { AdminFormalListView } from "./views/admin/AdminFormalListView";
+import { EditFormalTicketsView } from "./views/EditFormalTicketsView";
+import { FormalView } from "./views/FormalView";
+import { FormalListView } from "./views/FormalListView";
+import { LoginView } from "./views/LoginView";
+import { SettingsView } from "./views/SettingsView";
 import { TicketsView } from "./views/TicketsView";
 
 const MotionBox = generateMotion<BoxProps, 'div'>(Box);
@@ -39,22 +39,22 @@ export function Routes() {
         }}
       >
         <ReactRoutes location={location}>
-          <Route path="/login" element={<Login/>} />
+          <Route path="/login" element={<LoginView/>} />
           <Route element={<RequireAuth/>}>
-            <Route path="/" element={<Home />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/formals/:formalId" element={<FormalInfo />} />
+            <Route path="/" element={<FormalListView />} />
+            <Route path="/settings" element={<SettingsView />} />
+            <Route path="/formals/:formalId" element={<FormalView />} />
             <Route path="/tickets" element={<TicketsView />} />
-            <Route path="/tickets/:id" element={<EditTickets />}/>
+            <Route path="/tickets/:id" element={<EditFormalTicketsView />}/>
             {/* ADMIN ROUTES */}
             <Route path="/admin/formals" element={
               <RequireAdmin resource="formals" action="read">
-                <FormalList />
+                <AdminFormalListView />
               </RequireAdmin>
             }/>
             <Route path="/admin/formals/:id" element={
               <RequireAdmin resource="formals" action="read">
-                <EditFormal />
+                <AdminEditFormalView />
               </RequireAdmin>
             }/>
           </Route>

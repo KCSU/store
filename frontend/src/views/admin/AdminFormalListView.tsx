@@ -35,7 +35,7 @@ function FormalStatusTag({ formal }: FormalProps) {
   }
 }
 
-function FormalAdminCard({ formal: f }: FormalProps) {
+function AdminFormalCard({ formal: f }: FormalProps) {
   const dateTime = useDateTime(f.dateTime);
   return (
     <LinkBox
@@ -59,7 +59,7 @@ function FormalAdminCard({ formal: f }: FormalProps) {
   );
 }
 
-export function FormalList() {
+export function AdminFormalListView() {
   const { data, isLoading, isError } = useAllFormals();
   if (!data) {
     return <></>;
@@ -78,7 +78,7 @@ export function FormalList() {
         spacing="20px"
       >
         {data.map((f) => (
-          <FormalAdminCard formal={f} key={f.id} />
+          <AdminFormalCard formal={f} key={f.id} />
         ))}
       </SimpleGrid>
     </>

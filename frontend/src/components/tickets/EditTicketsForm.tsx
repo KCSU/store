@@ -30,7 +30,7 @@ import { Formal } from "../../model/Formal";
 import { FormalTicket, Ticket } from "../../model/Ticket";
 import { CancelGuestDialog } from "./CancelGuestDialog";
 import { CancelTicketButton } from "./CancelTicketButton";
-import { PriceStat } from "./PriceStat";
+import { PriceStat } from "../formals/PriceStat";
 import { TicketOptions } from "./TicketOptions";
 
 export interface EditTicketsFormProps {

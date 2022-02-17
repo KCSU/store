@@ -10,7 +10,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   FormalOverview,
   FormalProps,
-} from "../components/display/FormalOverview";
+} from "../components/formals/FormalOverview";
 import { generateMotion } from "../components/utility/generateMotion";
 import { Card, CardProps } from "../components/utility/Card";
 import { useFormals } from "../hooks/useFormals";
@@ -42,7 +42,7 @@ function ErrorState() {
   return <Box></Box>
 }
 
-function HomeContent() {
+function FormalGrid() {
   const { data: formals, isLoading, isError } = useFormals();
   const gridVariant = {
     hidden: {},
@@ -90,14 +90,14 @@ function HomeContent() {
 }
 
 
-export function Home() {
+export function FormalListView() {
   return (
     <>
       <Heading size="xl" mb={5}>
         Upcoming Formals
       </Heading>
       <AnimatePresence exitBeforeEnter initial={false}>
-        {HomeContent()}
+        {FormalGrid()}
       </AnimatePresence>
     </>
   );

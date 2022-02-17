@@ -1,5 +1,5 @@
 import { Box } from "@chakra-ui/react";
 
-export function EditFormal() {
+export function AdminEditFormalView() {
     return <Box></Box>;
 }

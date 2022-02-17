@@ -1,6 +1,6 @@
 import { Box, Heading, SimpleGrid, Spinner } from "@chakra-ui/react";
-import { QueueOverview } from "../components/display/QueueOverview";
-import { TicketOverview } from "../components/display/TicketOverview";
+import { QueueOverview } from "../components/tickets/QueueOverview";
+import { TicketOverview } from "../components/tickets/TicketOverview";
 import { useProcessedTickets, useTickets } from "../hooks/useTickets";
 import { FormalTicket } from "../model/Ticket";
 

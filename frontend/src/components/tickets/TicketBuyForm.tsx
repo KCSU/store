@@ -17,7 +17,7 @@ import { formatMoney } from "../../helpers/formatMoney";
 import { QueueRequestAction } from "../../hooks/useQueueRequest";
 import { Formal } from "../../model/Formal";
 import { QueueRequest } from "../../model/QueueRequest";
-import { PriceStat } from "./PriceStat";
+import { PriceStat } from "../formals/PriceStat";
 import { TicketOptions } from "./TicketOptions";
 
 interface TicketBuyFormProps {

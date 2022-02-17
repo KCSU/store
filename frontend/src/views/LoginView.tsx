@@ -9,7 +9,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuthUser } from "../hooks/useAuthUser";
 import ravenImg from "../img/raven.png";
 
-export function Login() {
+export function LoginView() {
   const location = useLocation();
   const { data: user, isError, isLoading } = useAuthUser();
   const from: string = (location.state as any)?.from ?? "/";

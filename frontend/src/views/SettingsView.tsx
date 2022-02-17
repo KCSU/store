@@ -9,7 +9,7 @@ import {
 import { Card } from "../components/utility/Card";
 import { useLogout } from "../hooks/useLogout";
 
-export function Settings() {
+export function SettingsView() {
   const { colorMode, toggleColorMode } = useColorMode();
   const mutation = useLogout();
   return (
