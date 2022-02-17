@@ -4,6 +4,7 @@ import { Route, Routes as ReactRoutes, useLocation } from "react-router";
 import { generateMotion } from "./components/utility/generateMotion";
 import { RequireAdmin } from "./components/utility/RequireAdmin";
 import { RequireAuth } from "./components/utility/RequireAuth";
+import { EditFormal } from "./views/admin/EditFormal";
 import { FormalList } from "./views/admin/FormalList";
 import { EditTickets } from "./views/EditTickets";
 import { FormalInfo } from "./views/FormalInfo";
@@ -49,6 +50,11 @@ export function Routes() {
             <Route path="/admin/formals" element={
               <RequireAdmin resource="formals" action="read">
                 <FormalList />
+              </RequireAdmin>
+            }/>
+            <Route path="/admin/formals/:id" element={
+              <RequireAdmin resource="formals" action="read">
+                <EditFormal />
               </RequireAdmin>
             }/>
           </Route>

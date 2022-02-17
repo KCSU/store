@@ -19,6 +19,7 @@ func (h *Handler) GetFormals(c echo.Context) error {
 	formalData := make([]dto.FormalDto, len(formals))
 	for i, f := range formals {
 		formalData[i].Formal = f
+		// FIXME: This is horribly inefficient!!
 		formalData[i].TicketsRemaining = h.Formals.TicketsRemaining(&f, false)
 		formalData[i].GuestTicketsRemaining = h.Formals.TicketsRemaining(&f, true)
 		groups := make([]dto.GroupDto, len(f.Groups))

@@ -18,9 +18,11 @@ func (ah *AdminHandler) GetFormals(c echo.Context) error {
 	}
 	// Create JSON response
 	// TODO: DRY!!!!!
+	// Do we actually need any of this or can we just return the basic info?
 	formalData := make([]dto.FormalDto, len(formals))
 	for i, f := range formals {
 		formalData[i].Formal = f
+		// FIXME: This is horribly inefficient!!
 		formalData[i].TicketsRemaining = ah.Formals.TicketsRemaining(&f, false)
 		formalData[i].GuestTicketsRemaining = ah.Formals.TicketsRemaining(&f, true)
 		groups := make([]dto.GroupDto, len(f.Groups))
