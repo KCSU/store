@@ -6,7 +6,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Navigate, useLocation } from "react-router-dom";
-import { useAuthUser } from "../hooks/useAuthUser";
+import { useAuthUser } from "../hooks/queries/useAuthUser";
 import ravenImg from "../img/raven.png";
 
 export function LoginView() {

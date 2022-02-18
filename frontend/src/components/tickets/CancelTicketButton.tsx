@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { useRef } from "react";
 import { FaTrashAlt } from "react-icons/fa";
-import { useCancelTickets } from "../../hooks/useCancelTickets";
+import { useCancelTickets } from "../../hooks/mutations/useCancelTickets";
 
 export interface CancelTicketButtonProps {
   formalId: number;

@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import { useQuery } from "react-query";
-import { api } from "../config/api";
-import { Tickets } from "../model/Queue";
-import { FormalTicket, Ticket } from "../model/Ticket";
+import { api } from "../../config/api";
+import { Tickets } from "../../model/Queue";
+import { FormalTicket, Ticket } from "../../model/Ticket";
 
 export function useProcessedTickets(tickets: FormalTicket[]): Tickets {
   return useMemo(() => {

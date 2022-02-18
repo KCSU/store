@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
-import { api } from "../config/api";
-import { FormalDto, parseFormal } from "../helpers/parseFormal";
-import { Formal } from "../model/Formal";
+import { api } from "../../config/api";
+import { FormalDto, parseFormal } from "../../helpers/parseFormal";
+import { Formal } from "../../model/Formal";
 
 
 export function useFormals() {

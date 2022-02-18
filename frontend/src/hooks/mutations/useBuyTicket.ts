@@ -1,7 +1,7 @@
 import { useQueryClient } from "react-query";
-import { api } from "../config/api";
-import { QueueRequest } from "../model/QueueRequest";
-import { useCustomMutation } from "./useCustomMutation";
+import { api } from "../../config/api";
+import { QueueRequest } from "../../model/QueueRequest";
+import { useCustomMutation } from "../mutations/useCustomMutation";
 
 export function useBuyTicket() {
   const queryClient = useQueryClient();

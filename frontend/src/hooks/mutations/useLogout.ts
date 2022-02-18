@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "react-query";
-import { api } from "../config/api";
+import { api } from "../../config/api";
 
 export function useLogout() {
   const queryClient = useQueryClient();

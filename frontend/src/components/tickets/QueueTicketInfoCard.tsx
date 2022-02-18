@@ -16,18 +16,18 @@ import {
 import { useState } from "react";
 import { FaEdit, FaSave, FaTrashAlt } from "react-icons/fa";
 import { formatMoney } from "../../helpers/formatMoney";
-import { useDateTime } from "../../hooks/useDateTime";
-import { useEditTicket } from "../../hooks/useEditTicket";
+import { useDateTime } from "../../hooks/state/useDateTime";
+import { useEditTicket } from "../../hooks/mutations/useEditTicket";
 import { QueueTicket } from "../../model/Queue";
 import { Card } from "../utility/Card";
-import { CancelGuestDialog } from "./CancelGuestDialog";
-import { TicketOptions } from "./TicketOptions";
+import { CancelGuestTicketDialog } from "./CancelGuestTicketDialog";
+import { TicketOptionsInput } from "./TicketOptionsInput";
 
-interface QueueOverviewProps {
+interface QueueTicketInfoCardProps {
   ticket: QueueTicket;
 }
 
-export function QueueOverview({ ticket }: QueueOverviewProps) {
+export function QueueTicketInfoCard({ ticket }: QueueTicketInfoCardProps) {
   const datetime = useDateTime(ticket.formal.dateTime);
   const { isOpen, onOpen, onClose } = useDisclosure();
   // const modalBg = useColorModeValue("gray.50", "gray.800");
@@ -52,21 +52,21 @@ export function QueueOverview({ ticket }: QueueOverviewProps) {
         >
           Edit
         </Button>
-        <CancelGuestButton ticketId={ticket.ticket.id} />
+        <CancelGuestTicketButton ticketId={ticket.ticket.id} />
         {/* <CancelTicketButton formalId={ticket.formal.id} isQueue={queue} /> */}
       </HStack>
-      <EditQueueTicket isOpen={isOpen} onClose={onClose} ticket={ticket} />
+      <EditQueueTicketModal isOpen={isOpen} onClose={onClose} ticket={ticket} />
     </Card>
   );
 }
 
-interface EditQueueTicketProps {
+interface EditQueueTicketModalProps {
   isOpen: boolean;
   ticket: QueueTicket;
   onClose: () => void;
 }
 
-function EditQueueTicket({ isOpen, onClose, ticket }: EditQueueTicketProps) {
+function EditQueueTicketModal({ isOpen, onClose, ticket }: EditQueueTicketModalProps) {
   const [option, setOption] = useState(ticket.ticket.option);
   const mutation = useEditTicket(ticket.ticket.id);
 
@@ -80,7 +80,7 @@ function EditQueueTicket({ isOpen, onClose, ticket }: EditQueueTicketProps) {
           <Heading as="h4" size="sm">
             Editing ticket for "{ticket.formal.name}":
           </Heading>
-          <TicketOptions
+          <TicketOptionsInput
             hasShadow={false}
             value={option}
             onChange={setOption}
@@ -114,11 +114,11 @@ function EditQueueTicket({ isOpen, onClose, ticket }: EditQueueTicketProps) {
   );
 }
 
-interface CancelGuestButtonProps {
+interface CancelGuestTicketButtonProps {
   ticketId: number;
 }
 
-function CancelGuestButton({ ticketId }: CancelGuestButtonProps) {
+function CancelGuestTicketButton({ ticketId }: CancelGuestTicketButtonProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -131,7 +131,7 @@ function CancelGuestButton({ ticketId }: CancelGuestButtonProps) {
       >
         Cancel
       </Button>
-      <CancelGuestDialog isOpen={isOpen} onClose={onClose} ticketId={ticketId}/>
+      <CancelGuestTicketDialog isOpen={isOpen} onClose={onClose} ticketId={ticketId}/>
     </>
   );
 }

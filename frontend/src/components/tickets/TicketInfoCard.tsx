@@ -17,19 +17,19 @@ import {
 import { FaEdit } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
-import { useCanEditTicket } from "../../hooks/useCanBuyTicket";
-import { useDateTime } from "../../hooks/useDateTime";
+import { useCanEditTicket } from "../../hooks/state/useCanBuyTicket";
+import { useDateTime } from "../../hooks/state/useDateTime";
 import { FormalTicket } from "../../model/Ticket";
 import { Card } from "../utility/Card";
 import { CancelTicketButton } from "./CancelTicketButton";
 
-interface TicketOverviewProps {
+interface TicketInfoCardProps {
   ticket: FormalTicket;
   queue?: boolean;
 }
 
 // TODO: make this responsive!
-export function TicketOverview({ ticket, queue = false }: TicketOverviewProps) {
+export function TicketInfoCard({ ticket, queue = false }: TicketInfoCardProps) {
   const price =
     ticket.formal.price + ticket.formal.guestPrice * ticket.guestTickets.length;
   const canEdit = useCanEditTicket(ticket.formal);

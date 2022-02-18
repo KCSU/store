@@ -1,8 +1,8 @@
 import { useToast } from "@chakra-ui/react";
 import { useQueryClient } from "react-query";
-import { api } from "../config/api";
-import { FormalTicket } from "../model/Ticket";
-import { useCustomMutation } from "./useCustomMutation";
+import { api } from "../../config/api";
+import { FormalTicket } from "../../model/Ticket";
+import { useCustomMutation } from "../mutations/useCustomMutation";
 
 export function useEditTicket(ticketId: number) {
   const queryClient = useQueryClient();

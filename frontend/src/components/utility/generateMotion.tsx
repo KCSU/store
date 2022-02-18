@@ -16,7 +16,7 @@ type As<Props = any> = React.ElementType<Props>;
  * `transition` prop.
  * @example const MotionComponent = generateMotion<Props, 'div'>(Component);
  */
-export function generateMotion<Props extends object, T extends As>(
+export function motionComponent<Props extends object, T extends As>(
   Component: React.ComponentClass<Props, any> | React.FunctionComponent<Props>
 ) {
   const Wrapped = motion<any>(

@@ -10,7 +10,7 @@ import {
   Heading,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { generateMotion } from "../utility/generateMotion";
+import { motionComponent } from "../utility/generateMotion";
 import { SidebarContent } from "./SidebarContent";
 
 interface SidebarProps {
@@ -19,7 +19,7 @@ interface SidebarProps {
   variant: "drawer" | "sidebar";
 }
 
-const MotionBox = generateMotion<BoxProps, "div">(Box);
+const MotionBox = motionComponent<BoxProps, "div">(Box);
 
 // TODO: Close button & Hamburger button
 // TODO: move into routes for better visibility control

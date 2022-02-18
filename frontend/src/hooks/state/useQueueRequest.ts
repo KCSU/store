@@ -1,6 +1,6 @@
 import { useReducer } from "react";
-import { QueueRequest } from "../model/QueueRequest";
-import { TicketRequest } from "../model/TicketRequest";
+import { QueueRequest } from "../../model/QueueRequest";
+import { TicketRequest } from "../../model/TicketRequest";
 
 export type QueueRequestAction =
   | {

@@ -7,7 +7,7 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 import { Card } from "../components/utility/Card";
-import { useLogout } from "../hooks/useLogout";
+import { useLogout } from "../hooks/mutations/useLogout";
 
 export function SettingsView() {
   const { colorMode, toggleColorMode } = useColorMode();

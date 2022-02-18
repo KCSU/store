@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import { api } from "../config/api";
-import { User } from "../model/User";
+import { api } from "../../config/api";
+import { User } from "../../model/User";
 
 export function useAuthUser() {
     return useQuery<User | undefined>('authUser', async () => {

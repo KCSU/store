@@ -9,7 +9,7 @@ import { isDisabled } from "@chakra-ui/utils";
 import { CreatableSelect } from "chakra-react-select";
 import { Card } from "../utility/Card";
 
-interface TicketOptionsProps {
+interface TicketOptionsInputProps {
   value?: string;
   onChange?: (value: string) => void;
   hasShadow?: boolean;
@@ -17,7 +17,7 @@ interface TicketOptionsProps {
   footer?: React.ReactNode;
 }
 
-export const TicketOptions: React.FC<TicketOptionsProps> = ({
+export const TicketOptionsInput: React.FC<TicketOptionsInputProps> = ({
   value,
   onChange,
   children,

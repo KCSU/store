@@ -9,16 +9,16 @@ import {
   WrapItem,
 } from "@chakra-ui/react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { TicketBuyForm } from "../components/tickets/TicketBuyForm";
+import { BuyTicketForm } from "../components/tickets/BuyTicketForm";
 import { BackButton } from "../components/utility/BackButton";
 import { Card } from "../components/utility/Card";
-import { useCanBuyTicket } from "../hooks/useCanBuyTicket";
+import { useCanBuyTicket } from "../hooks/state/useCanBuyTicket";
 import { formatMoney } from "../helpers/formatMoney";
 import { getBuyText } from "../helpers/getBuyText";
-import { useBuyTicket } from "../hooks/useBuyTicket";
-import { useDateTime } from "../hooks/useDateTime";
-import { useFormals } from "../hooks/useFormals";
-import { useQueueRequest } from "../hooks/useQueueRequest";
+import { useBuyTicket } from "../hooks/mutations/useBuyTicket";
+import { useDateTime } from "../hooks/state/useDateTime";
+import { useFormals } from "../hooks/queries/useFormals";
+import { useQueueRequest } from "../hooks/state/useQueueRequest";
 import { Formal } from "../model/Formal";
 
 interface FormalTicketStatsProps {
@@ -122,7 +122,7 @@ function FormalCard({formal}: FormalCardProps) {
             </Text>
           </Box>
           { canBuy && <VStack align="stretch" borderWidth="1px" borderRadius="md" p={3}>
-            <TicketBuyForm
+            <BuyTicketForm
               formal={formal}
               hasShadow={false}
               value={queueRequest}

@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { useContext, useMemo } from "react";
-import { Formal } from "../model/Formal";
-import { UserContext } from "../model/User";
+import { Formal } from "../../model/Formal";
+import { UserContext } from "../../model/User";
 
 export function useCanBuyTicket(formal: Formal): boolean {
     const user = useContext(UserContext);

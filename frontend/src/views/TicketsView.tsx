@@ -1,7 +1,7 @@
 import { Box, Heading, SimpleGrid, Spinner } from "@chakra-ui/react";
-import { QueueOverview } from "../components/tickets/QueueOverview";
-import { TicketOverview } from "../components/tickets/TicketOverview";
-import { useProcessedTickets, useTickets } from "../hooks/useTickets";
+import { QueueTicketInfoCard } from "../components/tickets/QueueTicketInfoCard";
+import { TicketInfoCard } from "../components/tickets/TicketInfoCard";
+import { useProcessedTickets, useTickets } from "../hooks/queries/useTickets";
 import { FormalTicket } from "../model/Ticket";
 
 export function TicketsView() {
@@ -43,13 +43,13 @@ function TicketsContent({ data }: TicketsContentProps) {
               if ("guestTickets" in t) {
                 return (
                   <Box gridRow="span 2" key={t.ticket.id} overflowX="auto">
-                    <TicketOverview ticket={t} queue />
+                    <TicketInfoCard ticket={t} queue />
                   </Box>
                 );
               }
               return (
                 <Box key={`${t.formal.id}.${t.ticket.id}`}>
-                  <QueueOverview ticket={t} />
+                  <QueueTicketInfoCard ticket={t} />
                 </Box>
               );
             })}
@@ -65,7 +65,7 @@ function TicketsContent({ data }: TicketsContentProps) {
             {tickets.map((t, i) => {
               return (
                 <Box overflowX="auto" key={t.ticket.id}>
-                  <TicketOverview ticket={t} />
+                  <TicketInfoCard ticket={t} />
                 </Box>
               );
             })}

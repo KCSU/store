@@ -13,7 +13,7 @@ import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Card } from "../../components/utility/Card";
 import { useAllFormals } from "../../hooks/admin/useAllFormals";
-import { useDateTime } from "../../hooks/useDateTime";
+import { useDateTime } from "../../hooks/state/useDateTime";
 import { Formal } from "../../model/Formal";
 
 interface FormalProps {

@@ -1,7 +1,7 @@
 import { useToast } from "@chakra-ui/react";
 import { useQueryClient } from "react-query";
-import { api } from "../config/api";
-import { TicketRequest } from "../model/TicketRequest";
+import { api } from "../../config/api";
+import { TicketRequest } from "../../model/TicketRequest";
 import { useCustomMutation } from "./useCustomMutation";
 
 export function useAddTicket(formalId: number) {

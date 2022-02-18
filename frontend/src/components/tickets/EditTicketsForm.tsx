@@ -21,17 +21,17 @@ import {
 import { useState } from "react";
 import { FaPlus, FaSave, FaTrashAlt, FaUndo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useCanBuyTicket, useCanEditTicket } from "../../hooks/useCanBuyTicket";
+import { useCanBuyTicket, useCanEditTicket } from "../../hooks/state/useCanBuyTicket";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
-import { useAddTicket } from "../../hooks/useAddTicket";
-import { useEditTicket } from "../../hooks/useEditTicket";
+import { useAddTicket } from "../../hooks/mutations/useAddTicket";
+import { useEditTicket } from "../../hooks/mutations/useEditTicket";
 import { Formal } from "../../model/Formal";
 import { FormalTicket, Ticket } from "../../model/Ticket";
-import { CancelGuestDialog } from "./CancelGuestDialog";
+import { CancelGuestTicketDialog } from "./CancelGuestTicketDialog";
 import { CancelTicketButton } from "./CancelTicketButton";
 import { PriceStat } from "../formals/PriceStat";
-import { TicketOptions } from "./TicketOptions";
+import { TicketOptionsInput } from "./TicketOptionsInput";
 
 export interface EditTicketsFormProps {
   ticket: FormalTicket;
@@ -47,9 +47,9 @@ export function EditTicketsForm({
   const canEdit = useCanEditTicket(formal);
   return (
     <VStack spacing={3}>
-      <SingleTicketForm formal={formal} ticket={ticket} hasShadow={hasShadow} isDisabled={!canEdit} />
+      <EditSingleTicketForm formal={formal} ticket={ticket} hasShadow={hasShadow} isDisabled={!canEdit} />
       {guestTickets.map((t, i) => (
-        <SingleTicketForm
+        <EditSingleTicketForm
           isDisabled={!canEdit}
           key={`guestTickets.${i}`}
           formal={formal}
@@ -77,24 +77,24 @@ export function EditTicketsForm({
         </Button>
       </HStack>
       <PriceStat formal={formal} guestTickets={guestTickets} />
-      <AddGuestModal isOpen={isOpen} onClose={onClose} formal={formal} />
+      <AddGuestTicketModal isOpen={isOpen} onClose={onClose} formal={formal} />
     </VStack>
   );
 }
 
-interface SingleTicketFormProps {
+interface EditSingleTicketFormProps {
   formal: Formal;
   ticket: Ticket;
   hasShadow?: boolean;
   isDisabled?: boolean;
 }
 
-function SingleTicketForm({
+function EditSingleTicketForm({
   formal,
   ticket,
   hasShadow,
   isDisabled = false
-}: SingleTicketFormProps) {
+}: EditSingleTicketFormProps) {
   const mutation = useEditTicket(ticket.id);
   const [option, setOption] = useState(ticket.option);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -122,7 +122,7 @@ function SingleTicketForm({
     </HStack>
   );
   return (
-    <TicketOptions
+    <TicketOptionsInput
       hasShadow={hasShadow}
       // TODO: state, isDisabled
       isDisabled={isDisabled}
@@ -150,7 +150,7 @@ function SingleTicketForm({
                 //   onClick={() => onChange({ type: "removeGuestTicket", index: i })}
               ></IconButton>
             </Tooltip>
-            <CancelGuestDialog
+            <CancelGuestTicketDialog
               confirmText="Cancel Ticket"
               isOpen={isOpen}
               onClose={onClose}
@@ -166,17 +166,17 @@ function SingleTicketForm({
           </>
         )}
       </HStack>
-    </TicketOptions>
+    </TicketOptionsInput>
   );
 }
 
-interface AddGuestModalProps {
+interface AddGuestTicketModalProps {
   isOpen: boolean;
   onClose: () => void;
   formal: Formal;
 }
 
-function AddGuestModal({ isOpen, onClose, formal }: AddGuestModalProps) {
+function AddGuestTicketModal({ isOpen, onClose, formal }: AddGuestTicketModalProps) {
   const mutation = useAddTicket(formal.id);
   const [option, setOption] = useState("Normal");
   const modalBg = useColorModeValue("gray.50", "gray.800");
@@ -188,11 +188,11 @@ function AddGuestModal({ isOpen, onClose, formal }: AddGuestModalProps) {
         <ModalHeader>Add Guest Ticket</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <TicketOptions
+          <TicketOptionsInput
             hasShadow={true}
             value={option}
             onChange={setOption}
-          ></TicketOptions>
+          ></TicketOptionsInput>
           <Center as="b" fontSize="lg" mt={4}>
             Ticket Price: {formatMoney(formal.guestPrice)}
           </Center>

@@ -1,6 +1,6 @@
 import { useQueryClient } from "react-query";
-import { api } from "../config/api";
-import { useCustomMutation } from "./useCustomMutation";
+import { api } from "../../config/api";
+import { useCustomMutation } from "../mutations/useCustomMutation";
 
 export function useCancelTickets() {
     const queryClient = useQueryClient();

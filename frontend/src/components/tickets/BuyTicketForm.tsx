@@ -10,25 +10,25 @@ import {
 } from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { formatMoney } from "../../helpers/formatMoney";
-import { QueueRequestAction } from "../../hooks/useQueueRequest";
+import { QueueRequestAction } from "../../hooks/state/useQueueRequest";
 import { Formal } from "../../model/Formal";
 import { QueueRequest } from "../../model/QueueRequest";
 import { PriceStat } from "../formals/PriceStat";
-import { TicketOptions } from "./TicketOptions";
+import { TicketOptionsInput } from "./TicketOptionsInput";
 
-interface TicketBuyFormProps {
+interface BuyTicketFormProps {
   formal: Formal;
   hasShadow?: boolean;
   value: QueueRequest;
   onChange?: React.Dispatch<QueueRequestAction>;
 }
 
-export function TicketBuyForm({
+export function BuyTicketForm({
   formal,
   onChange = () => {},
   value,
   hasShadow = true,
-}: TicketBuyFormProps) {
+}: BuyTicketFormProps) {
   const ticket = value.ticket;
   const guestTickets = value.guestTickets;
   
@@ -39,7 +39,7 @@ export function TicketBuyForm({
           Buying tickets for {formal.name}:
         </Text>
       </Box>
-      <TicketOptions
+      <TicketOptionsInput
         hasShadow={hasShadow}
         value={ticket.option}
         onChange={value => onChange({type: 'option', value})}
@@ -47,9 +47,9 @@ export function TicketBuyForm({
         <Heading as="h5" size="sm" mb={2}>
           King's Ticket: {formatMoney(formal.price)}
         </Heading>
-      </TicketOptions>
+      </TicketOptionsInput>
       {guestTickets.map((t, i) => (
-        <TicketOptions
+        <TicketOptionsInput
           key={`guestTickets.${i}`}
           hasShadow={hasShadow}
           value={t.option}
@@ -64,7 +64,7 @@ export function TicketBuyForm({
               onClick={() => onChange({type: 'removeGuestTicket', index: i})}
             ></CloseButton>
           </HStack>
-        </TicketOptions>
+        </TicketOptionsInput>
       ))}
       {formal.guestLimit > 0 && (
         <Button

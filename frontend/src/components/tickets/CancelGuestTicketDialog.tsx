@@ -8,16 +8,16 @@ import {
   AlertDialogFooter,
 } from "@chakra-ui/react";
 import { useRef } from "react";
-import { useCancelTicket } from "../../hooks/useCancelTicket";
+import { useCancelTicket } from "../../hooks/mutations/useCancelTicket";
 
-export interface CancelGuestDialogProps {
+export interface CancelGuestTicketDialogProps {
   isOpen: boolean;
   ticketId: number;
   confirmText?: string;
   onClose: () => void;
 }
 
-export function CancelGuestDialog({isOpen, onClose, ticketId, confirmText}: CancelGuestDialogProps) {
+export function CancelGuestTicketDialog({isOpen, onClose, ticketId, confirmText}: CancelGuestTicketDialogProps) {
   const mutation = useCancelTicket();
   const cancelRef = useRef(null);
   return (

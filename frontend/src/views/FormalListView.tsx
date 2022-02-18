@@ -8,15 +8,15 @@ import {
 } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  FormalOverview,
+  FormalInfoCard,
   FormalProps,
-} from "../components/formals/FormalOverview";
-import { generateMotion } from "../components/utility/generateMotion";
+} from "../components/formals/FormalInfoCard";
+import { motionComponent } from "../components/utility/generateMotion";
 import { Card, CardProps } from "../components/utility/Card";
-import { useFormals } from "../hooks/useFormals";
+import { useFormals } from "../hooks/queries/useFormals";
 
-const MotionCard = generateMotion<CardProps, "div">(Card);
-const MotionOverview = motion<FormalProps>(FormalOverview);
+const MotionCard = motionComponent<CardProps, "div">(Card);
+const MotionFormalInfoCard = motion<FormalProps>(FormalInfoCard);
 const MotionSimpleGrid = motion<SimpleGridProps>(SimpleGrid);
 
 function LoadingState() {
@@ -78,7 +78,7 @@ function FormalGrid() {
       spacing="40px"
     >
       {formals?.map((f, i) => (
-        <MotionOverview layout="position"
+        <MotionFormalInfoCard layout="position"
           // TODO: use actual DB ID as key
           key={`formal.${f.id}`}
           variants={itemVariant}

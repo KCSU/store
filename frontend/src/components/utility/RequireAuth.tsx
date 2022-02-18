@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useAuthUser } from "../../hooks/useAuthUser";
+import { useAuthUser } from "../../hooks/queries/useAuthUser";
 import { UserContext } from "../../model/User";
 
 export function RequireAuth() {
