@@ -6,7 +6,7 @@ export interface Formal {
     menu: string; // TODO:
     price: number;
     guestPrice: number;
-    options: string[]; // TODO:
+    // options: string[]; // TODO:
     guestLimit: number; // TODO:
     tickets: number;
     ticketsRemaining: number;

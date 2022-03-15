@@ -24,7 +24,7 @@ export function Routes() {
       action: "read"
     },
     {
-      path: "/admin/formals/:id",
+      path: "/admin/formals/:formalId",
       element: <AdminEditFormalView/>,
       resource: "formals",
       action: "read"
