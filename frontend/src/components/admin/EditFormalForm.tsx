@@ -72,7 +72,7 @@ export function EditFormalForm({ formal }: FormalProps) {
                     <NumberInput
                       {...field}
                       id="tickets"
-                      onChange={(val) => form.setFieldValue(field.name, val)}
+                      onChange={(_, val) => form.setFieldValue(field.name, val)}
                     >
                       <NumberInputField />
                       <NumberInputStepper>
@@ -95,7 +95,7 @@ export function EditFormalForm({ formal }: FormalProps) {
                     <NumberInput
                       {...field}
                       id="guestTickets"
-                      onChange={(val) => form.setFieldValue(field.name, val)}
+                      onChange={(_, val) => form.setFieldValue(field.name, val)}
                     >
                       <NumberInputField />
                       <NumberInputStepper>
@@ -122,7 +122,7 @@ export function EditFormalForm({ formal }: FormalProps) {
                         {...field}
                         precision={2}
                         id="price"
-                        onChange={(val) => form.setFieldValue(field.name, val)}
+                        onChange={(_, val) => form.setFieldValue(field.name, val)}
                       >
                         <NumberInputField borderLeftRadius={0} />
                         <NumberInputStepper>
@@ -150,7 +150,7 @@ export function EditFormalForm({ formal }: FormalProps) {
                         {...field}
                         precision={2}
                         id="guestPrice"
-                        onChange={(val) => form.setFieldValue(field.name, val)}
+                        onChange={(_, val) => form.setFieldValue(field.name, val)}
                       >
                         <NumberInputField borderLeftRadius={0} />
                         <NumberInputStepper>
@@ -176,7 +176,7 @@ export function EditFormalForm({ formal }: FormalProps) {
                     <NumberInput
                       {...field}
                       id="guestLimit"
-                      onChange={(val) => form.setFieldValue(field.name, val)}
+                      onChange={(_, val) => form.setFieldValue(field.name, val)}
                     >
                       <NumberInputField />
                       <NumberInputStepper>
