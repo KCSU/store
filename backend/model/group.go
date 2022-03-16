@@ -6,10 +6,10 @@ import (
 
 type Group struct {
 	Model
-	Name       string `json:"name"`
-	Type       string `json:"type"`
-	Lookup     string `json:"lookup"`
-	GroupUsers []GroupUser
+	Name       string      `json:"name"`
+	Type       string      `json:"type"`
+	Lookup     string      `json:"lookup"`
+	GroupUsers []GroupUser `json:"users,omitempty"`
 }
 
 // A "join table" for the User <-> Group relation.

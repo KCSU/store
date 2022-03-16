@@ -7,6 +7,7 @@ import (
 	"github.com/kcsu/store/config"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // Generate the error in the event of unauthenticated user
@@ -29,11 +30,11 @@ func extractJwt(c echo.Context) ([]string, error) {
 // Ensure a valid JWT is present in the Authorization header
 // TODO: when go echo is updated, use the real JWT middleware
 func JWTAuth(c *config.Config) echo.MiddlewareFunc {
-	jwtConfig := JWTConfig{
+	jwtConfig := middleware.JWTConfig{
 		Claims:           &auth.JwtClaims{},
 		SigningKey:       []byte(c.JwtSecret),
-		TokenLookupFuncs: []ValuesExtractor{extractJwt},
+		TokenLookupFuncs: []middleware.ValuesExtractor{extractJwt},
 		ErrorHandler:     jwtErrorHandler,
 	}
-	return JWTWithConfig(jwtConfig)
+	return middleware.JWTWithConfig(jwtConfig)
 }
