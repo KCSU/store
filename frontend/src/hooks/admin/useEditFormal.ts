@@ -15,6 +15,7 @@ export function useEditFormal(formalId: number) {
       onSuccess(_, option) {
         // TODO: update formal query with current data
         queryClient.invalidateQueries("admin/formals");
+        queryClient.invalidateQueries("formals")
         toast({
           title: "Changes Saved",
           status: "success"

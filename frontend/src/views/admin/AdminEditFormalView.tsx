@@ -30,9 +30,9 @@ function AdminEditFormalCard({ formal }: FormalProps) {
         <Tabs colorScheme="brand">
           <TabList flexWrap="wrap">
             <Tab>Event Details</Tab>
+            <Tab>Groups</Tab>
             <Tab>Manage Tickets</Tab>
             <Tab>Special Tickets</Tab>
-            <Tab>Groups</Tab>
             <Tab>Formal Stats</Tab>
           </TabList>
           <TabPanels>

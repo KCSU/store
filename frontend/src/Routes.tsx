@@ -12,6 +12,7 @@ import { FormalListView } from "./views/FormalListView";
 import { LoginView } from "./views/LoginView";
 import { SettingsView } from "./views/SettingsView";
 import { TicketsView } from "./views/TicketsView";
+import { AdminCreateFormalView } from "./views/admin/AdminCreateFormalView";
 
 const MotionBox = motionComponent<BoxProps, 'div'>(Box);
 
@@ -22,6 +23,12 @@ export function Routes() {
       element: <AdminFormalListView/>,
       resource: "formals",
       action: "read"
+    },
+    {
+      path: "/admin/formals/create",
+      element: <AdminCreateFormalView/>,
+      resource: "formals",
+      action: "write"
     },
     {
       path: "/admin/formals/:formalId",
