@@ -15,6 +15,7 @@ export function useEditTicket(ticketId: number) {
       onSuccess(_, option) {
         const tickets = queryClient.getQueryData<FormalTicket[]>("tickets");
         if (tickets) {
+          // TODO: refactor to use immer.js
           const newTix = tickets.map((t) => updateTicket(t, ticketId, option));
           queryClient.setQueryData("tickets", newTix);
         }
