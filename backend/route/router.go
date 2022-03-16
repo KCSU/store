@@ -54,12 +54,10 @@ func Init() *echo.Echo {
 	api := e.Group("/api")
 	ApiRoutes(api, h, requireAuth)
 
-	if c.Debug {
-		// Do not include admin routes in production yet!
-		adminApi := api.Group("/admin", requireAuth)
-		ah := admin.NewHandler(h)
-		AdminRoutes(adminApi, ah)
-	}
+	// TODO: Protect!
+	adminApi := api.Group("/admin", requireAuth)
+	ah := admin.NewHandler(h)
+	AdminRoutes(adminApi, ah)
 
 	return e
 }
