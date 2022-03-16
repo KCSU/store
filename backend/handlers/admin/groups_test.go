@@ -71,7 +71,62 @@ func (s *AdminGroupSuite) TestGetGroups() {
 	// Run test
 	err := s.h.GetGroups(c)
 	s.NoError(err)
-	log.Println(rec.Body.String())
+	s.groups.AssertExpectations(s.T())
+	s.Equal(http.StatusOK, rec.Code)
+	s.JSONEq(expectedJSON, rec.Body.String())
+}
+
+func (s *AdminGroupSuite) TestGetGroup() {
+	const expectedJSON = `{
+		"id":34,
+		"createdAt":"0001-01-01T00:00:00Z",
+		"updatedAt":"0001-01-01T00:00:00Z",
+		"deletedAt":null,
+		"name":"My Group",
+		"type":"inst",
+		"lookup":"MGRP",
+		"users":[
+			{
+				"groupId":34,
+				"userEmail":"abc123@cam.ac.uk",
+				"createdAt":"0001-01-01T00:00:00Z"
+			},
+			{
+				"groupId":34,
+				"userEmail":"def456@cam.ac.uk",
+				"createdAt":"0001-01-01T00:00:00Z"
+			}
+		]
+	}`
+	// Init HTTP
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/groups/34", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("34")
+	// Mock database
+	group := model.Group{
+		Model:  model.Model{ID: 34},
+		Name:   "My Group",
+		Type:   "inst",
+		Lookup: "MGRP",
+		GroupUsers: []model.GroupUser{
+			{
+				GroupID:   34,
+				UserEmail: "abc123@cam.ac.uk",
+			},
+			{
+				GroupID:   34,
+				UserEmail: "def456@cam.ac.uk",
+			},
+		},
+	}
+	s.groups.On("Find", 34).Return(group, nil)
+
+	err := s.h.GetGroup(c)
+	s.NoError(err)
+	log.Print(rec.Body.String())
 	s.groups.AssertExpectations(s.T())
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())

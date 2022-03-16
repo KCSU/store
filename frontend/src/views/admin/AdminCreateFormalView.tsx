@@ -239,7 +239,7 @@ const CreateFormalForm: React.FC<CreateFormalForm> = ({
                     <DatePicker
                       {...field}
                       selectedDate={field.value}
-                      id="dateTime"
+                      id="saleStart"
                       onChange={(val) => form.setFieldValue(field.name, val)}
                       showPopperArrow
                       showTimeSelect
@@ -259,7 +259,7 @@ const CreateFormalForm: React.FC<CreateFormalForm> = ({
                     <DatePicker
                       {...field}
                       selectedDate={field.value}
-                      id="dateTime"
+                      id="saleEnd"
                       onChange={(val) => form.setFieldValue(field.name, val)}
                       showPopperArrow
                       showTimeSelect

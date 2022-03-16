@@ -229,7 +229,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                     <DatePicker
                       {...field}
                       selectedDate={field.value}
-                      id="dateTime"
+                      id="saleStart"
                       onChange={(val) => form.setFieldValue(field.name, val)}
                       showPopperArrow
                       showTimeSelect
@@ -249,7 +249,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                     <DatePicker
                       {...field}
                       selectedDate={field.value}
-                      id="dateTime"
+                      id="saleEnd"
                       onChange={(val) => form.setFieldValue(field.name, val)}
                       showPopperArrow
                       showTimeSelect
@@ -261,27 +261,6 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                 )}
               </Field>
             </SimpleGrid>
-            {/* {hasGroups && (
-              <Field name="groups">
-                {({ field, form }: FieldProps) => (
-                  <FormControl
-                    isInvalid={!!(form.errors.groups && form.touched.groups)}
-                  >
-                    <FormLabel>Groups</FormLabel>
-                    <CheckboxGroup defaultValue={field.value.map((g: Group) => g.id)} onChange={(val) => {
-                      const groups = availableGroups.filter(g => val.includes(g.id.toString()));
-                      form.setFieldValue(field.name, groups);
-                    }} colorScheme="brand">
-                      {availableGroups.map((g) => (
-                        <Checkbox value={g.id.toString()} key={g.id}>
-                          {g.name}
-                        </Checkbox>
-                      ))}
-                    </CheckboxGroup>
-                  </FormControl>
-                )}
-              </Field>
-            )} */}
             <Button
               colorScheme="brand"
               alignSelf="start"

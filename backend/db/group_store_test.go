@@ -6,6 +6,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	. "github.com/kcsu/store/db"
+	"github.com/kcsu/store/model"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
@@ -48,6 +49,36 @@ func (s *GroupSuite) TestGetGroups() {
 	s.Require().NoError(err)
 	s.Len(fs, 1)
 	s.EqualValues(56, fs[0].ID)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *GroupSuite) TestFindGroup() {
+	group := model.Group{
+		Model: model.Model{ID: 5},
+		Name:  "Group",
+		GroupUsers: []model.GroupUser{
+			{
+				GroupID:   5,
+				UserEmail: "abc123@cam.ac.uk",
+			},
+		},
+	}
+	s.mock.ExpectQuery(`SELECT \* FROM "groups"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name"}).
+				AddRow(group.ID, group.Name),
+		)
+	s.mock.ExpectQuery(`SELECT \* FROM "group_users"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"group_id", "user_email"}).
+				AddRow(
+					group.GroupUsers[0].GroupID,
+					group.GroupUsers[0].UserEmail,
+				),
+		)
+	g, err := s.store.Find(5)
+	s.Require().NoError(err)
+	s.Equal(group, g)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 

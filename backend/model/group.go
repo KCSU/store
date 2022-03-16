@@ -17,8 +17,8 @@ type Group struct {
 // not exist.
 // TODO: still maybe figure out a way to sort that out
 type GroupUser struct {
-	GroupID   int    `gorm:"primaryKey"`
-	UserEmail string `gorm:"primaryKey"`
-	CreatedAt time.Time
-	Group     Group
+	GroupID   int       `gorm:"primaryKey" json:"groupId"`
+	UserEmail string    `gorm:"primaryKey" json:"userEmail"`
+	CreatedAt time.Time `json:"createdAt"`
+	Group     Group     `json:"-"`
 }
