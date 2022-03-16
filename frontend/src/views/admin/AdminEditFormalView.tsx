@@ -13,7 +13,8 @@ import { BackButton } from "../../components/utility/BackButton";
 import { Card } from "../../components/utility/Card";
 import { Formal } from "../../model/Formal";
 import { EditFormalForm } from "../../components/admin/EditFormalForm";
-import { useAllFormals } from "../../hooks/admin/useAllFormals";
+import { useFormal } from "../../hooks/admin/useFormal";
+import { EditFormalGroupsForm } from "../../components/admin/EditFormalGroupsForm";
 
 interface FormalProps {
   formal: Formal;
@@ -39,6 +40,9 @@ function AdminEditFormalCard({ formal }: FormalProps) {
             <TabPanel>
               <EditFormalForm formal={formal} />
             </TabPanel>
+            <TabPanel>
+              <EditFormalGroupsForm formal={formal} />
+            </TabPanel>
           </TabPanels>
         </Tabs>
       </Card>
@@ -49,8 +53,7 @@ function AdminEditFormalCard({ formal }: FormalProps) {
 export function AdminEditFormalView() {
   const { formalId } = useParams();
   const formalIdNum = parseInt(formalId ?? "0");
-  const { data: formals, isLoading, isError } = useAllFormals();
-  const formal = formals?.find((f) => f.id === formalIdNum);
+  const { data: formal, isLoading, isError } = useFormal(formalIdNum);
   if (isError) {
     // TODO: return an error!
     return <Navigate to="/admin/formals" />;

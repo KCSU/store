@@ -88,7 +88,9 @@ func (f *DBFormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uin
 
 // Find all groups with specified ids
 func (f *DBFormalStore) GetGroups(ids []int) ([]model.Group, error) {
-	// TODO: test this
+	if len(ids) == 0 {
+		return []model.Group{}, nil
+	}
 	var groups []model.Group
 	err := f.db.Find(&groups, ids).Error
 	return groups, err
