@@ -69,3 +69,17 @@ func (_m *GroupStore) Get() ([]model.Group, error) {
 
 	return r0, r1
 }
+
+// RemoveUser provides a mock function with given fields: group, email
+func (_m *GroupStore) RemoveUser(group *model.Group, email string) error {
+	ret := _m.Called(group, email)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Group, string) error); ok {
+		r0 = rf(group, email)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

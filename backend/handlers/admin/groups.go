@@ -45,7 +45,7 @@ func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	dto := new(dto.AddGroupUserDto)
+	dto := new(dto.GroupUserDto)
 	if err := c.Bind(dto); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -63,4 +63,32 @@ func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
 		return err
 	}
 	return c.NoContent(http.StatusCreated)
+}
+
+// Remove a "manual" user from a group
+func (ah *AdminHandler) RemoveGroupUser(c echo.Context) error {
+	// Get the group ID from query
+	id := c.Param("id")
+	groupID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	dto := new(dto.GroupUserDto)
+	if err := c.Bind(dto); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(dto); err != nil {
+		return err
+	}
+	group, err := ah.Groups.Find(groupID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.Groups.RemoveUser(&group, dto.Email); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusNoContent)
 }

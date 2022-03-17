@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/kcsu/store/model"
+	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
@@ -13,6 +14,8 @@ type GroupStore interface {
 	Find(id int) (model.Group, error)
 	// Add a user to the group
 	AddUser(group *model.Group, email string) error
+	// Remove a user from the group
+	RemoveUser(group *model.Group, email string) error
 }
 
 // Helper struct for using Groups in the database
@@ -48,4 +51,14 @@ func (g *DBGroupStore) AddUser(group *model.Group, email string) error {
 	}
 	err := g.db.Model(group).Association("GroupUsers").Append(&groupUser)
 	return err
+}
+
+// Remove a user from the group
+func (g *DBGroupStore) RemoveUser(group *model.Group, email string) error {
+	res := g.db.Where("group_id = ? AND user_email = ?", group.ID, email).
+		Where("is_manual").Delete(&model.GroupUser{})
+	if res.RowsAffected == 0 {
+		return echo.ErrNotFound
+	}
+	return res.Error
 }

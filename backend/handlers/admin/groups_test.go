@@ -161,7 +161,7 @@ func (s *AdminGroupSuite) TestAddGroupUser() {
 			nil,
 			&wants{
 				http.StatusUnprocessableEntity,
-				"Key: 'AddGroupUserDto.Email' Error:Field validation for 'Email' failed on the 'email' tag",
+				"Key: 'GroupUserDto.Email' Error:Field validation for 'Email' failed on the 'email' tag",
 			},
 		},
 		{
@@ -221,6 +221,102 @@ func (s *AdminGroupSuite) TestAddGroupUser() {
 			if test.wants == nil {
 				s.NoError(err)
 				s.Equal(http.StatusCreated, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+			s.groups.AssertExpectations(s.T())
+		})
+	}
+}
+
+func (s *AdminGroupSuite) TestRemoveGroupUser() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name      string
+		body      string
+		email     string
+		findGroup bool
+		group     *model.Group
+		wants     *wants
+	}
+	tests := []test{
+		{
+			"Invalid email",
+			`{
+				"userEmail": "hello@test"
+			}`,
+			"",
+			false,
+			nil,
+			&wants{
+				http.StatusUnprocessableEntity,
+				"Key: 'GroupUserDto.Email' Error:Field validation for 'Email' failed on the 'email' tag",
+			},
+		},
+		{
+			"Non-existent group",
+			`{
+				"userEmail": "abc123@cam.ac.uk"
+			}`,
+			"abc123@cam.ac.uk",
+			true,
+			nil,
+			&wants{
+				http.StatusNotFound,
+				"Not Found",
+			},
+		},
+		{
+			"Should remove user",
+			`{
+				"userEmail": "def456@cam.ac.uk"	
+			}`,
+			"def456@cam.ac.uk",
+			true,
+			&model.Group{
+				Model: model.Model{ID: 12},
+				Name:  "My Group",
+			},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			// HTTP
+			req := httptest.NewRequest(
+				http.MethodPost, "/groups/12/users", strings.NewReader(test.body),
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues("12")
+			// Mock
+			if test.findGroup {
+				if test.group == nil {
+					s.groups.On("Find", 12).Once().Return(model.Group{}, gorm.ErrRecordNotFound)
+				} else {
+					s.groups.On("Find", 12).Once().Return(*test.group, nil)
+				}
+			}
+			if test.wants == nil {
+				s.groups.On("RemoveUser", test.group, test.email).Once().Return(nil)
+			}
+
+			// Test
+			err := s.h.RemoveGroupUser(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusNoContent, rec.Code)
 			} else {
 				var he *echo.HTTPError
 				if s.ErrorAs(err, &he) {
