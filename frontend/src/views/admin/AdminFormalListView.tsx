@@ -70,7 +70,13 @@ export function AdminFormalListView() {
       <Heading size="xl" mb={5}>
         Manage Formals
       </Heading>
-      <Button colorScheme="brand" mb={4} leftIcon={<FaPlus />} as={Link} to="/admin/formals/create">
+      <Button
+        colorScheme="brand"
+        mb={4}
+        leftIcon={<FaPlus />}
+        as={Link}
+        to="/admin/formals/create"
+      >
         Create Formal
       </Button>
       <SimpleGrid

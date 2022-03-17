@@ -13,6 +13,7 @@ import { LoginView } from "./views/LoginView";
 import { SettingsView } from "./views/SettingsView";
 import { TicketsView } from "./views/TicketsView";
 import { AdminCreateFormalView } from "./views/admin/AdminCreateFormalView";
+import { AdminGroupListView } from "./views/admin/AdminGroupListView";
 
 const MotionBox = motionComponent<BoxProps, 'div'>(Box);
 
@@ -35,6 +36,12 @@ export function Routes() {
       element: <AdminEditFormalView/>,
       resource: "formals",
       action: "read"
+    },
+    {
+      path: "/admin/groups",
+      element: <AdminGroupListView/>,
+      resource: "groups",
+      action: "read" // Should this be "write"?
     }
   ];
   const location = useLocation();

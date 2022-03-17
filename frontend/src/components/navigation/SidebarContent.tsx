@@ -4,7 +4,7 @@ import {
   FaCog,
   FaHome,
   FaTicketAlt,
-  FaUser,
+  FaUsers,
 } from "react-icons/fa";
 import { AdminSidebarItem, SidebarItem } from "./SidebarItem";
 
@@ -40,6 +40,13 @@ const adminRoutes = [
     action: "read",
     icon: FaCalendarDay,
   },
+  {
+    to: "/admin/groups",
+    title: "Manage Groups",
+    resource: "groups",
+    action: "read", // write?
+    icon: FaUsers,
+  }
 ];
 
 interface SidebarContentProps {
