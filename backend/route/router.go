@@ -99,4 +99,5 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	groups := a.Group("/groups")
 	groups.GET("", ah.GetGroups)
 	groups.GET("/:id", ah.GetGroup)
+	groups.POST("/:id/users", ah.AddGroupUser)
 }

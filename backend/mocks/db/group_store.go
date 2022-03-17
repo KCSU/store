@@ -12,6 +12,20 @@ type GroupStore struct {
 	mock.Mock
 }
 
+// AddUser provides a mock function with given fields: group, email
+func (_m *GroupStore) AddUser(group *model.Group, email string) error {
+	ret := _m.Called(group, email)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Group, string) error); ok {
+		r0 = rf(group, email)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Find provides a mock function with given fields: id
 func (_m *GroupStore) Find(id int) (model.Group, error) {
 	ret := _m.Called(id)

@@ -11,6 +11,8 @@ type GroupStore interface {
 	Get() ([]model.Group, error)
 	// Retrieve a single group
 	Find(id int) (model.Group, error)
+	// Add a user to the group
+	AddUser(group *model.Group, email string) error
 }
 
 // Helper struct for using Groups in the database
@@ -36,4 +38,14 @@ func (g *DBGroupStore) Find(id int) (model.Group, error) {
 	var group model.Group
 	err := g.db.Preload("GroupUsers").First(&group, id).Error
 	return group, err
+}
+
+// Add a user to the group
+func (g *DBGroupStore) AddUser(group *model.Group, email string) error {
+	groupUser := model.GroupUser{
+		UserEmail: email,
+		IsManual:  true,
+	}
+	err := g.db.Model(group).Association("GroupUsers").Append(&groupUser)
+	return err
 }

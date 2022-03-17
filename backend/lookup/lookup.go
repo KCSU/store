@@ -81,7 +81,7 @@ func GetGroupUsers(people []LookupUser) []model.GroupUser {
 			continue
 		}
 		email := person.Identifier.Text + "@cam.ac.uk"
-		groupUser := model.GroupUser{UserEmail: email}
+		groupUser := model.GroupUser{UserEmail: email, IsManual: false}
 		users = append(users, groupUser)
 	}
 	return users

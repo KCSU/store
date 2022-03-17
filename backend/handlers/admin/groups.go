@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -34,4 +35,32 @@ func (ah *AdminHandler) GetGroup(c echo.Context) error {
 		return err
 	}
 	return c.JSON(http.StatusOK, &group)
+}
+
+// Add a "manual" user to a group
+func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
+	// Get the group ID from query
+	id := c.Param("id")
+	groupID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	dto := new(dto.AddGroupUserDto)
+	if err := c.Bind(dto); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(dto); err != nil {
+		return err
+	}
+	group, err := ah.Groups.Find(groupID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.Groups.AddUser(&group, dto.Email); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusCreated)
 }

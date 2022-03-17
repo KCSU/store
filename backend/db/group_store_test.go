@@ -82,6 +82,25 @@ func (s *GroupSuite) TestFindGroup() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *GroupSuite) TestAddUser() {
+	group := model.Group{
+		Model: model.Model{ID: 2},
+		Name:  "A Group",
+	}
+	email := "abc123@cam.ac.uk"
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "groups" SET "updated_at"`).
+		WithArgs(sqlmock.AnyArg(), group.ID).
+		WillReturnResult(sqlmock.NewResult(int64(group.ID), 1))
+	s.mock.ExpectExec(`INSERT INTO "group_users"`).
+		WithArgs(group.ID, email, true, sqlmock.AnyArg()).
+		WillReturnResult(sqlmock.NewResult(23, 1))
+	s.mock.ExpectCommit()
+	err := s.store.AddUser(&group, email)
+	s.Require().NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func TestGroupSuite(t *testing.T) {
 	suite.Run(t, new(GroupSuite))
 }

@@ -19,6 +19,7 @@ type Group struct {
 type GroupUser struct {
 	GroupID   int       `gorm:"primaryKey" json:"groupId"`
 	UserEmail string    `gorm:"primaryKey" json:"userEmail"`
+	IsManual  bool      `gorm:"default:false" json:"isManual"`
 	CreatedAt time.Time `json:"createdAt"`
 	Group     Group     `json:"-"`
 }
