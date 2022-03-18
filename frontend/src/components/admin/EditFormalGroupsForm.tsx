@@ -37,7 +37,7 @@ export function EditFormalGroupsForm({ formal }: FormalProps) {
           onChange={(v) => setGroups(v as string[])}
         >
           {available.map((g) => (
-            <Checkbox value={g.id.toString()}>{g.name}</Checkbox>
+            <Checkbox key={g.id} value={g.id.toString()}>{g.name}</Checkbox>
           ))}
         </CheckboxGroup>
       </HStack>

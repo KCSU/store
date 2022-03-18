@@ -26,9 +26,6 @@ export const TicketOptionsInput: React.FC<TicketOptionsInputProps> = ({
   hasShadow = true,
 }) => {
   const options = ["Normal", "Vegetarian", "Vegan", "Pescetarian"];
-  const handleChange = (option: Record<string, string>) => {
-    onChange?.(option?.value ?? "");
-  };
   const bg = useColorModeValue("white", "gray.700");
   return (
     <Card
@@ -51,7 +48,9 @@ export const TicketOptionsInput: React.FC<TicketOptionsInputProps> = ({
               label: value,
               value,
             }}
-            onChange={handleChange}
+            onChange={(option) => {
+              onChange?.(option?.value ?? "");
+            }}
             size="sm"
             options={options.map((opt) => ({
               label: opt,

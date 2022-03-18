@@ -20,7 +20,6 @@ import { Formik, Form, Field, FieldProps } from "formik";
 import { FaSave } from "react-icons/fa";
 import { useEditFormal } from "../../hooks/admin/useEditFormal";
 import { Formal } from "../../model/Formal";
-import { Group } from "../../model/Group";
 import DatePicker from "../utility/DatePicker";
 
 interface FormalDetailsFormProps {

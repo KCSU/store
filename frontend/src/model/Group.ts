@@ -6,8 +6,8 @@ export interface Group {
     users?: GroupUser[];
 }
 
-export function groupType(group: Group) {
-    switch (group.type) {
+export function groupType(type: string) {
+    switch (type) {
         case "inst":
             return "Institution";
         case "group":
@@ -15,7 +15,7 @@ export function groupType(group: Group) {
         case "manual":
             return "Manual";
         default:
-            return group.type;
+            return type;
     }
         
 }

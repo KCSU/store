@@ -1,4 +1,12 @@
-import { Box, Button, Code, Heading, LinkBox, LinkOverlay, SimpleGrid, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Code,
+  Heading,
+  LinkBox,
+  LinkOverlay,
+  SimpleGrid,
+  Text,
+} from "@chakra-ui/react";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Card } from "../../components/utility/Card";
@@ -25,11 +33,9 @@ function AdminGroupCard({ group }: GroupProps) {
         </Heading>
       </LinkOverlay>
       <Text fontSize="sm">
-        {groupType(group)}
-        {group.lookup && ': '}
-        {group.lookup && <Code>
-          {group.lookup}
-        </Code>}
+        {groupType(group.type)}
+        {group.lookup && ": "}
+        {group.lookup && <Code>{group.lookup}</Code>}
         {/* TODO: Member count? */}
       </Text>
     </LinkBox>
