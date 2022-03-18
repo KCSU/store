@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Navigate, useParams } from "react-router-dom";
 import { EditGroupForm } from "../../components/admin/EditGroupForm";
+import { GroupDirectory } from "../../components/admin/GroupDirectory";
 import { BackButton } from "../../components/utility/BackButton";
 import { Card } from "../../components/utility/Card";
 import { useGroup } from "../../hooks/admin/useGroup";
@@ -36,6 +37,9 @@ function AdminEditGroupCard({ group }: GroupProps) {
           <TabPanels>
             <TabPanel>
               <EditGroupForm group={group} />
+            </TabPanel>
+            <TabPanel>
+              <GroupDirectory group={group} />
             </TabPanel>
           </TabPanels>
         </Tabs>

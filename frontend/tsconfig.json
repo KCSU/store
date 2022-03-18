@@ -4,7 +4,7 @@
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": false,
-    "skipLibCheck": false,
+    "skipLibCheck": true, // FIXME when @types/react-table works again
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
