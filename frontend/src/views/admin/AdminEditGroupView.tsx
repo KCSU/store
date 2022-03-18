@@ -32,7 +32,6 @@ function AdminEditGroupCard({ group }: GroupProps) {
           <TabList flexWrap="wrap">
             <Tab>Group Details</Tab>
             <Tab>Directory</Tab>
-            <Tab>Manual Members</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
