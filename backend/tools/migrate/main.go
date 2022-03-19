@@ -16,11 +16,14 @@ func main() {
 		log.Panic(err)
 	}
 	// TODO: manual migration
-	d.AutoMigrate(
+	err = d.AutoMigrate(
 		&model.Formal{},
 		&model.Ticket{},
 		&model.User{},
 		&model.Group{},
 		&model.GroupUser{},
 	)
+	if err != nil {
+		log.Panic(err)
+	}
 }

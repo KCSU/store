@@ -16,6 +16,8 @@ type GroupStore interface {
 	AddUser(group *model.Group, email string) error
 	// Remove a user from the group
 	RemoveUser(group *model.Group, email string) error
+	// Update a group
+	Update(group *model.Group) error
 }
 
 // Helper struct for using Groups in the database
@@ -61,4 +63,9 @@ func (g *DBGroupStore) RemoveUser(group *model.Group, email string) error {
 		return echo.ErrNotFound
 	}
 	return res.Error
+}
+
+// Update a group
+func (g *DBGroupStore) Update(group *model.Group) error {
+	return g.db.Omit("created_at").Save(group).Error
 }

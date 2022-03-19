@@ -3,6 +3,7 @@ package admin_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -135,6 +136,101 @@ func (s *AdminGroupSuite) TestGetGroup() {
 	s.groups.AssertExpectations(s.T())
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
+}
+
+func (s *AdminGroupSuite) TestUpdateGroup() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name  string
+		body  string
+		group model.Group
+		wants *wants
+	}
+	tests := []test{
+		{
+			"Missing Lookup",
+			`{
+				"name": "Another Group",
+				"type": "group"
+			}`,
+			model.Group{},
+			&wants{
+				http.StatusUnprocessableEntity,
+				"Key: 'AdminGroupDto.Lookup' Error:Field validation for 'Lookup' failed on the 'required_unless' tag",
+			},
+		},
+		{
+			"Should Update: manual",
+			`{
+				"name": "Manual Group",
+				"type": "manual"	
+			}`,
+			model.Group{
+				Model: model.Model{ID: 13},
+				Name:  "Manual Group",
+				Type:  "manual",
+			},
+			nil,
+		},
+		{
+			"Should Update: institution",
+			`{
+				"name": "My Group",
+				"type": "inst",
+				"lookup": "MYGRP"
+			}`,
+			model.Group{
+				Model:  model.Model{ID: 13},
+				Name:   "My Group",
+				Type:   "inst",
+				Lookup: "MYGRP",
+			},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			// HTTP
+			req := httptest.NewRequest(
+				http.MethodPut, "/groups/13", strings.NewReader(test.body),
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.Itoa(int(test.group.ID)))
+			// Mock
+			if test.wants == nil {
+				s.groups.On("Find", int(test.group.ID)).Return(
+					model.Group{
+						Model:  model.Model{ID: test.group.ID},
+						Name:   "Initial",
+						Type:   "initial",
+						Lookup: "initial",
+					}, nil,
+				).Once()
+				s.groups.On("Update", &test.group).Return(nil).Once()
+			}
+			// Test
+			err := s.h.UpdateGroup(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+			s.groups.AssertExpectations(s.T())
+		})
+	}
 }
 
 func (s *AdminGroupSuite) TestAddGroupUser() {

@@ -37,6 +37,38 @@ func (ah *AdminHandler) GetGroup(c echo.Context) error {
 	return c.JSON(http.StatusOK, &group)
 }
 
+// Update a group
+func (ah *AdminHandler) UpdateGroup(c echo.Context) error {
+	// Get the group ID from query
+	id := c.Param("id")
+	groupID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	g := new(dto.AdminGroupDto)
+	if err := c.Bind(g); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(g); err != nil {
+		return err
+	}
+	group, err := ah.Groups.Find(groupID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	group.Name = g.Name
+	group.Type = g.Type
+	group.Lookup = g.Lookup
+	if err := ah.Groups.Update(&group); err != nil {
+		return err
+	}
+	// TODO: JSON?
+	return c.NoContent(http.StatusOK)
+}
+
 // Add a "manual" user to a group
 func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
 	// Get the group ID from query
@@ -59,6 +91,7 @@ func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
 		}
 		return err
 	}
+	// TODO: ensure user does not already exist
 	if err := ah.Groups.AddUser(&group, dto.Email); err != nil {
 		return err
 	}

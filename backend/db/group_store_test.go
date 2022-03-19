@@ -117,6 +117,28 @@ func (s *GroupSuite) TestRemoveUser() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *GroupSuite) TestUpdateGroup() {
+	g := model.Group{
+		Model: model.Model{
+			ID: 25,
+		},
+		Name:   "Group",
+		Type:   "inst",
+		Lookup: "GRP01",
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "groups"`).WithArgs(
+		sqlmock.AnyArg(), nil,
+		g.Name, g.Type, g.Lookup, g.ID,
+	).WillReturnResult(
+		sqlmock.NewResult(int64(g.ID), 1),
+	)
+	s.mock.ExpectCommit()
+	err := s.store.Update(&g)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func TestGroupSuite(t *testing.T) {
 	suite.Run(t, new(GroupSuite))
 }

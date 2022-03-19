@@ -99,6 +99,7 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	groups := a.Group("/groups")
 	groups.GET("", ah.GetGroups)
 	groups.GET("/:id", ah.GetGroup)
+	groups.PUT("/:id", ah.UpdateGroup)
 	groups.POST("/:id/users", ah.AddGroupUser)
 	groups.DELETE("/:id/users", ah.RemoveGroupUser)
 }
