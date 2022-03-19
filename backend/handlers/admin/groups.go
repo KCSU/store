@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -35,6 +36,27 @@ func (ah *AdminHandler) GetGroup(c echo.Context) error {
 		return err
 	}
 	return c.JSON(http.StatusOK, &group)
+}
+
+// Create a group
+func (ah *AdminHandler) CreateGroup(c echo.Context) error {
+	g := new(dto.AdminGroupDto)
+	if err := c.Bind(g); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(g); err != nil {
+		return err
+	}
+	group := model.Group{
+		Name:   g.Name,
+		Type:   g.Type,
+		Lookup: g.Lookup,
+	}
+	if err := ah.Groups.Create(&group); err != nil {
+		return err
+	}
+	// JSON?
+	return c.NoContent(http.StatusCreated)
 }
 
 // Update a group

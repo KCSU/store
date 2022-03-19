@@ -16,6 +16,8 @@ type GroupStore interface {
 	AddUser(group *model.Group, email string) error
 	// Remove a user from the group
 	RemoveUser(group *model.Group, email string) error
+	// Create a group
+	Create(group *model.Group) error
 	// Update a group
 	Update(group *model.Group) error
 }
@@ -63,6 +65,11 @@ func (g *DBGroupStore) RemoveUser(group *model.Group, email string) error {
 		return echo.ErrNotFound
 	}
 	return res.Error
+}
+
+// Create a group
+func (g *DBGroupStore) Create(group *model.Group) error {
+	return g.db.Create(group).Error
 }
 
 // Update a group

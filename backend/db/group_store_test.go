@@ -117,6 +117,22 @@ func (s *GroupSuite) TestRemoveUser() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *GroupSuite) TestCreateGroup() {
+	group := model.Group{
+		Name:   "New Group",
+		Type:   "inst",
+		Lookup: "LKUP",
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectQuery(`INSERT INTO "groups"`).WillReturnRows(
+		sqlmock.NewRows([]string{"id"}).AddRow(14),
+	)
+	s.mock.ExpectCommit()
+	err := s.store.Create(&group)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *GroupSuite) TestUpdateGroup() {
 	g := model.Group{
 		Model: model.Model{

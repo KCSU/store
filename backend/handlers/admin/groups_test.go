@@ -138,6 +138,89 @@ func (s *AdminGroupSuite) TestGetGroup() {
 	s.JSONEq(expectedJSON, rec.Body.String())
 }
 
+func (s *AdminGroupSuite) TestCreateGroup() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name  string
+		body  string
+		group model.Group
+		wants *wants
+	}
+	tests := []test{
+		{
+			"Missing Lookup",
+			`{
+				"name": "A group",
+				"type": "inst"	
+			}`,
+			model.Group{},
+			&wants{
+				http.StatusUnprocessableEntity,
+				"Key: 'AdminGroupDto.Lookup' Error:Field validation for 'Lookup' failed on the 'required_unless' tag",
+			},
+		},
+		{
+			"Should Create: manual",
+			`{
+				"name": "Manual Group",
+				"type": "manual"	
+			}`,
+			model.Group{
+				Name: "Manual Group",
+				Type: "manual",
+			},
+			nil,
+		},
+		{
+			"Should Create: institution",
+			`{
+				"name": "My Group",
+				"type": "inst",
+				"lookup": "MYGRP"
+			}`,
+			model.Group{
+				Name:   "My Group",
+				Type:   "inst",
+				Lookup: "MYGRP",
+			},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			// HTTP
+			req := httptest.NewRequest(
+				http.MethodPost, "/groups", strings.NewReader(test.body),
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			// Mock
+			if test.wants == nil {
+				s.groups.On("Create", &test.group).Return(nil).Once()
+			}
+			// Test
+			err := s.h.CreateGroup(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusCreated, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+			s.groups.AssertExpectations(s.T())
+		})
+	}
+}
+
 func (s *AdminGroupSuite) TestUpdateGroup() {
 	type wants struct {
 		code    int
