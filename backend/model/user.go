@@ -4,6 +4,6 @@ package model
 type User struct {
 	Model
 	Name           string `json:"name"`
-	Email          string `json:"email" gorm:"uniqueIndex;not null"`
-	ProviderUserId string `json:"-" gorm:"uniqueIndex; not null"`
+	Email          string `json:"email" gorm:"unique;uniqueIndex;not null"`
+	ProviderUserId string `json:"-" gorm:"unique;uniqueIndex; not null"`
 }
