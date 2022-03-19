@@ -23,12 +23,11 @@ interface GroupProps {
 
 function AddUserBox({group}: GroupProps) {
   const [email, setEmail] = useState("");
-  const addBg = useColorModeValue("gray.200", "gray.600");
   const inputBg = useColorModeValue("gray.50", "gray.600");
   const mutation = useAddGroupUser(group.id);
   return <Box
-    bg={addBg}
     align="center"
+    borderWidth={1}
     alignSelf="center"
     borderRadius="md"
     mb={4}

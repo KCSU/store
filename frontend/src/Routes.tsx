@@ -15,6 +15,7 @@ import { TicketsView } from "./views/TicketsView";
 import { AdminCreateFormalView } from "./views/admin/AdminCreateFormalView";
 import { AdminGroupListView } from "./views/admin/AdminGroupListView";
 import { AdminEditGroupView } from "./views/admin/AdminEditGroupView";
+import { AdminCreateGroupView } from "./views/admin/AdminCreateGroupView";
 
 const MotionBox = motionComponent<BoxProps, 'div'>(Box);
 
@@ -43,6 +44,12 @@ export function Routes() {
       element: <AdminGroupListView/>,
       resource: "groups",
       action: "read" // Should this be "write"?
+    },
+    {
+      path: "/admin/groups/create",
+      element: <AdminCreateGroupView/>,
+      resource: "groups",
+      action: "write"
     },
     {
       path: "/admin/groups/:groupId",
