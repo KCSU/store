@@ -24,6 +24,7 @@ interface GroupProps {
 function AddUserBox({group}: GroupProps) {
   const [email, setEmail] = useState("");
   const addBg = useColorModeValue("gray.200", "gray.600");
+  const inputBg = useColorModeValue("gray.50", "gray.600");
   const mutation = useAddGroupUser(group.id);
   return <Box
     bg={addBg}
@@ -39,6 +40,7 @@ function AddUserBox({group}: GroupProps) {
     <HStack wrap="wrap" spacing={2}>
       <Input
         size="sm"
+        bg={inputBg}
         maxW="200px"
         type="email"
         isDisabled={mutation.isLoading}

@@ -1,12 +1,16 @@
 import {
+  Button,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Icon,
   Input,
   VStack,
 } from "@chakra-ui/react";
 import { Select } from "chakra-react-select";
 import { Field, FieldProps, Form, Formik } from "formik";
+import { FaSave } from "react-icons/fa";
+import { useEditGroup } from "../../hooks/admin/useEditGroup";
 import { Group, groupType } from "../../model/Group";
 
 interface GroupProps {
@@ -14,9 +18,14 @@ interface GroupProps {
 }
 
 export function EditGroupForm({ group }: GroupProps) {
-  // const
+  const mutation = useEditGroup(group.id);
   return (
-    <Formik initialValues={group} onSubmit={() => {}}>
+    <Formik
+      initialValues={group}
+      onSubmit={async (values) => {
+        await mutation.mutateAsync(values);
+      }}
+    >
       {(props) => (
         <Form>
           <VStack gap={2}>
@@ -40,7 +49,7 @@ export function EditGroupForm({ group }: GroupProps) {
                   <Select
                     value={{
                       value: field.value,
-                      label: groupType(field.value)
+                      label: groupType(field.value),
                     }}
                     options={[
                       { value: "inst", label: "Institution" },
@@ -66,6 +75,15 @@ export function EditGroupForm({ group }: GroupProps) {
                 </FormControl>
               )}
             </Field>
+            <Button
+              colorScheme="brand"
+              alignSelf="start"
+              leftIcon={<Icon as={FaSave} />}
+              isLoading={props.isSubmitting}
+              onClick={props.submitForm}
+            >
+              Save Changes
+            </Button>
           </VStack>
         </Form>
       )}
