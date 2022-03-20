@@ -8,20 +8,20 @@ import (
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/lookup"
-	"gorm.io/gorm"
 )
 
 var c *config.Config
-var d *gorm.DB
+var g db.GroupStore
 
 func main() {
 	// Initialise
 	c = config.Init()
 	var err error
-	d, err = db.Init(c)
+	d, err := db.Init(c)
 	if err != nil {
 		log.Panic(err)
 	}
+	g = db.NewGroupStore(d)
 	http.HandleFunc("/", handler)
 
 	// Determine port for HTTP service.
@@ -39,7 +39,7 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	if err := lookup.Run(c, d); err != nil {
+	if err := lookup.Run(c, g); err != nil {
 		w.WriteHeader(500)
 	}
 }

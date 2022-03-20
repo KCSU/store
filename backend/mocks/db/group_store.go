@@ -112,6 +112,20 @@ func (_m *GroupStore) RemoveUser(group *model.Group, email string) error {
 	return r0
 }
 
+// ReplaceLookupUsers provides a mock function with given fields: group, users
+func (_m *GroupStore) ReplaceLookupUsers(group *model.Group, users []model.GroupUser) error {
+	ret := _m.Called(group, users)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Group, []model.GroupUser) error); ok {
+		r0 = rf(group, users)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Update provides a mock function with given fields: group
 func (_m *GroupStore) Update(group *model.Group) error {
 	ret := _m.Called(group)

@@ -17,8 +17,9 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+	g := db.NewGroupStore(d)
 
-	if err := lookup.Run(c, d); err != nil {
+	if err := lookup.Run(c, g); err != nil {
 		log.Panic(err)
 	}
 }

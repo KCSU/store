@@ -16,6 +16,8 @@ type GroupStore interface {
 	AddUser(group *model.Group, email string) error
 	// Remove a user from the group
 	RemoveUser(group *model.Group, email string) error
+	// Replace the lookup users in the group
+	ReplaceLookupUsers(group *model.Group, users []model.GroupUser) error
 	// Create a group
 	Create(group *model.Group) error
 	// Update a group
@@ -67,6 +69,31 @@ func (g *DBGroupStore) RemoveUser(group *model.Group, email string) error {
 		return echo.ErrNotFound
 	}
 	return res.Error
+}
+
+// Replace the lookup users in the group
+func (g *DBGroupStore) ReplaceLookupUsers(group *model.Group, users []model.GroupUser) error {
+	// err := g.db.Model(&group).
+	// 	Not("is_manual").Association("GroupUsers").Replace(&users)
+	newUsers := make([]model.GroupUser, len(users))
+	for i, user := range users {
+		newUsers[i] = model.GroupUser{
+			GroupID:   int(group.ID),
+			UserEmail: user.UserEmail,
+			IsManual:  false,
+		}
+	}
+	err := g.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Where("group_id", group.ID).Not("is_manual").Delete(&model.GroupUser{}).Error
+		if err != nil {
+			return err
+		}
+		if err := tx.Create(&newUsers).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
 }
 
 // Create a group

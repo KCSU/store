@@ -3,8 +3,10 @@ package admin
 import (
 	"errors"
 	"net/http"
+	"net/url"
 	"strconv"
 
+	"github.com/kcsu/store/lookup"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
@@ -167,4 +169,29 @@ func (ah *AdminHandler) RemoveGroupUser(c echo.Context) error {
 		return err
 	}
 	return c.NoContent(http.StatusNoContent)
+}
+
+// Sync a group with the lookup directory
+func (ah *AdminHandler) LookupGroupUsers(c echo.Context) error {
+	// Get the group ID from query
+	id := c.Param("id")
+	groupID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	group, err := ah.Groups.Find(groupID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	lookupUrl, err := url.Parse(ah.Config.LookupApiUrl)
+	if err != nil {
+		return err
+	}
+	if err := lookup.ProcessGroup(group, ah.Groups, lookupUrl); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
 }

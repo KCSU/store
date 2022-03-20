@@ -117,6 +117,32 @@ func (s *GroupSuite) TestRemoveUser() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *GroupSuite) TestReplaceLookupUsers() {
+	group := model.Group{
+		Model:  model.Model{ID: 17},
+		Name:   "Group 1",
+		Type:   "inst",
+		Lookup: "LKUP",
+	}
+	users := []model.GroupUser{
+		{UserEmail: "abc123@cam.ac.uk", IsManual: false},
+		{UserEmail: "def456@cam.ac.uk", IsManual: false},
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`DELETE FROM "group_users"`).
+		WithArgs(
+			group.ID,
+		).WillReturnResult(sqlmock.NewResult(17, 6))
+	s.mock.ExpectExec(`INSERT INTO "group_users"`).WithArgs(
+		group.ID, users[0].UserEmail, users[0].IsManual, sqlmock.AnyArg(),
+		group.ID, users[1].UserEmail, users[1].IsManual, sqlmock.AnyArg(),
+	).WillReturnResult(sqlmock.NewResult(17, 2))
+	s.mock.ExpectCommit()
+	err := s.store.ReplaceLookupUsers(&group, users)
+	s.Require().NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *GroupSuite) TestCreateGroup() {
 	group := model.Group{
 		Name:   "New Group",

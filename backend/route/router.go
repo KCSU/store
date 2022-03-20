@@ -104,4 +104,5 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	groups.DELETE("/:id", ah.DeleteGroup)
 	groups.POST("/:id/users", ah.AddGroupUser)
 	groups.DELETE("/:id/users", ah.RemoveGroupUser)
+	groups.POST("/:id/users/lookup", ah.LookupGroupUsers)
 }

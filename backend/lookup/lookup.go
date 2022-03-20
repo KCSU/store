@@ -9,8 +9,8 @@ import (
 	"net/url"
 
 	"github.com/kcsu/store/config"
+	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
-	"gorm.io/gorm"
 )
 
 type LookupUser struct {
@@ -81,38 +81,46 @@ func GetGroupUsers(people []LookupUser) []model.GroupUser {
 			continue
 		}
 		email := person.Identifier.Text + "@cam.ac.uk"
-		groupUser := model.GroupUser{UserEmail: email, IsManual: false}
+		groupUser := model.GroupUser{UserEmail: email}
 		users = append(users, groupUser)
 	}
 	return users
 }
 
-func Run(c *config.Config, d *gorm.DB) error {
+// Sync a group's users with the lookup directory
+func ProcessGroup(group model.Group, store db.GroupStore, lookupUrl *url.URL) error {
+	// Ignore manually assigned groups
+	if group.Type == "manual" {
+		return nil
+	}
+	// Fetch users from lookup API
+	people, err := GetPeople(lookupUrl, group)
+	if err != nil {
+		return err
+	}
+	// Convert lookup users -> group users
+	users := GetGroupUsers(people)
+	// Replace group users in database
+	err = store.ReplaceLookupUsers(&group, users)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Run(c *config.Config, store db.GroupStore) error {
 	// Setup API url
 	lookupUrl, err := url.Parse(c.LookupApiUrl)
 	if err != nil {
 		return err
 	}
 	// Get a list of groups
-	var groups []model.Group
-	if err := d.Find(&groups).Error; err != nil {
+	groups, err := store.Get()
+	if err != nil {
 		return err
 	}
 	for _, group := range groups {
-		// Ignore manually assigned groups
-		if group.Type == "manual" {
-			continue
-		}
-		// Fetch users from lookup API
-		people, err := GetPeople(lookupUrl, group)
-		if err != nil {
-			return err
-		}
-		// Convert lookup users -> group users
-		users := GetGroupUsers(people)
-		// Replace group users in database
-		err = d.Model(&group).Association("GroupUsers").Replace(&users)
-		if err != nil {
+		if err := ProcessGroup(group, store, lookupUrl); err != nil {
 			return err
 		}
 	}

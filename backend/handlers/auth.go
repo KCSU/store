@@ -21,7 +21,7 @@ func (h *Handler) GetUser(c echo.Context) error {
 	userId := h.Auth.GetUserId(c)
 	user, err := h.Users.Find(userId)
 	if err != nil {
-		return err
+		return echo.ErrUnauthorized
 	}
 	groups, err := h.Users.Groups(&user)
 	if err != nil {
