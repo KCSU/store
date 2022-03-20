@@ -155,6 +155,25 @@ func (s *GroupSuite) TestUpdateGroup() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *GroupSuite) TestDeleteGroup() {
+	g := model.Group{
+		Model: model.Model{
+			ID: 37,
+		},
+		Name: "To Delete",
+		Type: "manual",
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "groups" SET "deleted_at"`).WithArgs(sqlmock.AnyArg(), g.ID).
+		WillReturnResult(
+			sqlmock.NewResult(int64(g.ID), 1),
+		)
+	s.mock.ExpectCommit()
+	err := s.store.Delete(&g)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func TestGroupSuite(t *testing.T) {
 	suite.Run(t, new(GroupSuite))
 }

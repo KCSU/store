@@ -91,6 +91,27 @@ func (ah *AdminHandler) UpdateGroup(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Delete a group
+func (ah *AdminHandler) DeleteGroup(c echo.Context) error {
+	// Get the group ID from query
+	id := c.Param("id")
+	groupID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	group, err := ah.Groups.Find(groupID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.Groups.Delete(&group); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}
+
 // Add a "manual" user to a group
 func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
 	// Get the group ID from query

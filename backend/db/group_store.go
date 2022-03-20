@@ -20,6 +20,8 @@ type GroupStore interface {
 	Create(group *model.Group) error
 	// Update a group
 	Update(group *model.Group) error
+	// Delete a group
+	Delete(group *model.Group) error
 }
 
 // Helper struct for using Groups in the database
@@ -75,4 +77,9 @@ func (g *DBGroupStore) Create(group *model.Group) error {
 // Update a group
 func (g *DBGroupStore) Update(group *model.Group) error {
 	return g.db.Omit("created_at").Save(group).Error
+}
+
+// Delete a group
+func (g *DBGroupStore) Delete(group *model.Group) error {
+	return g.db.Delete(group).Error
 }

@@ -40,6 +40,20 @@ func (_m *GroupStore) Create(group *model.Group) error {
 	return r0
 }
 
+// Delete provides a mock function with given fields: group
+func (_m *GroupStore) Delete(group *model.Group) error {
+	ret := _m.Called(group)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Group) error); ok {
+		r0 = rf(group)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Find provides a mock function with given fields: id
 func (_m *GroupStore) Find(id int) (model.Group, error) {
 	ret := _m.Called(id)

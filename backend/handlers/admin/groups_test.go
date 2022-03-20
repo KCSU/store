@@ -1,6 +1,7 @@
 package admin_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -301,6 +302,76 @@ func (s *AdminGroupSuite) TestUpdateGroup() {
 			}
 			// Test
 			err := s.h.UpdateGroup(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+			s.groups.AssertExpectations(s.T())
+		})
+	}
+}
+
+func (s *AdminGroupSuite) TestDeleteGroup() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name  string
+		id    int
+		group model.Group
+		wants *wants
+	}
+	tests := []test{
+		{
+			"Group Not Found",
+			34,
+			model.Group{},
+			&wants{http.StatusNotFound, "Not Found"},
+		},
+		{
+			"Should Delete",
+			22,
+			model.Group{
+				Model:  model.Model{ID: 22},
+				Name:   "Group",
+				Type:   "inst",
+				Lookup: "GRP",
+			},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			// HTTP
+			route := fmt.Sprint("/groups/", test.id)
+			req := httptest.NewRequest(
+				http.MethodDelete, route, nil,
+			)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.Itoa(test.id))
+			// Mock
+			if test.wants == nil {
+				s.groups.On("Find", test.id).Return(
+					test.group, nil,
+				).Once()
+				s.groups.On("Delete", &test.group).Return(nil).Once()
+			} else {
+				s.groups.On("Find", test.id).Return(
+					model.Group{}, gorm.ErrRecordNotFound,
+				).Once()
+			}
+			// Test
+			err := s.h.DeleteGroup(c)
 			if test.wants == nil {
 				s.NoError(err)
 				s.Equal(http.StatusOK, rec.Code)
