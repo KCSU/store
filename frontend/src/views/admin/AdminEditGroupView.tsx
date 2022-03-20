@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Navigate, useParams } from "react-router-dom";
 import { EditGroupForm } from "../../components/admin/EditGroupForm";
+import { GroupActions } from "../../components/admin/GroupActions";
 import { GroupDirectory } from "../../components/admin/GroupDirectory";
 import { BackButton } from "../../components/utility/BackButton";
 import { Card } from "../../components/utility/Card";
@@ -32,6 +33,7 @@ function AdminEditGroupCard({ group }: GroupProps) {
           <TabList flexWrap="wrap">
             <Tab>Group Details</Tab>
             <Tab>Directory</Tab>
+            <Tab>Actions</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -39,6 +41,9 @@ function AdminEditGroupCard({ group }: GroupProps) {
             </TabPanel>
             <TabPanel>
               <GroupDirectory group={group} />
+            </TabPanel>
+            <TabPanel>
+              <GroupActions group={group} />
             </TabPanel>
           </TabPanels>
         </Tabs>
