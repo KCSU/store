@@ -3,10 +3,8 @@ package admin
 import (
 	"errors"
 	"net/http"
-	"net/url"
 	"strconv"
 
-	"github.com/kcsu/store/lookup"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
@@ -186,11 +184,8 @@ func (ah *AdminHandler) LookupGroupUsers(c echo.Context) error {
 		}
 		return err
 	}
-	lookupUrl, err := url.Parse(ah.Config.LookupApiUrl)
-	if err != nil {
-		return err
-	}
-	if err := lookup.ProcessGroup(group, ah.Groups, lookupUrl); err != nil {
+	// Check manual group?
+	if err := ah.Lookup.ProcessGroup(group); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)

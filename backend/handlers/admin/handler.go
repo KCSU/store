@@ -5,6 +5,7 @@ import (
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/handlers"
+	"github.com/kcsu/store/lookup"
 	"gorm.io/gorm"
 )
 
@@ -16,16 +17,20 @@ type AdminHandler struct {
 	Users   db.UserStore
 	Groups  db.GroupStore
 	Auth    auth.Auth
+	Lookup  lookup.Lookup
 }
 
 // Initialise the handler helper
 func NewHandler(h *handlers.Handler, d *gorm.DB) *AdminHandler {
+	groups := db.NewGroupStore(d)
+	lookup := lookup.New(h.Config.LookupApiUrl, groups)
 	return &AdminHandler{
 		h.Config,
 		h.Formals,
 		h.Tickets,
 		h.Users,
-		db.NewGroupStore(d),
+		groups,
 		h.Auth,
+		lookup,
 	}
 }

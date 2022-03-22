@@ -13,17 +13,19 @@ import (
 	"github.com/kcsu/store/model"
 )
 
+type Identifier struct {
+	Text   string `xml:",chardata"`
+	Scheme string `xml:"scheme,attr"`
+}
+
 type LookupUser struct {
-	Cancelled  string `xml:"cancelled,attr"`
-	Identifier struct {
-		Text   string `xml:",chardata"`
-		Scheme string `xml:"scheme,attr"`
-	} `xml:"identifier"`
-	DisplayName    string `xml:"displayName"`
-	RegisteredName string `xml:"registeredName"`
-	Surname        string `xml:"surname"`
-	VisibleName    string `xml:"visibleName"`
-	MisAffiliation string `xml:"misAffiliation"`
+	Cancelled      string     `xml:"cancelled,attr"`
+	Identifier     Identifier `xml:"identifier"`
+	DisplayName    string     `xml:"displayName"`
+	RegisteredName string     `xml:"registeredName"`
+	Surname        string     `xml:"surname"`
+	VisibleName    string     `xml:"visibleName"`
+	MisAffiliation string     `xml:"misAffiliation"`
 }
 
 type Result struct {
@@ -31,8 +33,22 @@ type Result struct {
 	People  []LookupUser `xml:"people>person"`
 }
 
+type Lookup interface {
+	ProcessGroup(group model.Group) error
+}
+
+type ApiLookup struct {
+	Url   string
+	Store db.GroupStore
+}
+
+// Initialise a new Lookup
+func New(baseUrl string, store db.GroupStore) Lookup {
+	return &ApiLookup{baseUrl, store}
+}
+
 // Fetch XML from an API endpoint
-func GetXML(url string) (*http.Response, error) {
+func (l *ApiLookup) GetXML(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -43,7 +59,7 @@ func GetXML(url string) (*http.Response, error) {
 }
 
 // Fetch users from the Lookup API
-func GetPeople(baseURL *url.URL, group model.Group) ([]LookupUser, error) {
+func (l *ApiLookup) GetPeople(group model.Group) ([]LookupUser, error) {
 	var path string
 	switch group.Type {
 	case "inst":
@@ -53,12 +69,16 @@ func GetPeople(baseURL *url.URL, group model.Group) ([]LookupUser, error) {
 	default:
 		return nil, errors.New("invalid group type")
 	}
+	baseUrl, err := url.Parse(l.Url)
+	if err != nil {
+		return nil, err
+	}
 	requestUrl, err := url.Parse(path)
 	if err != nil {
 		return nil, err
 	}
-	u := baseURL.ResolveReference(requestUrl).String()
-	response, err := GetXML(u)
+	u := baseUrl.ResolveReference(requestUrl).String()
+	response, err := l.GetXML(u)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +94,7 @@ func GetPeople(baseURL *url.URL, group model.Group) ([]LookupUser, error) {
 }
 
 // Convert Lookup API Users to Group users
-func GetGroupUsers(people []LookupUser) []model.GroupUser {
+func (l *ApiLookup) GetGroupUsers(people []LookupUser) []model.GroupUser {
 	users := make([]model.GroupUser, 0, len(people))
 	for _, person := range people {
 		if person.Identifier.Scheme != "crsid" {
@@ -88,20 +108,20 @@ func GetGroupUsers(people []LookupUser) []model.GroupUser {
 }
 
 // Sync a group's users with the lookup directory
-func ProcessGroup(group model.Group, store db.GroupStore, lookupUrl *url.URL) error {
+func (l *ApiLookup) ProcessGroup(group model.Group) error {
 	// Ignore manually assigned groups
 	if group.Type == "manual" {
 		return nil
 	}
 	// Fetch users from lookup API
-	people, err := GetPeople(lookupUrl, group)
+	people, err := l.GetPeople(group)
 	if err != nil {
 		return err
 	}
 	// Convert lookup users -> group users
-	users := GetGroupUsers(people)
+	users := l.GetGroupUsers(people)
 	// Replace group users in database
-	err = store.ReplaceLookupUsers(&group, users)
+	err = l.Store.ReplaceLookupUsers(&group, users)
 	if err != nil {
 		return err
 	}
@@ -110,17 +130,14 @@ func ProcessGroup(group model.Group, store db.GroupStore, lookupUrl *url.URL) er
 
 func Run(c *config.Config, store db.GroupStore) error {
 	// Setup API url
-	lookupUrl, err := url.Parse(c.LookupApiUrl)
-	if err != nil {
-		return err
-	}
+	lookup := New(c.LookupApiUrl, store)
 	// Get a list of groups
 	groups, err := store.Get()
 	if err != nil {
 		return err
 	}
 	for _, group := range groups {
-		if err := ProcessGroup(group, store, lookupUrl); err != nil {
+		if err := lookup.ProcessGroup(group); err != nil {
 			return err
 		}
 	}
