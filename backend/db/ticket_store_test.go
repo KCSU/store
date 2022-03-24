@@ -156,9 +156,9 @@ func (s *TicketSuite) TestBatchCreate() {
 	s.mock.ExpectBegin()
 	s.mock.ExpectQuery(`INSERT INTO "tickets"`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "formal_id", "is_guest"}).
-				AddRow(1, tickets[0].FormalID, tickets[0].IsGuest).
-				AddRow(2, tickets[1].FormalID, tickets[1].IsGuest),
+			sqlmock.NewRows([]string{"id"}).
+				AddRow(1).
+				AddRow(2),
 		)
 	s.mock.ExpectCommit()
 	err := s.store.BatchCreate(tickets)
@@ -174,8 +174,8 @@ func (s *TicketSuite) TestCreateTicket() {
 	s.mock.ExpectBegin()
 	s.mock.ExpectQuery(`INSERT INTO "tickets"`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "formal_id", "is_guest"}).
-				AddRow(1, ticket.FormalID, ticket.IsGuest),
+			sqlmock.NewRows([]string{"id"}).
+				AddRow(1),
 		)
 	s.mock.ExpectCommit()
 	err := s.store.Create(&ticket)

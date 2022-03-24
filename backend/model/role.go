@@ -2,6 +2,6 @@ package model
 
 type Role struct {
 	Model
-	Name        string
-	Permissions []Permission
+	Name        string       `json:"name"`
+	Permissions []Permission `json:"permissions"`
 }

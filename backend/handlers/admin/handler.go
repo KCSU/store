@@ -16,6 +16,7 @@ type AdminHandler struct {
 	Tickets db.TicketStore
 	Users   db.UserStore
 	Groups  db.GroupStore
+	Roles   db.RoleStore
 	Auth    auth.Auth
 	Lookup  lookup.Lookup
 }
@@ -23,6 +24,7 @@ type AdminHandler struct {
 // Initialise the handler helper
 func NewHandler(h *handlers.Handler, d *gorm.DB) *AdminHandler {
 	groups := db.NewGroupStore(d)
+	roles := db.NewRoleStore(d)
 	lookup := lookup.New(h.Config.LookupApiUrl, groups)
 	return &AdminHandler{
 		h.Config,
@@ -30,6 +32,7 @@ func NewHandler(h *handlers.Handler, d *gorm.DB) *AdminHandler {
 		h.Tickets,
 		h.Users,
 		groups,
+		roles,
 		h.Auth,
 		lookup,
 	}

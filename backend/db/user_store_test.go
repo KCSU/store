@@ -57,10 +57,8 @@ func (s *UserSuite) TestFindOrCreate() {
 	s.mock.ExpectBegin()
 	s.mock.ExpectQuery(`INSERT INTO "users"`).
 		WillReturnRows(sqlmock.NewRows(
-			[]string{"id", "name", "email", "provider_user_id"},
-		).AddRow(
-			userId, au.Name, au.Email, au.UserID,
-		))
+			[]string{"id"},
+		).AddRow(userId))
 	s.mock.ExpectCommit()
 	u, err := s.store.FindOrCreate(&au)
 	user := model.User{
