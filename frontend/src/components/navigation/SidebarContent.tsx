@@ -3,8 +3,10 @@ import {
   FaCalendarDay,
   FaCog,
   FaHome,
+  FaShieldAlt,
   FaTicketAlt,
   FaUsers,
+  FaUserShield,
 } from "react-icons/fa";
 import { AdminSidebarItem, SidebarItem } from "./SidebarItem";
 
@@ -46,6 +48,13 @@ const adminRoutes = [
     resource: "groups",
     action: "read", // write?
     icon: FaUsers,
+  },
+  {
+    to: "/admin/roles",
+    title: "Permissions",
+    resource: "roles",
+    action: "read",
+    icon: FaShieldAlt,
   }
 ];
 

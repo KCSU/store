@@ -12,7 +12,7 @@ export function useLookupGroupUsers(id: number) {
     },
     {
       onSuccess() {
-        queryClient.invalidateQueries(["admin/groups", id]);
+        queryClient.invalidateQueries(["admin/groups", {id}]);
         toast({
           title: "Group users synced successfully",
           status: "success",
