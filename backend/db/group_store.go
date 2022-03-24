@@ -108,5 +108,17 @@ func (g *DBGroupStore) Update(group *model.Group) error {
 
 // Delete a group
 func (g *DBGroupStore) Delete(group *model.Group) error {
-	return g.db.Delete(group).Error
+	err := g.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Where("group_id = ?", group.ID).
+			Delete(&model.GroupUser{}).Error
+		if err != nil {
+			return err
+		}
+		if err := tx.Delete(group).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return err
 }

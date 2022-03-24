@@ -8,7 +8,6 @@ import (
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,13 +22,13 @@ type TicketSuite struct {
 	store TicketStore
 }
 
-func (s *TicketSuite) SetupSuite() {
+func (s *TicketSuite) SetupTest() {
 	var (
 		db  *sql.DB
 		err error
 	)
 	db, s.mock, err = sqlmock.New()
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 	// defer db.Close()
 
 	pdb := postgres.New(postgres.Config{
@@ -38,8 +37,14 @@ func (s *TicketSuite) SetupSuite() {
 	s.db, err = gorm.Open(pdb, &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 	s.store = NewTicketStore(s.db)
+}
+
+func (s *TicketSuite) TearDownTest() {
+	db, err := s.db.DB()
+	s.Require().NoError(err)
+	db.Close()
 }
 
 func (s *TicketSuite) TestGetByUserId() {

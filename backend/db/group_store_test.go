@@ -7,7 +7,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -22,13 +21,13 @@ type GroupSuite struct {
 	store GroupStore
 }
 
-func (s *GroupSuite) SetupSuite() {
+func (s *GroupSuite) SetupTest() {
 	var (
 		db  *sql.DB
 		err error
 	)
 	db, s.mock, err = sqlmock.New()
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 
 	pdb := postgres.New(postgres.Config{
 		Conn: db,
@@ -36,8 +35,14 @@ func (s *GroupSuite) SetupSuite() {
 	s.db, err = gorm.Open(pdb, &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 	s.store = NewGroupStore(s.db)
+}
+
+func (s *GroupSuite) TearDownTest() {
+	db, err := s.db.DB()
+	s.Require().NoError(err)
+	db.Close()
 }
 
 func (s *GroupSuite) TestGetGroups() {
@@ -190,6 +195,10 @@ func (s *GroupSuite) TestDeleteGroup() {
 		Type: "manual",
 	}
 	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`DELETE FROM "group_users"`).WithArgs(g.ID).
+		WillReturnResult(
+			sqlmock.NewResult(int64(g.ID), 15),
+		)
 	s.mock.ExpectExec(`UPDATE "groups" SET "deleted_at"`).WithArgs(sqlmock.AnyArg(), g.ID).
 		WillReturnResult(
 			sqlmock.NewResult(int64(g.ID), 1),

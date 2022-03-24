@@ -8,7 +8,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -25,13 +24,13 @@ type FormalSuite struct {
 	store FormalStore
 }
 
-func (s *FormalSuite) SetupSuite() {
+func (s *FormalSuite) SetupTest() {
 	var (
 		db  *sql.DB
 		err error
 	)
 	db, s.mock, err = sqlmock.New()
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 
 	pdb := postgres.New(postgres.Config{
 		Conn: db,
@@ -39,8 +38,14 @@ func (s *FormalSuite) SetupSuite() {
 	s.db, err = gorm.Open(pdb, &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 	s.store = NewFormalStore(s.db)
+}
+
+func (s *FormalSuite) TearDownTest() {
+	db, err := s.db.DB()
+	s.Require().NoError(err)
+	db.Close()
 }
 
 func (s *FormalSuite) TestGetFormals() {
