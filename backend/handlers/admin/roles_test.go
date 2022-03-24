@@ -35,17 +35,13 @@ func (s *AdminRoleSuite) TestGetRoles() {
 			"permissions":[
 				{
 					"id":23,
-					"createdAt":"0001-01-01T00:00:00Z",
 					"resource":"groups",
-					"action":"read",
-					"roleId":45
+					"action":"read"
 				},
 				{
 					"id":11,
-					"createdAt":"0001-01-01T00:00:00Z",
 					"resource":"formals",
-					"action":"write",
-					"roleId":45
+					"action":"write"
 				}
 			]
 		},
@@ -58,10 +54,8 @@ func (s *AdminRoleSuite) TestGetRoles() {
 			"permissions":[
 				{
 					"id":31,
-					"createdAt":"0001-01-01T00:00:00Z",
 					"resource":"tickets",
-					"action":"*",
-					"roleId":4
+					"action":"*"
 				}
 			]
 		}
@@ -107,6 +101,44 @@ func (s *AdminRoleSuite) TestGetRoles() {
 	s.roles.On("Get").Return(roles, nil)
 	// Run test
 	err := s.h.GetRoles(c)
+	s.NoError(err)
+	s.roles.AssertExpectations(s.T())
+	s.Equal(http.StatusOK, rec.Code)
+	s.JSONEq(expectedJSON, rec.Body.String())
+}
+
+func (s *AdminRoleSuite) TestGetUserRoles() {
+	const expectedJSON = `[
+		{
+		  "userEmail": "abc123@cam.ac.uk",
+		  "userName": "A. Bell",
+		  "roleName": "Admin",
+		  "userId": 26,
+		  "roleId": 45
+		}
+	]`
+	// Init HTTP
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	// Mock DB
+	userRoles := []model.UserRole{{
+		Role: model.Role{
+			Model: model.Model{ID: 45},
+			Name:  "Admin",
+		},
+		User: model.User{
+			Model: model.Model{ID: 26},
+			Email: "abc123@cam.ac.uk",
+			Name:  "A. Bell",
+		},
+		RoleID: 45,
+		UserID: 26,
+	}}
+	s.roles.On("GetUserRoles").Return(userRoles, nil)
+	// Run test
+	err := s.h.GetUserRoles(c)
 	s.NoError(err)
 	s.roles.AssertExpectations(s.T())
 	s.Equal(http.StatusOK, rec.Code)

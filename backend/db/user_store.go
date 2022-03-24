@@ -17,6 +17,8 @@ type UserStore interface {
 	Exists(email string) (bool, error)
 	// List a user's groups
 	Groups(user *model.User) ([]model.Group, error)
+	// List a user's permissions
+	Permissions(user *model.User) ([]model.Permission, error)
 }
 
 // Helper struct for Users in the database
@@ -62,6 +64,14 @@ func (u *DBUserStore) Exists(email string) (bool, error) {
 // List a user's groups
 func (u *DBUserStore) Groups(user *model.User) ([]model.Group, error) {
 	var groups []model.Group
-	err := u.db.Joins("inner join group_users on id = group_users.group_id").Find(&groups, "group_users.user_email = ?", user.Email).Error
+	err := u.db.Joins("INNER JOIN group_users ON id = group_users.group_id").Find(&groups, "group_users.user_email = ?", user.Email).Error
 	return groups, err
+}
+
+// List a user's permissions
+func (u *DBUserStore) Permissions(user *model.User) ([]model.Permission, error) {
+	var permissions []model.Permission
+	err := u.db.Joins("JOIN user_roles ON permissions.role_id = user_roles.role_id").
+		Where("user_id = ?", user.ID).Find(&permissions).Error
+	return permissions, err
 }

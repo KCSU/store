@@ -132,6 +132,34 @@ func (s *UserSuite) TestGroups() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *UserSuite) TestPermissions() {
+	perms := []model.Permission{
+		{
+			ID:       1,
+			Resource: "formals",
+			Action:   "read",
+		},
+		{
+			ID:       2,
+			Resource: "tickets",
+			Action:   "*",
+		},
+	}
+	s.mock.ExpectQuery(`SELECT .* FROM "permissions"`).
+		WithArgs().
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "resource", "action"}).
+				AddRow(perms[0].ID, perms[0].Resource, perms[0].Action).
+				AddRow(perms[1].ID, perms[1].Resource, perms[1].Action),
+		)
+	u := model.User{}
+	u.ID = 2
+	p, err := s.store.Permissions(&u)
+	s.NoError(err)
+	s.Equal(perms, p)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func TestUserSuite(t *testing.T) {
 	suite.Run(t, new(UserSuite))
 }

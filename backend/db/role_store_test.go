@@ -91,6 +91,33 @@ func (s *RoleSuite) TestGetRoles() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *RoleSuite) TestGetUserRoles() {
+	user := model.User{
+		Model: model.Model{ID: 5},
+		Email: "abc123@cam.ac.uk",
+		Name:  "A. Bell",
+	}
+	role := model.Role{
+		Model: model.Model{ID: 7},
+		Name:  "Admin",
+	}
+	userRole := model.UserRole{
+		UserID: user.ID,
+		RoleID: role.ID,
+		User:   user,
+		Role:   role,
+	}
+	s.mock.ExpectQuery(`SELECT .* FROM "user_roles"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"user_id", "role_id", "User__id", "Role__id", "User__email", "Role__name", "User__name"}).
+				AddRow(user.ID, role.ID, user.ID, role.ID, user.Email, role.Name, user.Name),
+		)
+	urs, err := s.store.GetUserRoles()
+	s.Require().NoError(err)
+	s.Equal(urs, []model.UserRole{userRole})
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func TestRoleSuite(t *testing.T) {
 	suite.Run(t, new(RoleSuite))
 }

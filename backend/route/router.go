@@ -108,4 +108,5 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 
 	roles := a.Group("/roles")
 	roles.GET("", ah.GetRoles)
+	roles.GET("/users", ah.GetUserRoles)
 }

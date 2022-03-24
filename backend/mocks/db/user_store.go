@@ -99,3 +99,26 @@ func (_m *UserStore) Groups(user *model.User) ([]model.Group, error) {
 
 	return r0, r1
 }
+
+// Permissions provides a mock function with given fields: user
+func (_m *UserStore) Permissions(user *model.User) ([]model.Permission, error) {
+	ret := _m.Called(user)
+
+	var r0 []model.Permission
+	if rf, ok := ret.Get(0).(func(*model.User) []model.Permission); ok {
+		r0 = rf(user)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.Permission)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*model.User) error); ok {
+		r1 = rf(user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}

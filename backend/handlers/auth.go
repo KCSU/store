@@ -27,9 +27,14 @@ func (h *Handler) GetUser(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	permissions, err := h.Users.Permissions(&user)
+	if err != nil {
+		return err
+	}
 	userDto := dto.UserDto{
-		User:   user,
-		Groups: make([]dto.GroupDto, len(groups)),
+		User:        user,
+		Groups:      make([]dto.GroupDto, len(groups)),
+		Permissions: permissions,
 	}
 	for i, g := range groups {
 		userDto.Groups[i] = dto.GroupDto{

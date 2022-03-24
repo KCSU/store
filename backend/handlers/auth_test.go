@@ -67,6 +67,13 @@ func (a *AuthSuite) TestGetUser() {
 				"id": 34,
 				"name": "Battlestar"
 			}
+		],
+		"permissions": [
+			{
+				"id": 12,
+				"resource": "formals",
+				"action": "read"
+			}
 		]
 	}`
 	a.auth.On("GetUserId", c).Return(int(user.ID))
@@ -74,6 +81,11 @@ func (a *AuthSuite) TestGetUser() {
 	a.users.On("Groups", &user).Return([]model.Group{{
 		Model: model.Model{ID: 34},
 		Name:  "Battlestar",
+	}}, nil)
+	a.users.On("Permissions", &user).Return([]model.Permission{{
+		ID:       12,
+		Resource: "formals",
+		Action:   "read",
 	}}, nil)
 	// Test
 	err := a.h.GetUser(c)
