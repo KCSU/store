@@ -10,6 +10,7 @@ import {
   Th,
   Thead,
   Tr,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { FaPlus, FaTrashAlt } from "react-icons/fa";
@@ -22,13 +23,14 @@ interface RoleProps {
 }
 
 export function PermissionsTable({ role }: RoleProps) {
+  const inBg = useColorModeValue('white', 'gray.600');
   const columns = useMemo<Column<Permission>[]>(
     () => [
       {
         accessor: "resource",
         Header: "Resource",
         Footer() {
-          return <Input size="sm" placeholder="Resource" bg="gray.600"></Input>;
+          return <Input size="sm" placeholder="Resource" bg={inBg}></Input>;
         },
       },
       {
@@ -36,7 +38,7 @@ export function PermissionsTable({ role }: RoleProps) {
         Header: "Permission",
         Footer() {
           return (
-            <Input size="sm" placeholder="Permission" bg="gray.600"></Input>
+            <Input size="sm" placeholder="Permission" bg={inBg}></Input>
           );
         },
       },
@@ -99,7 +101,7 @@ export function PermissionsTable({ role }: RoleProps) {
           return (
             <Tr {...row.getRowProps()}>
               {row.cells.map((cell) => (
-                <Td {...cell.getCellProps()} p={2}>
+                <Td {...cell.getCellProps()} p={2} fontFamily="mono">
                   {cell.render("Cell")}
                 </Td>
               ))}

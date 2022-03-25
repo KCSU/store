@@ -10,11 +10,11 @@ export function AdminPermissionsView() {
         Permissions
       </Heading>
       <SimpleGrid columns={{base: 1, xl: 2}} alignItems="start" gap={5}>
-        <Card gap={3} p={[3, null, 5]}>
+        <Card gap={3}>
           <Heading size="md" as="h3">Manage Roles</Heading>
           <RolesList/>
         </Card>
-        <Card gap={3} p={[3, null, 5]}>
+        <Card gap={3}>
           <Heading size="md" as="h3">User Roles</Heading>
           <UserRolesList/>
         </Card>
