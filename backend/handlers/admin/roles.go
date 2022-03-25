@@ -1,10 +1,13 @@
 package admin
 
 import (
+	"errors"
 	"net/http"
 
+	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func (ah *AdminHandler) GetRoles(c echo.Context) error {
@@ -31,4 +34,30 @@ func (ah *AdminHandler) GetUserRoles(c echo.Context) error {
 		}
 	}
 	return c.JSON(http.StatusOK, &urDto)
+}
+
+func (ah *AdminHandler) CreatePermission(c echo.Context) error {
+	p := new(dto.PermissionDto)
+	if err := c.Bind(p); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(p); err != nil {
+		return err
+	}
+
+	role, err := ah.Roles.Find(p.RoleID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+	}
+	permission := model.Permission{
+		RoleID:   role.ID,
+		Resource: p.Resource,
+		Action:   p.Action,
+	}
+	if err := ah.Roles.CreatePermission(&permission); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusCreated)
 }

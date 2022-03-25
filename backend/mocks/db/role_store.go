@@ -12,6 +12,41 @@ type RoleStore struct {
 	mock.Mock
 }
 
+// CreatePermission provides a mock function with given fields: permission
+func (_m *RoleStore) CreatePermission(permission *model.Permission) error {
+	ret := _m.Called(permission)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Permission) error); ok {
+		r0 = rf(permission)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Find provides a mock function with given fields: id
+func (_m *RoleStore) Find(id int) (model.Role, error) {
+	ret := _m.Called(id)
+
+	var r0 model.Role
+	if rf, ok := ret.Get(0).(func(int) model.Role); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(model.Role)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Get provides a mock function with given fields:
 func (_m *RoleStore) Get() ([]model.Role, error) {
 	ret := _m.Called()
