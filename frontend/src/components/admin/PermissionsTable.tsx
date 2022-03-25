@@ -12,9 +12,10 @@ import {
   Tr,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { FaPlus, FaTrashAlt } from "react-icons/fa";
 import { Column, useTable } from "react-table";
+import { useCreatePermission } from "../../hooks/admin/useCreatePermission";
 import { Permission } from "../../model/Permission";
 import { Role } from "../../model/Role";
 
@@ -23,24 +24,19 @@ interface RoleProps {
 }
 
 export function PermissionsTable({ role }: RoleProps) {
-  const inBg = useColorModeValue('white', 'gray.600');
+  const inBg = useColorModeValue("white", "gray.600");
+  const mutation = useCreatePermission();
+  const [resource, setResource] = useState("");
+  const [action, setAction] = useState("");
   const columns = useMemo<Column<Permission>[]>(
     () => [
       {
         accessor: "resource",
         Header: "Resource",
-        Footer() {
-          return <Input size="sm" placeholder="Resource" bg={inBg}></Input>;
-        },
       },
       {
         accessor: "action",
         Header: "Permission",
-        Footer() {
-          return (
-            <Input size="sm" placeholder="Permission" bg={inBg}></Input>
-          );
-        },
       },
       {
         Header: "Actions",
@@ -54,17 +50,6 @@ export function PermissionsTable({ role }: RoleProps) {
             >
               <Icon as={FaTrashAlt} />
             </IconButton>
-          );
-        },
-        Footer() {
-          return (
-            <Button
-              size="sm"
-              colorScheme="brand"
-              leftIcon={<Icon as={FaPlus} />}
-            >
-              Add
-            </Button>
           );
         },
       },
@@ -110,15 +95,49 @@ export function PermissionsTable({ role }: RoleProps) {
         })}
       </Tbody>
       <Tfoot>
-        {footerGroups.map((fg) => (
-          <Tr {...fg.getFooterGroupProps()}>
-            {fg.headers.map((column) => (
-              <Th {...column.getFooterProps()} p={1}>
-                {column.render("Footer")}
-              </Th>
-            ))}
-          </Tr>
-        ))}
+        <Tr>
+          <Th p={1}>
+            <Input
+              size="sm"
+              isDisabled={mutation.isLoading}
+              placeholder="Resource"
+              bg={inBg}
+              fontFamily="mono"
+              value={resource}
+              onChange={(e) => setResource(e.target.value)}
+            ></Input>
+          </Th>
+          <Th p={1}>
+            <Input
+              size="sm"
+              isDisabled={mutation.isLoading}
+              placeholder="Permission"
+              bg={inBg}
+              fontFamily="mono"
+              value={action}
+              onChange={(e) => setAction(e.target.value)}
+            ></Input>
+          </Th>
+          <Th p={1}>
+            <Button
+              size="sm"
+              isLoading={mutation.isLoading}
+              colorScheme="brand"
+              leftIcon={<Icon as={FaPlus} />}
+              onClick={async () => {
+                await mutation.mutateAsync({
+                  roleId: role.id,
+                  resource,
+                  action,
+                });
+                setResource('');
+                setAction('');
+              }}
+            >
+              Add
+            </Button>
+          </Th>
+        </Tr>
       </Tfoot>
     </Table>
   );
