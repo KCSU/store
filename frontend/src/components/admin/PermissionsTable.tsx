@@ -66,7 +66,6 @@ export function PermissionsTable({ role }: RoleProps) {
     headerGroups,
     prepareRow,
     rows,
-    footerGroups,
   } = useTable({
     columns,
     data: role.permissions ?? [],

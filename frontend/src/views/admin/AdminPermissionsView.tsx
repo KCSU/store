@@ -11,7 +11,6 @@ export function AdminPermissionsView() {
       </Heading>
       <SimpleGrid columns={{base: 1, xl: 2}} alignItems="start" gap={5}>
         <Card gap={3}>
-          <Heading size="md" as="h3">Manage Roles</Heading>
           <RolesList/>
         </Card>
         <Card gap={3}>
