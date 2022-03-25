@@ -79,3 +79,21 @@ func (ah *AdminHandler) DeletePermission(c echo.Context) error {
 	}
 	return c.NoContent(http.StatusOK)
 }
+
+func (ah *AdminHandler) CreateRole(c echo.Context) error {
+	r := new(dto.RoleDto)
+	if err := c.Bind(r); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(r); err != nil {
+		return err
+	}
+
+	role := model.Role{
+		Name: r.Name,
+	}
+	if err := ah.Roles.Create(&role); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusCreated)
+}

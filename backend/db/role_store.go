@@ -18,7 +18,7 @@ type RoleStore interface {
 	// Delete a permission
 	DeletePermission(id int) error
 	// Create a role
-	// CreateRole(role *model.Role) error
+	Create(role *model.Role) error
 }
 
 // Helper struct for using Roles in the database
@@ -65,4 +65,9 @@ func (r *DBRoleStore) CreatePermission(permission *model.Permission) error {
 // Delete a permission
 func (r *DBRoleStore) DeletePermission(id int) error {
 	return r.db.Delete(&model.Permission{}, id).Error
+}
+
+// Create a role
+func (r *DBRoleStore) Create(role *model.Role) error {
+	return r.db.Create(role).Error
 }

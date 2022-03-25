@@ -289,6 +289,24 @@ func (s *AdminRoleSuite) TestDeletePermission() {
 	s.Equal(http.StatusOK, rec.Code)
 }
 
+func (s *AdminRoleSuite) TestCreateRole() {
+	body := `{"name": "Admin"}`
+	e := echo.New()
+	e.Validator = middleware.NewValidator()
+	req := httptest.NewRequest(
+		http.MethodPost, "/roles", strings.NewReader(body),
+	)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	// Mock
+	s.roles.On("Create", &model.Role{Name: "Admin"}).Return(nil).Once()
+	// Test
+	err := s.h.CreateRole(c)
+	s.NoError(err)
+	s.Equal(http.StatusCreated, rec.Code)
+}
+
 func TestAdminRoleSuite(t *testing.T) {
 	suite.Run(t, new(AdminRoleSuite))
 }

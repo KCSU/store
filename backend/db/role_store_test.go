@@ -167,6 +167,21 @@ func (s *RoleSuite) TestDeletePermission() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *RoleSuite) TestCreateRole() {
+	role := model.Role{
+		Name: "Treasurer",
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectQuery(`INSERT INTO "roles"`).WillReturnRows(
+		sqlmock.NewRows([]string{"id"}).AddRow(92),
+	)
+	s.mock.ExpectCommit()
+	err := s.store.Create(&role)
+	s.NoError(err)
+	s.EqualValues(92, role.ID)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func TestRoleSuite(t *testing.T) {
 	suite.Run(t, new(RoleSuite))
 }
