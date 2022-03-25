@@ -182,6 +182,33 @@ func (s *RoleSuite) TestCreateRole() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *RoleSuite) TestAddUserRole() {
+	role := model.Role{
+		Name:  "Admin",
+		Model: model.Model{ID: 69},
+	}
+	user := model.User{
+		Name:  "Tony Stark",
+		Email: "ts123@cam.ac.uk",
+		Model: model.Model{ID: 22},
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "roles" SET "updated_at"`).WithArgs(
+		sqlmock.AnyArg(), role.ID,
+	).WillReturnResult(
+		sqlmock.NewResult(int64(role.ID), 1),
+	)
+	s.mock.ExpectExec(`INSERT INTO "user_roles"`).WithArgs(
+		role.ID, user.ID,
+	).WillReturnResult(
+		sqlmock.NewResult(int64(role.ID), 1),
+	)
+	s.mock.ExpectCommit()
+	err := s.store.AddUserRole(&role, &user)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func TestRoleSuite(t *testing.T) {
 	suite.Run(t, new(RoleSuite))
 }

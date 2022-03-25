@@ -13,6 +13,8 @@ type UserStore interface {
 	FindOrCreate(gu *goth.User) (model.User, error)
 	// Get a user by id
 	Find(id int) (model.User, error)
+	// Get a user by email
+	FindByEmail(email string) (model.User, error)
 	// Check if a user with the specified email exists
 	Exists(email string) (bool, error)
 	// List a user's groups
@@ -51,6 +53,13 @@ func (u *DBUserStore) FindOrCreate(gu *goth.User) (model.User, error) {
 func (u *DBUserStore) Find(id int) (model.User, error) {
 	var user model.User
 	err := u.db.First(&user, id).Error
+	return user, err
+}
+
+// Get a user by email
+func (u *DBUserStore) FindByEmail(email string) (model.User, error) {
+	var user model.User
+	err := u.db.Where("email = ?", email).First(&user).Error
 	return user, err
 }
 

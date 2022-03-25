@@ -7,3 +7,8 @@ type UserRoleDto struct {
 	UserID    uint   `json:"userId"`
 	RoleID    uint   `json:"roleId"`
 }
+
+type AddUserRoleDto struct {
+	Email  string `json:"email" validate:"required,email"`
+	RoleID int    `json:"roleId"`
+}

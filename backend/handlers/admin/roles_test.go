@@ -21,12 +21,15 @@ type AdminRoleSuite struct {
 	suite.Suite
 	h     *AdminHandler
 	roles *mocks.RoleStore
+	users *mocks.UserStore
 }
 
 func (s *AdminRoleSuite) SetupTest() {
 	s.h = new(AdminHandler)
 	s.roles = new(mocks.RoleStore)
+	s.users = new(mocks.UserStore)
 	s.h.Roles = s.roles
+	s.h.Users = s.users
 }
 
 func (s *AdminRoleSuite) TestGetRoles() {
@@ -305,6 +308,121 @@ func (s *AdminRoleSuite) TestCreateRole() {
 	err := s.h.CreateRole(c)
 	s.NoError(err)
 	s.Equal(http.StatusCreated, rec.Code)
+}
+
+func (s *AdminRoleSuite) TestAddUserRole() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name   string
+		body   string
+		roleId int
+		email  string
+		role   *model.Role
+		user   *model.User
+		wants  *wants
+	}
+	tests := []test{
+		{
+			"Role Not Found",
+			`{
+				"roleId": 7,
+				"email": "abc123@cam.ac.uk"
+			}`,
+			7,
+			"abc123@cam.ac.uk",
+			nil,
+			nil,
+			&wants{
+				http.StatusNotFound,
+				"Not Found",
+			},
+		},
+		{
+			"User Not Found",
+			`{
+				"roleId": 7,
+				"email": "abc123@cam.ac.uk"
+			}`,
+			7,
+			"abc123@cam.ac.uk",
+			&model.Role{
+				Model: model.Model{ID: 7},
+				Name:  "Admin",
+			},
+			nil,
+			&wants{
+				http.StatusNotFound,
+				"Not Found",
+			},
+		},
+		{
+			"Should Add",
+			`{
+				"roleId": 9,
+				"email": "def456@cam.ac.uk"
+			}`,
+			9,
+			"def456@cam.ac.uk",
+			&model.Role{
+				Model: model.Model{ID: 9},
+				Name:  "Admin",
+			},
+			&model.User{
+				Model: model.Model{ID: 17},
+				Name:  "James Holden",
+				Email: "def456@cam.ac.uk",
+			},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			// HTTP
+			req := httptest.NewRequest(
+				http.MethodPost, "/roles/users", strings.NewReader(test.body),
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			// Mock
+			if test.role != nil {
+				s.roles.On("Find", test.roleId).Return(*test.role, nil).Once()
+				if test.user != nil {
+					s.users.On("FindByEmail", test.email).
+						Return(*test.user, nil).Once()
+				} else {
+					s.users.On("FindByEmail", test.email).
+						Return(model.User{}, gorm.ErrRecordNotFound).Once()
+				}
+			} else {
+				s.roles.On("Find", test.roleId).
+					Return(model.Role{}, gorm.ErrRecordNotFound).Once()
+			}
+			if test.wants == nil {
+				s.roles.On("AddUserRole", test.role, test.user).
+					Return(nil).Once()
+			}
+			// Test
+			err := s.h.AddUserRole(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+		})
+		s.roles.AssertExpectations(s.T())
+		s.users.AssertExpectations(s.T())
+	}
 }
 
 func TestAdminRoleSuite(t *testing.T) {

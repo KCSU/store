@@ -97,3 +97,32 @@ func (ah *AdminHandler) CreateRole(c echo.Context) error {
 	}
 	return c.NoContent(http.StatusCreated)
 }
+
+func (ah *AdminHandler) AddUserRole(c echo.Context) error {
+	ur := new(dto.AddUserRoleDto)
+	if err := c.Bind(ur); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(ur); err != nil {
+		return err
+	}
+
+	role, err := ah.Roles.Find(ur.RoleID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	user, err := ah.Users.FindByEmail(ur.Email)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.Roles.AddUserRole(&role, &user); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}

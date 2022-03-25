@@ -56,6 +56,27 @@ func (_m *UserStore) Find(id int) (model.User, error) {
 	return r0, r1
 }
 
+// FindByEmail provides a mock function with given fields: email
+func (_m *UserStore) FindByEmail(email string) (model.User, error) {
+	ret := _m.Called(email)
+
+	var r0 model.User
+	if rf, ok := ret.Get(0).(func(string) model.User); ok {
+		r0 = rf(email)
+	} else {
+		r0 = ret.Get(0).(model.User)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FindOrCreate provides a mock function with given fields: gu
 func (_m *UserStore) FindOrCreate(gu *goth.User) (model.User, error) {
 	ret := _m.Called(gu)

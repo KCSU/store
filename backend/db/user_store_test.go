@@ -93,6 +93,25 @@ func (s *UserSuite) TestFindUser() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *UserSuite) TestFindUserByEmail() {
+	user := model.User{
+		Name:           "James Holden",
+		Email:          "jmh23@cam.ac.uk",
+		ProviderUserId: "abc123",
+	}
+	user.ID = 27
+	s.mock.ExpectQuery(`SELECT \* FROM "users"`).
+		WithArgs(user.Email).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name", "email", "provider_user_id"}).
+				AddRow(user.ID, user.Name, user.Email, user.ProviderUserId),
+		)
+	u, err := s.store.FindByEmail(user.Email)
+	s.Require().NoError(err)
+	s.Equal(user, u)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *UserSuite) TestExists() {
 	email := "te51@cam.ac.uk"
 	s.mock.ExpectQuery(`SELECT count\(\*\) FROM "users"`).

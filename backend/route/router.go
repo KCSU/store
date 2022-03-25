@@ -110,6 +110,7 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	roles.GET("", ah.GetRoles)
 	roles.POST("", ah.CreateRole)
 	roles.GET("/users", ah.GetUserRoles)
+	roles.POST("/users", ah.AddUserRole)
 
 	permissions := a.Group("/permissions")
 	permissions.POST("", ah.CreatePermission)
