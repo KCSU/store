@@ -14,8 +14,9 @@ import {
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import { FaPlus, FaTrashAlt } from "react-icons/fa";
-import { Column, useTable } from "react-table";
+import { CellProps, Column, useTable } from "react-table";
 import { useCreatePermission } from "../../hooks/admin/useCreatePermission";
+import { useDeletePermission } from "../../hooks/admin/useDeletePermission";
 import { Permission } from "../../model/Permission";
 import { Role } from "../../model/Role";
 
@@ -40,10 +41,13 @@ export function PermissionsTable({ role }: RoleProps) {
       },
       {
         Header: "Actions",
-        Cell() {
+        Cell({row: {original}}: CellProps<Permission>) {
+          const mutation = useDeletePermission(original.id);
           return (
             <IconButton
               aria-label="Revoke"
+              isLoading={mutation.isLoading}
+              onClick={() => mutation.mutate()}
               size="xs"
               colorScheme="red"
               variant="ghost"
