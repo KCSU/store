@@ -155,6 +155,18 @@ func (s *RoleSuite) TestCreatePermission() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *RoleSuite) TestDeletePermission() {
+	permissionId := 420
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`DELETE FROM "permissions"`).
+		WithArgs(permissionId).
+		WillReturnResult(sqlmock.NewResult(int64(permissionId), 1))
+	s.mock.ExpectCommit()
+	err := s.store.DeletePermission(permissionId)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func TestRoleSuite(t *testing.T) {
 	suite.Run(t, new(RoleSuite))
 }

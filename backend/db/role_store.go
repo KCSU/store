@@ -15,6 +15,8 @@ type RoleStore interface {
 	Find(id int) (model.Role, error)
 	// Create a permission
 	CreatePermission(permission *model.Permission) error
+	// Delete a permission
+	DeletePermission(id int) error
 	// Create a role
 	// CreateRole(role *model.Role) error
 }
@@ -58,4 +60,9 @@ func (r *DBRoleStore) Find(id int) (model.Role, error) {
 func (r *DBRoleStore) CreatePermission(permission *model.Permission) error {
 	err := r.db.Create(permission).Error
 	return err
+}
+
+// Delete a permission
+func (r *DBRoleStore) DeletePermission(id int) error {
+	return r.db.Delete(&model.Permission{}, id).Error
 }

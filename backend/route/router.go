@@ -112,4 +112,5 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 
 	permissions := a.Group("/permissions")
 	permissions.POST("", ah.CreatePermission)
+	permissions.DELETE("/:id", ah.DeletePermission)
 }

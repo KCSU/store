@@ -3,12 +3,15 @@ package admin
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
+
+// TODO: DOCUMENT THIS
 
 func (ah *AdminHandler) GetRoles(c echo.Context) error {
 	roles, err := ah.Roles.Get()
@@ -60,4 +63,19 @@ func (ah *AdminHandler) CreatePermission(c echo.Context) error {
 		return err
 	}
 	return c.NoContent(http.StatusCreated)
+}
+
+func (ah *AdminHandler) DeletePermission(c echo.Context) error {
+	// Get the permission ID from query
+	id := c.Param("id")
+	permissionID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+
+	if err := ah.Roles.DeletePermission(permissionID); err != nil {
+		// What if it doesn't exist?
+		return err
+	}
+	return c.NoContent(http.StatusOK)
 }

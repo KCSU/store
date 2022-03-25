@@ -1,8 +1,10 @@
 package admin_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -266,6 +268,25 @@ func (s *AdminRoleSuite) TestCreatePermission() {
 			s.roles.AssertExpectations(s.T())
 		})
 	}
+}
+
+func (s *AdminRoleSuite) TestDeletePermission() {
+	e := echo.New()
+	id := 42
+	route := fmt.Sprint("/permissions/", id)
+	req := httptest.NewRequest(
+		http.MethodDelete, route, nil,
+	)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(strconv.Itoa(id))
+	// Mock
+	s.roles.On("DeletePermission", id).Return(nil).Once()
+	// Test
+	err := s.h.DeletePermission(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
 }
 
 func TestAdminRoleSuite(t *testing.T) {
