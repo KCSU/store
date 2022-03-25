@@ -1,14 +1,12 @@
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   Box,
-  Text,
+  Divider,
+  Heading,
+  VStack,
 } from "@chakra-ui/react";
 import { useRoles } from "../../hooks/admin/useRoles";
-
+import { Role } from "../../model/Role";
+import { PermissionsTable } from "./PermissionsTable";
 export function RolesList() {
   const { data, isLoading, isError } = useRoles();
   // TODO: loading states
@@ -16,22 +14,16 @@ export function RolesList() {
     return <></>;
   }
   return (
-    <Accordion defaultIndex={[]} allowMultiple>
+    <>
       {data.map((role) => (
-        <AccordionItem key={role.id}>
-          <AccordionButton>
-            <Box flex="1" textAlign="left">
-              {role.name}
-            </Box>
-            <AccordionIcon />
-          </AccordionButton>
-          <AccordionPanel>
-            {role.permissions?.map(p => (
-              <Text key={p.id}>{p.resource}: {p.action}</Text>
-            ))}
-          </AccordionPanel>
-        </AccordionItem>
+        <VStack align="stretch" key={role.id} borderWidth={1} borderRadius="md" p={2}>
+          <Heading size="sm" as="h4" m={1}>
+            {role.name}
+          </Heading>
+          <Divider my={2}/>
+          <PermissionsTable role={role} />
+        </VStack>
       ))}
-    </Accordion>
+    </>
   );
 }
