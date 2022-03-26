@@ -20,11 +20,11 @@ import {
 import { Field, FieldProps, Form, Formik } from "formik";
 import { useMemo } from "react";
 import { FaPlus, FaTrashAlt } from "react-icons/fa";
-import { Column, useTable } from "react-table";
+import { CellProps, Column, useTable } from "react-table";
 import {
-  AddUserRoleDto,
   useAddUserRole,
 } from "../../hooks/admin/useAddUserRole";
+import { useRemoveUserRole } from "../../hooks/admin/useRemoveUserRole";
 import { useRoles } from "../../hooks/admin/useRoles";
 import { useUserRoles } from "../../hooks/admin/useUserRoles";
 import { UserRole } from "../../model/UserRole";
@@ -50,13 +50,21 @@ function UserRolesTable({ userRoles }: UserRolesTableProps) {
       },
       {
         Header: "Actions",
-        Cell() {
+        Cell({row: {original}}: CellProps<UserRole>) {
+          const mutation = useRemoveUserRole();
           return (
             <IconButton
               aria-label="Revoke"
               size="xs"
               colorScheme="red"
+              isLoading={mutation.isLoading}
               variant="ghost"
+              onClick={() => {
+                mutation.mutate({
+                  roleId: original.roleId,
+                  email: original.userEmail
+                });
+              }}
             >
               <Icon as={FaTrashAlt} />
             </IconButton>
