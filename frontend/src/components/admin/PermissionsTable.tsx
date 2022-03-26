@@ -1,5 +1,7 @@
 import {
   Button,
+  FormControl,
+  FormHelperText,
   Icon,
   IconButton,
   Input,
@@ -9,6 +11,7 @@ import {
   Tfoot,
   Th,
   Thead,
+  Tooltip,
   Tr,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -29,6 +32,13 @@ export function PermissionsTable({ role }: RoleProps) {
   const mutation = useCreatePermission();
   const [resource, setResource] = useState("");
   const [action, setAction] = useState("");
+  const resources = [
+    'formals', 'tickets', 'groups', 
+    'roles', 'permissions', 'billing', '*'
+  ];
+  const actions = [
+    'read', 'write', 'delete', '*'
+  ];
   const columns = useMemo<Column<Permission>[]>(
     () => [
       {
@@ -70,6 +80,7 @@ export function PermissionsTable({ role }: RoleProps) {
     columns,
     data: role.permissions ?? [],
   });
+  const background = useColorModeValue("white", "gray.750");
   return (
     <Table variant="striped" size="sm" {...getTableProps()}>
       <Thead>
@@ -83,7 +94,7 @@ export function PermissionsTable({ role }: RoleProps) {
           </Tr>
         ))}
       </Thead>
-      <Tbody {...getTableBodyProps()}>
+      <Tbody {...getTableBodyProps()} bg={background}>
         {rows.map((row) => {
           prepareRow(row);
           return (
@@ -99,7 +110,8 @@ export function PermissionsTable({ role }: RoleProps) {
       </Tbody>
       <Tfoot>
         <Tr>
-          <Th p={1}>
+          <Td p={1} verticalAlign="top" width="50%">
+            <FormControl>
             <Input
               size="sm"
               isDisabled={mutation.isLoading}
@@ -109,8 +121,13 @@ export function PermissionsTable({ role }: RoleProps) {
               value={resource}
               onChange={(e) => setResource(e.target.value)}
             ></Input>
-          </Th>
-          <Th p={1}>
+            <FormHelperText fontSize="xs" fontStyle="italic" mt="0.5">
+              {resources.join(', ')}
+            </FormHelperText>
+            </FormControl>
+          </Td>
+          <Td p={1} verticalAlign="top" width="50%">
+            <FormControl>
             <Input
               size="sm"
               isDisabled={mutation.isLoading}
@@ -120,8 +137,12 @@ export function PermissionsTable({ role }: RoleProps) {
               value={action}
               onChange={(e) => setAction(e.target.value)}
             ></Input>
-          </Th>
-          <Th p={1}>
+            <FormHelperText fontSize="xs" fontStyle="italic" mt="0.5">
+              {actions.join(', ')}
+            </FormHelperText>
+            </FormControl>
+          </Td>
+          <Td verticalAlign="top" p={1}>
             <Button
               size="sm"
               isLoading={mutation.isLoading}
@@ -139,7 +160,7 @@ export function PermissionsTable({ role }: RoleProps) {
             >
               Add
             </Button>
-          </Th>
+          </Td>
         </Tr>
       </Tfoot>
     </Table>
