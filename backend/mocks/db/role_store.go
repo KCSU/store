@@ -134,3 +134,17 @@ func (_m *RoleStore) GetUserRoles() ([]model.UserRole, error) {
 
 	return r0, r1
 }
+
+// RemoveUserRole provides a mock function with given fields: role, user
+func (_m *RoleStore) RemoveUserRole(role *model.Role, user *model.User) error {
+	ret := _m.Called(role, user)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Role, *model.User) error); ok {
+		r0 = rf(role, user)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

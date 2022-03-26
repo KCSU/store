@@ -420,9 +420,124 @@ func (s *AdminRoleSuite) TestAddUserRole() {
 				}
 			}
 		})
-		s.roles.AssertExpectations(s.T())
-		s.users.AssertExpectations(s.T())
 	}
+	s.roles.AssertExpectations(s.T())
+	s.users.AssertExpectations(s.T())
+}
+
+func (s *AdminRoleSuite) TestRemoveUserRole() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name   string
+		body   string
+		roleId int
+		email  string
+		role   *model.Role
+		user   *model.User
+		wants  *wants
+	}
+	tests := []test{
+		{
+			"Role Not Found",
+			`{
+				"roleId": 11,
+				"email": "abc123@cam.ac.uk"
+			}`,
+			11,
+			"abc123@cam.ac.uk",
+			nil,
+			nil,
+			&wants{
+				http.StatusNotFound,
+				"Not Found",
+			},
+		},
+		{
+			"User Not Found",
+			`{
+				"roleId": 7,
+				"email": "hij123@cam.ac.uk"
+			}`,
+			7,
+			"hij123@cam.ac.uk",
+			&model.Role{
+				Model: model.Model{ID: 7},
+				Name:  "Admin",
+			},
+			nil,
+			&wants{
+				http.StatusNotFound,
+				"Not Found",
+			},
+		},
+		{
+			"Should Remove",
+			`{
+				"roleId": 9,
+				"email": "def456@cam.ac.uk"
+			}`,
+			9,
+			"def456@cam.ac.uk",
+			&model.Role{
+				Model: model.Model{ID: 9},
+				Name:  "Admin",
+			},
+			&model.User{
+				Model: model.Model{ID: 17},
+				Name:  "James Holden",
+				Email: "def456@cam.ac.uk",
+			},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			// HTTP
+			req := httptest.NewRequest(
+				http.MethodPost, "/roles/users", strings.NewReader(test.body),
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			// Mock
+			if test.role != nil {
+				s.roles.On("Find", test.roleId).Return(*test.role, nil).Once()
+				if test.user != nil {
+					s.users.On("FindByEmail", test.email).
+						Return(*test.user, nil).Once()
+				} else {
+					s.users.On("FindByEmail", test.email).
+						Return(model.User{}, gorm.ErrRecordNotFound).Once()
+				}
+			} else {
+				s.roles.On("Find", test.roleId).
+					Return(model.Role{}, gorm.ErrRecordNotFound).Once()
+			}
+			if test.wants == nil {
+				s.roles.On("RemoveUserRole", test.role, test.user).
+					Return(nil).Once()
+			}
+			// Test
+			err := s.h.RemoveUserRole(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+		})
+	}
+	s.roles.AssertExpectations(s.T())
+	s.users.AssertExpectations(s.T())
 }
 
 func TestAdminRoleSuite(t *testing.T) {
