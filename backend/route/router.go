@@ -89,31 +89,37 @@ func ApiRoutes(api *echo.Group, h *handlers.Handler, requireAuth echo.Middleware
 }
 
 func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
+	// FIXME: CRUD or R/W/D?
+	rbac := middleware.NewRBAC(middleware.RbacConfig{
+		Auth:  ah.Auth,
+		Users: ah.Users,
+	})
+
 	formals := a.Group("/formals")
-	formals.GET("", ah.GetFormals)
-	formals.POST("", ah.CreateFormal)
-	formals.GET("/:id", ah.GetFormal)
-	formals.PUT("/:id", ah.UpdateFormal)
-	formals.PUT("/:id/groups", ah.UpdateFormalGroups)
+	formals.GET("", ah.GetFormals, rbac.M("formals", "read"))
+	formals.POST("", ah.CreateFormal, rbac.M("formals", "write"))
+	formals.GET("/:id", ah.GetFormal, rbac.M("formals", "read"))
+	formals.PUT("/:id", ah.UpdateFormal, rbac.M("formals", "write"))
+	formals.PUT("/:id/groups", ah.UpdateFormalGroups, rbac.M("formals", "write"))
 
 	groups := a.Group("/groups")
-	groups.GET("", ah.GetGroups)
-	groups.POST("", ah.CreateGroup)
-	groups.GET("/:id", ah.GetGroup)
-	groups.PUT("/:id", ah.UpdateGroup)
-	groups.DELETE("/:id", ah.DeleteGroup)
-	groups.POST("/:id/users", ah.AddGroupUser)
-	groups.DELETE("/:id/users", ah.RemoveGroupUser)
-	groups.POST("/:id/users/lookup", ah.LookupGroupUsers)
+	groups.GET("", ah.GetGroups, rbac.M("groups", "read"))
+	groups.POST("", ah.CreateGroup, rbac.M("groups", "write"))
+	groups.GET("/:id", ah.GetGroup, rbac.M("groups", "read"))
+	groups.PUT("/:id", ah.UpdateGroup, rbac.M("groups", "write"))
+	groups.DELETE("/:id", ah.DeleteGroup, rbac.M("groups", "delete"))
+	groups.POST("/:id/users", ah.AddGroupUser, rbac.M("groups", "write"))
+	groups.DELETE("/:id/users", ah.RemoveGroupUser, rbac.M("groups", "write"))
+	groups.POST("/:id/users/lookup", ah.LookupGroupUsers, rbac.M("groups", "read"))
 
 	roles := a.Group("/roles")
-	roles.GET("", ah.GetRoles)
-	roles.POST("", ah.CreateRole)
-	roles.GET("/users", ah.GetUserRoles)
-	roles.POST("/users", ah.AddUserRole)
-	roles.DELETE("/users", ah.RemoveUserRole)
+	roles.GET("", ah.GetRoles, rbac.M("roles", "read"))
+	roles.POST("", ah.CreateRole, rbac.M("roles", "write"))
+	roles.GET("/users", ah.GetUserRoles, rbac.M("roles", "read"))
+	roles.POST("/users", ah.AddUserRole, rbac.M("roles", "write"))
+	roles.DELETE("/users", ah.RemoveUserRole, rbac.M("roles", "write"))
 
 	permissions := a.Group("/permissions")
-	permissions.POST("", ah.CreatePermission)
-	permissions.DELETE("/:id", ah.DeletePermission)
+	permissions.POST("", ah.CreatePermission, rbac.M("permissions", "write"))
+	permissions.DELETE("/:id", ah.DeletePermission, rbac.M("permissions", "delete"))
 }
