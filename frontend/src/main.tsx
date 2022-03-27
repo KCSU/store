@@ -11,6 +11,7 @@ import "./config/datetime";
 import { QueryCache, QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from 'react-query/devtools'
 import axios from "axios";
+import { AuthProvider } from "./components/utility/AuthProvider";
 
 // TODO: move to config
 const queryClient = new QueryClient({
@@ -28,7 +29,9 @@ ReactDOM.render(
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <ChakraProvider theme={theme}>
-          <App />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
         </ChakraProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Group } from "./Group";
+import { Permission } from "./Permission";
 
 export interface User {
     id: number;
@@ -7,6 +8,7 @@ export interface User {
     email: string;
     groups: Group[]
     // Admin permissions
+    permissions: Permission[];
 }
 
 export const UserContext = React.createContext<User | undefined>(undefined);

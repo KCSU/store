@@ -1,4 +1,5 @@
 import { Heading, VStack } from "@chakra-ui/layout";
+import { useContext } from "react";
 import {
   FaCalendarDay,
   FaCog,
@@ -8,6 +9,7 @@ import {
   FaUsers,
   FaUserShield,
 } from "react-icons/fa";
+import { UserContext } from "../../model/User";
 import { AdminSidebarItem, SidebarItem } from "./SidebarItem";
 
 const routes = [
@@ -55,7 +57,7 @@ const adminRoutes = [
     resource: "roles",
     action: "read",
     icon: FaShieldAlt,
-  }
+  },
 ];
 
 interface SidebarContentProps {
@@ -63,6 +65,7 @@ interface SidebarContentProps {
 }
 
 export function SidebarContent({ onClose }: SidebarContentProps) {
+  const user = useContext(UserContext);
   const adminItems = adminRoutes.map(
     ({ to, title, icon, resource, action }) => (
       <AdminSidebarItem
@@ -78,7 +81,7 @@ export function SidebarContent({ onClose }: SidebarContentProps) {
       </AdminSidebarItem>
     )
   );
-  const showAdmin = true; // Should check if user has any permissions
+  const showAdmin = (user?.permissions.length ?? 0) > 0;
   return (
     <VStack spacing="12px">
       {routes.map(({ to, title, icon, end }) => (
