@@ -100,6 +100,25 @@ func (ah *AdminHandler) CreateRole(c echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
+func (ah *AdminHandler) DeleteRole(c echo.Context) error {
+	id := c.Param("id")
+	roleId, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	role, err := ah.Roles.Find(roleId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.Roles.Delete(&role); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}
+
 func (ah *AdminHandler) AddUserRole(c echo.Context) error {
 	ur := new(dto.AddUserRoleDto)
 	if err := c.Bind(ur); err != nil {

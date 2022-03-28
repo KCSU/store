@@ -290,6 +290,7 @@ func (s *AdminRoleSuite) TestDeletePermission() {
 	err := s.h.DeletePermission(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
+	s.roles.AssertExpectations(s.T())
 }
 
 func (s *AdminRoleSuite) TestCreateRole() {
@@ -308,6 +309,32 @@ func (s *AdminRoleSuite) TestCreateRole() {
 	err := s.h.CreateRole(c)
 	s.NoError(err)
 	s.Equal(http.StatusCreated, rec.Code)
+	s.roles.AssertExpectations(s.T())
+}
+
+func (s *AdminRoleSuite) TestDeleteRole() {
+	e := echo.New()
+	id := 47
+	role := model.Role{
+		Model: model.Model{ID: uint(id)},
+		Name:  "Admin",
+	}
+	route := fmt.Sprint("/roles/", id)
+	req := httptest.NewRequest(
+		http.MethodDelete, route, nil,
+	)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(strconv.Itoa(id))
+	// Mock
+	s.roles.On("Find", id).Return(role, nil).Once()
+	s.roles.On("Delete", &role).Return(nil).Once()
+	// Test
+	err := s.h.DeleteRole(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
+	s.roles.AssertExpectations(s.T())
 }
 
 func (s *AdminRoleSuite) TestAddUserRole() {

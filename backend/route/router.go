@@ -118,6 +118,7 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	roles.GET("/users", ah.GetUserRoles, rbac.M("roles", "read"))
 	roles.POST("/users", ah.AddUserRole, rbac.M("roles", "write"))
 	roles.DELETE("/users", ah.RemoveUserRole, rbac.M("roles", "write"))
+	roles.DELETE("/:id", ah.DeleteRole, rbac.M("roles", "delete"))
 
 	permissions := a.Group("/permissions")
 	permissions.POST("", ah.CreatePermission, rbac.M("permissions", "write"))

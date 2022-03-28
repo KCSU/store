@@ -54,6 +54,20 @@ func (_m *RoleStore) CreatePermission(permission *model.Permission) error {
 	return r0
 }
 
+// Delete provides a mock function with given fields: role
+func (_m *RoleStore) Delete(role *model.Role) error {
+	ret := _m.Called(role)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Role) error); ok {
+		r0 = rf(role)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeletePermission provides a mock function with given fields: id
 func (_m *RoleStore) DeletePermission(id int) error {
 	ret := _m.Called(id)

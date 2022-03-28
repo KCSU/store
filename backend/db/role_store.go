@@ -19,6 +19,8 @@ type RoleStore interface {
 	DeletePermission(id int) error
 	// Create a role
 	Create(role *model.Role) error
+	// Delete a role
+	Delete(role *model.Role) error
 	// Add a user to a role
 	AddUserRole(role *model.Role, user *model.User) error
 	// Remove a user from a role
@@ -47,7 +49,11 @@ func (r *DBRoleStore) Get() ([]model.Role, error) {
 // Retrieve user-role mapping
 func (r *DBRoleStore) GetUserRoles() ([]model.UserRole, error) {
 	var userRoles []model.UserRole
-	err := r.db.Table("user_roles").Joins("User").Joins("Role").Find(&userRoles).Error
+	err := r.db.Table("user_roles").
+		Joins("User").Joins("Role").
+		Where(`"User"."deleted_at" IS NULL`).
+		Where(`"Role"."deleted_at" IS NULL`).
+		Find(&userRoles).Error
 	return userRoles, err
 }
 
@@ -74,6 +80,17 @@ func (r *DBRoleStore) DeletePermission(id int) error {
 // Create a role
 func (r *DBRoleStore) Create(role *model.Role) error {
 	return r.db.Create(role).Error
+}
+
+// Delete a role
+func (r *DBRoleStore) Delete(role *model.Role) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(role).Association("Users").Clear()
+		if err != nil {
+			return err
+		}
+		return tx.Delete(role).Error
+	})
 }
 
 // Add a user to a role
