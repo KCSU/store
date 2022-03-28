@@ -11,15 +11,24 @@ import {
   Heading,
   Icon,
   IconButton,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { FaPen, FaTrashAlt } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import { PermissionsTable } from "../../components/admin/PermissionsTable";
 import { BackButton } from "../../components/utility/BackButton";
 import { Card } from "../../components/utility/Card";
 import { useDeleteRole } from "../../hooks/admin/useDeleteRole";
+import { useEditRole } from "../../hooks/admin/useEditRole";
 import { useRoles } from "../../hooks/admin/useRoles";
 import { Role } from "../../model/Role";
 
@@ -44,13 +53,7 @@ export function AdminEditRoleView() {
             <Heading as="h3" size="lg" mb={4} flex="1">
               {role.name}
             </Heading>
-            <IconButton
-              size="sm"
-              variant="outline"
-              // colorScheme="brand"
-              aria-label="Edit"
-              icon={<Icon as={FaPen} />}
-            ></IconButton>
+            <EditRoleButton role={role} />
             <DeleteRoleButton role={role} />
           </Flex>
           <PermissionsTable role={role} />
@@ -113,6 +116,55 @@ function DeleteRoleButton({ role }: RoleProps) {
           </AlertDialogContent>
         </AlertDialogOverlay>
       </AlertDialog>
+    </>
+  );
+}
+
+function EditRoleButton({ role }: RoleProps) {
+  const [name, setName] = useState(role.name);
+  const mutation = useEditRole(role.id);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  return (
+    <>
+      <IconButton
+        size="sm"
+        variant="outline"
+        onClick={onOpen}
+        // colorScheme="brand"
+        aria-label="Edit"
+        icon={<Icon as={FaPen} />}
+      ></IconButton>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Role</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Input
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              colorScheme="brand"
+              mr={3}
+              isLoading={mutation.isLoading}
+              onClick={async () => {
+                await mutation.mutateAsync(name);
+                onClose();
+              }}
+            >
+              Save
+            </Button>
+            <Button variant="ghost" onClick={onClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
