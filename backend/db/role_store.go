@@ -19,6 +19,8 @@ type RoleStore interface {
 	DeletePermission(id int) error
 	// Create a role
 	Create(role *model.Role) error
+	// Update a role
+	Update(role *model.Role) error
 	// Delete a role
 	Delete(role *model.Role) error
 	// Add a user to a role
@@ -80,6 +82,11 @@ func (r *DBRoleStore) DeletePermission(id int) error {
 // Create a role
 func (r *DBRoleStore) Create(role *model.Role) error {
 	return r.db.Create(role).Error
+}
+
+// Update a role
+func (g *DBRoleStore) Update(role *model.Role) error {
+	return g.db.Omit("created_at").Save(role).Error
 }
 
 // Delete a role

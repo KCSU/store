@@ -182,6 +182,25 @@ func (s *RoleSuite) TestCreateRole() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *RoleSuite) TestUpdateRole() {
+	r := model.Role{
+		Model: model.Model{
+			ID: 13,
+		},
+		Name: "Admin2",
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "roles"`).WithArgs(
+		sqlmock.AnyArg(), nil, r.Name, r.ID,
+	).WillReturnResult(
+		sqlmock.NewResult(int64(r.ID), 1),
+	)
+	s.mock.ExpectCommit()
+	err := s.store.Update(&r)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *RoleSuite) TestDeleteRole() {
 	role := model.Role{
 		Name:  "Ents",

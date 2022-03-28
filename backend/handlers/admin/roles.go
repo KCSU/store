@@ -100,13 +100,40 @@ func (ah *AdminHandler) CreateRole(c echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
-func (ah *AdminHandler) DeleteRole(c echo.Context) error {
+func (ah *AdminHandler) UpdateRole(c echo.Context) error {
 	id := c.Param("id")
-	roleId, err := strconv.Atoi(id)
+	roleID, err := strconv.Atoi(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	role, err := ah.Roles.Find(roleId)
+	r := new(dto.RoleDto)
+	if err := c.Bind(r); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(r); err != nil {
+		return err
+	}
+	role, err := ah.Roles.Find(roleID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	role.Name = r.Name
+	if err := ah.Roles.Update(&role); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+func (ah *AdminHandler) DeleteRole(c echo.Context) error {
+	id := c.Param("id")
+	roleID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	role, err := ah.Roles.Find(roleID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound

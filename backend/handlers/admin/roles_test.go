@@ -312,6 +312,77 @@ func (s *AdminRoleSuite) TestCreateRole() {
 	s.roles.AssertExpectations(s.T())
 }
 
+func (s *AdminRoleSuite) TestUpdateRole() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name  string
+		body  string
+		role  model.Role
+		wants *wants
+	}
+	tests := []test{
+		{
+			"Name Too Short",
+			`{"name": "Ad"}`,
+			model.Role{},
+			&wants{
+				http.StatusUnprocessableEntity,
+				"Key: 'RoleDto.Name' Error:Field validation for 'Name' failed on the 'min' tag",
+			},
+		},
+		{
+			"Should Update",
+			`{"name": "Admin"}`,
+			model.Role{
+				Model: model.Model{ID: 17},
+				Name:  "Admin",
+			},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			// HTTP
+			req := httptest.NewRequest(
+				http.MethodPut, "/roles/17", strings.NewReader(test.body),
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.Itoa(int(test.role.ID)))
+			// Mock
+			if test.wants == nil {
+				s.roles.On("Find", int(test.role.ID)).Return(
+					model.Role{
+						Model: model.Model{ID: test.role.ID},
+						Name:  "initial",
+					}, nil,
+				).Once()
+				s.roles.On("Update", &test.role).Return(nil).Once()
+			}
+			// Test
+			err := s.h.UpdateRole(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+		})
+	}
+	s.roles.AssertExpectations(s.T())
+}
+
 func (s *AdminRoleSuite) TestDeleteRole() {
 	e := echo.New()
 	id := 47

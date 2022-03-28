@@ -162,3 +162,17 @@ func (_m *RoleStore) RemoveUserRole(role *model.Role, user *model.User) error {
 
 	return r0
 }
+
+// Update provides a mock function with given fields: role
+func (_m *RoleStore) Update(role *model.Role) error {
+	ret := _m.Called(role)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Role) error); ok {
+		r0 = rf(role)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}

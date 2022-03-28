@@ -316,9 +316,9 @@ func (s *AdminGroupSuite) TestUpdateGroup() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.groups.AssertExpectations(s.T())
 		})
 	}
+	s.groups.AssertExpectations(s.T())
 }
 
 func (s *AdminGroupSuite) TestDeleteGroup() {
