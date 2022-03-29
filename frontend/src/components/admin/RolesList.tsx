@@ -21,6 +21,7 @@ import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useCreateRole } from "../../hooks/admin/useCreateRole";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { useRoles } from "../../hooks/admin/useRoles";
 import { Card } from "../utility/Card";
 
@@ -60,6 +61,7 @@ function CreateRoleModal({ isOpen, onClose }: CreateRoleModalProps) {
 }
 
 export function RolesList() {
+  const canWrite = useHasPermission("roles", "write");
   const { data, isLoading, isError } = useRoles();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const hoverBg = useColorModeValue("gray.100", "gray.750");
@@ -72,7 +74,7 @@ export function RolesList() {
       <Heading size="md" as="h3">
         Manage Roles
       </Heading>
-      <Button
+      {canWrite && <Button
         onClick={onOpen}
         alignSelf="start"
         size="sm"
@@ -80,7 +82,7 @@ export function RolesList() {
         leftIcon={<Icon as={FaPlus} />}
       >
         Create Role
-      </Button>
+      </Button>}
       <SimpleGrid
         templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
         spacing={3}

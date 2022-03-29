@@ -15,6 +15,7 @@ import { GroupDirectory } from "../../components/admin/GroupDirectory";
 import { BackButton } from "../../components/utility/BackButton";
 import { Card } from "../../components/utility/Card";
 import { useGroup } from "../../hooks/admin/useGroup";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Group } from "../../model/Group";
 
 interface GroupProps {
@@ -22,6 +23,9 @@ interface GroupProps {
 }
 
 function AdminEditGroupCard({ group }: GroupProps) {
+  const canWrite = useHasPermission("groups", "write");
+  const canDelete = useHasPermission("groups", "delete");
+  const hasActions = canWrite || canDelete;
   return (
     <Container maxW="container.md" p={0}>
       <BackButton to="/admin/groups">Back Home</BackButton>
@@ -33,7 +37,7 @@ function AdminEditGroupCard({ group }: GroupProps) {
           <TabList flexWrap="wrap">
             <Tab>Group Details</Tab>
             <Tab>Directory</Tab>
-            <Tab>Actions</Tab>
+            {hasActions && <Tab>Actions</Tab>}
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -42,9 +46,9 @@ function AdminEditGroupCard({ group }: GroupProps) {
             <TabPanel>
               <GroupDirectory group={group} />
             </TabPanel>
-            <TabPanel>
+            {hasActions && <TabPanel>
               <GroupActions group={group} />
-            </TabPanel>
+            </TabPanel>}
           </TabPanels>
         </Tabs>
       </Card>

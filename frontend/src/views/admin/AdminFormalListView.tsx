@@ -13,6 +13,7 @@ import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Card } from "../../components/utility/Card";
 import { useAllFormals } from "../../hooks/admin/useAllFormals";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { useDateTime } from "../../hooks/state/useDateTime";
 import { Formal } from "../../model/Formal";
 
@@ -60,7 +61,8 @@ function AdminFormalCard({ formal: f }: FormalProps) {
 }
 
 export function AdminFormalListView() {
-  const { data, isLoading, isError } = useAllFormals();
+  const { data } = useAllFormals();
+  const canWrite = useHasPermission("formals", "write");
   if (!data) {
     return <></>;
   }
@@ -70,15 +72,17 @@ export function AdminFormalListView() {
       <Heading size="xl" mb={5}>
         Manage Formals
       </Heading>
-      <Button
-        colorScheme="brand"
-        mb={4}
-        leftIcon={<FaPlus />}
-        as={Link}
-        to="/admin/formals/create"
-      >
-        Create Formal
-      </Button>
+      {canWrite && (
+        <Button
+          colorScheme="brand"
+          mb={4}
+          leftIcon={<FaPlus />}
+          as={Link}
+          to="/admin/formals/create"
+        >
+          Create Formal
+        </Button>
+      )}
       <SimpleGrid
         templateColumns="repeat(auto-fill, minmax(300px, 1fr))"
         spacing="20px"

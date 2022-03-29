@@ -16,6 +16,7 @@ import { useRef } from "react";
 import { FaSync, FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useDeleteGroup } from "../../hooks/admin/useDeleteGroup";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { useLookupGroupUsers } from "../../hooks/admin/useLookupGroupUsers";
 import { Group } from "../../model/Group";
 
@@ -27,6 +28,8 @@ export function GroupActions({ group }: GroupProps) {
   const navigate = useNavigate();
   const deleteMutation = useDeleteGroup(group.id);
   const syncMutation = useLookupGroupUsers(group.id);
+  const canWrite = useHasPermission("groups", "write");
+  const canDelete = useHasPermission("groups", "delete");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef(null);
   return (
@@ -42,6 +45,7 @@ export function GroupActions({ group }: GroupProps) {
             colorScheme="brand"
             variant="outline"
             isLoading={syncMutation.isLoading}
+            isDisabled={!canWrite}
             onClick={() => syncMutation.mutate()}
             leftIcon={<Icon as={FaSync} />}
           >
@@ -52,6 +56,7 @@ export function GroupActions({ group }: GroupProps) {
           colorScheme="red"
           leftIcon={<Icon as={FaTrashAlt} />}
           onClick={onOpen}
+          isDisabled={!canDelete}
         >
           Delete Group
         </Button>

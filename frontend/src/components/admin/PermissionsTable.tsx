@@ -20,6 +20,7 @@ import { FaPlus, FaTrashAlt } from "react-icons/fa";
 import { CellProps, Column, useTable } from "react-table";
 import { useCreatePermission } from "../../hooks/admin/useCreatePermission";
 import { useDeletePermission } from "../../hooks/admin/useDeletePermission";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Permission } from "../../model/Permission";
 import { Role } from "../../model/Role";
 
@@ -28,19 +29,24 @@ interface RoleProps {
 }
 
 export function PermissionsTable({ role }: RoleProps) {
+  const canWrite = useHasPermission("permissions", "write");
+  const canDelete = useHasPermission("permissions", "delete");
   const inBg = useColorModeValue("white", "gray.600");
   const mutation = useCreatePermission();
   const [resource, setResource] = useState("");
   const [action, setAction] = useState("");
   const resources = [
-    'formals', 'tickets', 'groups', 
-    'roles', 'permissions', 'billing', '*'
+    "formals",
+    "tickets",
+    "groups",
+    "roles",
+    "permissions",
+    "billing",
+    "*",
   ];
-  const actions = [
-    'read', 'write', 'delete', '*'
-  ];
-  const columns = useMemo<Column<Permission>[]>(
-    () => [
+  const actions = ["read", "write", "delete", "*"];
+  const columns = useMemo<Column<Permission>[]>(() => {
+    const cols: Column<Permission>[] = [
       {
         accessor: "resource",
         Header: "Resource",
@@ -49,9 +55,11 @@ export function PermissionsTable({ role }: RoleProps) {
         accessor: "action",
         Header: "Permission",
       },
-      {
+    ];
+    if (canDelete) {
+      cols.push({
         Header: "Actions",
-        Cell({row: {original}}: CellProps<Permission>) {
+        Cell({ row: { original } }: CellProps<Permission>) {
           const mutation = useDeletePermission(original.id);
           return (
             <IconButton
@@ -66,20 +74,15 @@ export function PermissionsTable({ role }: RoleProps) {
             </IconButton>
           );
         },
-      },
-    ],
-    []
-  );
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    prepareRow,
-    rows,
-  } = useTable({
-    columns,
-    data: role.permissions ?? [],
-  });
+      });
+    }
+    return cols;
+  }, []);
+  const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows } =
+    useTable({
+      columns,
+      data: role.permissions ?? [],
+    });
   const background = useColorModeValue("white", "gray.750");
   return (
     <Table variant="striped" size="sm" {...getTableProps()}>
@@ -108,61 +111,63 @@ export function PermissionsTable({ role }: RoleProps) {
           );
         })}
       </Tbody>
-      <Tfoot>
-        <Tr>
-          <Td p={1} verticalAlign="top" width="50%">
-            <FormControl>
-            <Input
-              size="sm"
-              isDisabled={mutation.isLoading}
-              placeholder="Resource"
-              bg={inBg}
-              fontFamily="mono"
-              value={resource}
-              onChange={(e) => setResource(e.target.value)}
-            ></Input>
-            <FormHelperText fontSize="xs" fontStyle="italic" mt="0.5">
-              {resources.join(', ')}
-            </FormHelperText>
-            </FormControl>
-          </Td>
-          <Td p={1} verticalAlign="top" width="50%">
-            <FormControl>
-            <Input
-              size="sm"
-              isDisabled={mutation.isLoading}
-              placeholder="Permission"
-              bg={inBg}
-              fontFamily="mono"
-              value={action}
-              onChange={(e) => setAction(e.target.value)}
-            ></Input>
-            <FormHelperText fontSize="xs" fontStyle="italic" mt="0.5">
-              {actions.join(', ')}
-            </FormHelperText>
-            </FormControl>
-          </Td>
-          <Td verticalAlign="top" p={1}>
-            <Button
-              size="sm"
-              isLoading={mutation.isLoading}
-              colorScheme="brand"
-              leftIcon={<Icon as={FaPlus} />}
-              onClick={async () => {
-                await mutation.mutateAsync({
-                  roleId: role.id,
-                  resource,
-                  action,
-                });
-                setResource('');
-                setAction('');
-              }}
-            >
-              Add
-            </Button>
-          </Td>
-        </Tr>
-      </Tfoot>
+      {canWrite && (
+        <Tfoot>
+          <Tr>
+            <Td p={1} verticalAlign="top" width="50%">
+              <FormControl>
+                <Input
+                  size="sm"
+                  isDisabled={mutation.isLoading}
+                  placeholder="Resource"
+                  bg={inBg}
+                  fontFamily="mono"
+                  value={resource}
+                  onChange={(e) => setResource(e.target.value)}
+                ></Input>
+                <FormHelperText fontSize="xs" fontStyle="italic" mt="0.5">
+                  {resources.join(", ")}
+                </FormHelperText>
+              </FormControl>
+            </Td>
+            <Td p={1} verticalAlign="top" width="50%">
+              <FormControl>
+                <Input
+                  size="sm"
+                  isDisabled={mutation.isLoading}
+                  placeholder="Permission"
+                  bg={inBg}
+                  fontFamily="mono"
+                  value={action}
+                  onChange={(e) => setAction(e.target.value)}
+                ></Input>
+                <FormHelperText fontSize="xs" fontStyle="italic" mt="0.5">
+                  {actions.join(", ")}
+                </FormHelperText>
+              </FormControl>
+            </Td>
+            <Td verticalAlign="top" p={1}>
+              <Button
+                size="sm"
+                isLoading={mutation.isLoading}
+                colorScheme="brand"
+                leftIcon={<Icon as={FaPlus} />}
+                onClick={async () => {
+                  await mutation.mutateAsync({
+                    roleId: role.id,
+                    resource,
+                    action,
+                  });
+                  setResource("");
+                  setAction("");
+                }}
+              >
+                Add
+              </Button>
+            </Td>
+          </Tr>
+        </Tfoot>
+      )}
     </Table>
   );
 }

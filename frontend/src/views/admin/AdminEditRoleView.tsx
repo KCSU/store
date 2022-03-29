@@ -29,6 +29,7 @@ import { BackButton } from "../../components/utility/BackButton";
 import { Card } from "../../components/utility/Card";
 import { useDeleteRole } from "../../hooks/admin/useDeleteRole";
 import { useEditRole } from "../../hooks/admin/useEditRole";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { useRoles } from "../../hooks/admin/useRoles";
 import { Role } from "../../model/Role";
 
@@ -36,6 +37,8 @@ export function AdminEditRoleView() {
   const { id } = useParams();
   const roleId = parseInt(id ?? "0");
   const { data, isLoading, isError } = useRoles();
+  const canWrite = useHasPermission("roles", "write");
+  const canDelete = useHasPermission("roles", "delete");
   // TODO: loading states
   if (isLoading || isError || !data) {
     return <></>;
@@ -53,8 +56,8 @@ export function AdminEditRoleView() {
             <Heading as="h3" size="lg" mb={4} flex="1">
               {role.name}
             </Heading>
-            <EditRoleButton role={role} />
-            <DeleteRoleButton role={role} />
+            {canWrite && <EditRoleButton role={role} />}
+            {canDelete && <DeleteRoleButton role={role} />}
           </Flex>
           <PermissionsTable role={role} />
         </Card>

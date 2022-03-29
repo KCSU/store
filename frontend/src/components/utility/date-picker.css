@@ -47,6 +47,15 @@
   box-shadow: var(--chakra-shadows-xl);
 }
 
+.react-datepicker-wrapper.react-datepicker--disabled {
+  opacity: 0.4;
+}
+
+.react-datepicker--disabled,
+.react-datepicker--disabled .react-datapicker__input-text {
+  cursor: not-allowed;
+}
+
 .react-datepicker-wrapper,
 .react-datepicker__input-container {
   display: block;
@@ -185,9 +194,9 @@
 }
 
 .react-datepicker__day--keyboard-selected {
-    background: var(--brand400);
-    font-weight: normal;
-    color: var(--negative-text);
+  background: var(--brand400);
+  font-weight: normal;
+  color: var(--negative-text);
 }
 
 .react-datepicker__time-container

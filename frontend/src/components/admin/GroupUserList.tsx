@@ -35,6 +35,7 @@ import {
   FaTrashAlt,
 } from "react-icons/fa";
 import { GroupUser } from "../../model/Group";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 
 interface GroupUserListProps {
   users: GroupUser[];
@@ -52,8 +53,9 @@ export function GroupUserList({
   //     u.userEmail.startsWith
   //   })
   // }, [users, query])
+  const canWrite = useHasPermission("groups", "write");
   const columns: Column<GroupUser>[] = useMemo(() => {
-    if (onDelete) {
+    if (onDelete && canWrite) {
       return [
         {
           accessor: "userEmail",
@@ -80,7 +82,7 @@ export function GroupUserList({
         },
       ];
     }
-  }, []);
+  }, [canWrite]);
   const {
     getTableProps,
     getTableBodyProps,

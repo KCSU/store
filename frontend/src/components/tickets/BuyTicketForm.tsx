@@ -68,7 +68,7 @@ export function BuyTicketForm({
       ))}
       {formal.guestLimit > 0 && (
         <Button
-          disabled={guestTickets.length >= formal.guestLimit}
+          isDisabled={guestTickets.length >= formal.guestLimit}
           onClick={() => onChange({type: 'addGuestTicket'})}
           size="sm"
           variant="outline"

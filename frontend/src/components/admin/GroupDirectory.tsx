@@ -13,6 +13,7 @@ import {
 import { useMemo, useState } from "react";
 import { FaArrowRight, FaSearch } from "react-icons/fa";
 import { useAddGroupUser } from "../../hooks/admin/useAddGroupUser";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { useRemoveGroupUser } from "../../hooks/admin/useRemoveGroupUser";
 import { Group, GroupUser } from "../../model/Group";
 import { GroupUserList } from "./GroupUserList";
@@ -66,6 +67,7 @@ function AddUserBox({group}: GroupProps) {
 export function GroupDirectory({ group }: GroupProps) {
   const [query, setQuery] = useState("");
   const mutation = useRemoveGroupUser(group.id);
+  const canWrite = useHasPermission("groups", "write");
   const { manualUsers, lookupUsers } = useMemo(() => {
     let manualUsers: GroupUser[] = [];
     let lookupUsers: GroupUser[] = [];
@@ -90,7 +92,7 @@ export function GroupDirectory({ group }: GroupProps) {
   }, [group]);
   return (
     <VStack align="stretch">
-      <AddUserBox group={group} />
+      {canWrite && <AddUserBox group={group} />}
       <InputGroup size="sm" maxW="500px" mb={2}>
         <InputLeftAddon>
           <Icon as={FaSearch} />

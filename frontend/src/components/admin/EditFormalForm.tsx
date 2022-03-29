@@ -19,18 +19,21 @@ import {
 import { Formik, Form, Field, FieldProps } from "formik";
 import { FaSave } from "react-icons/fa";
 import { useEditFormal } from "../../hooks/admin/useEditFormal";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Formal } from "../../model/Formal";
 import DatePicker from "../utility/DatePicker";
 
 interface FormalDetailsFormProps {
   formal: Formal;
   submitIcon?: React.ReactElement;
+  isDisabled?: boolean;
   onSubmit: (values: Formal) => void | Promise<any>;
 }
 
 const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
   formal,
   onSubmit,
+  isDisabled = false,
   children,
   submitIcon,
 }) => {
@@ -43,6 +46,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
             <Field name="name">
               {({ field, form }: FieldProps) => (
                 <FormControl
+                  isDisabled={isDisabled}
                   isInvalid={!!(form.errors.name && form.touched.name)}
                 >
                   <FormLabel htmlFor="name">Name</FormLabel>
@@ -55,6 +59,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               {/* TODO: make this rich text */}
               {({ field, form }: FieldProps) => (
                 <FormControl
+                  isDisabled={isDisabled}
                   isInvalid={!!(form.errors.menu && form.touched.menu)}
                 >
                   <FormLabel htmlFor="menu">Menu</FormLabel>
@@ -67,6 +72,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               <Field name="tickets">
                 {({ field, form }: FieldProps) => (
                   <FormControl
+                    isDisabled={isDisabled}
                     isInvalid={!!(form.errors.tickets && form.touched.tickets)}
                   >
                     <FormLabel htmlFor="tickets">King's Tickets</FormLabel>
@@ -88,6 +94,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               <Field name="guestTickets">
                 {({ field, form }: FieldProps) => (
                   <FormControl
+                    isDisabled={isDisabled}
                     isInvalid={
                       !!(form.errors.guestTickets && form.touched.guestTickets)
                     }
@@ -113,6 +120,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               <Field name="price">
                 {({ field, form }: FieldProps) => (
                   <FormControl
+                    isDisabled={isDisabled}
                     isInvalid={!!(form.errors.price && form.touched.price)}
                   >
                     <FormLabel htmlFor="price">Ticket Price</FormLabel>
@@ -141,6 +149,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               <Field name="guestPrice">
                 {({ field, form }: FieldProps) => (
                   <FormControl
+                    isDisabled={isDisabled}
                     isInvalid={
                       !!(form.errors.guestPrice && form.touched.guestPrice)
                     }
@@ -173,6 +182,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               <Field name="guestLimit">
                 {({ field, form }: FieldProps) => (
                   <FormControl
+                    isDisabled={isDisabled}
                     isInvalid={
                       !!(form.errors.guestLimit && form.touched.guestLimit)
                     }
@@ -198,6 +208,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               <Field name="dateTime">
                 {({ field, form }: FieldProps) => (
                   <FormControl
+                    isDisabled={isDisabled}
                     isInvalid={
                       !!(form.errors.dateTime && form.touched.dateTime)
                     }
@@ -205,6 +216,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                     <FormLabel htmlFor="dateTime">Formal Start Time</FormLabel>
                     <DatePicker
                       {...field}
+                      disabled={isDisabled}
                       selectedDate={field.value}
                       id="dateTime"
                       onChange={(val) => form.setFieldValue(field.name, val)}
@@ -220,6 +232,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               <Field name="saleStart">
                 {({ field, form }: FieldProps) => (
                   <FormControl
+                    isDisabled={isDisabled}
                     isInvalid={
                       !!(form.errors.saleStart && form.touched.saleStart)
                     }
@@ -227,6 +240,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                     <FormLabel htmlFor="saleStart">Sale Start Time</FormLabel>
                     <DatePicker
                       {...field}
+                      disabled={isDisabled}
                       selectedDate={field.value}
                       id="saleStart"
                       onChange={(val) => form.setFieldValue(field.name, val)}
@@ -242,11 +256,13 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               <Field name="saleEnd">
                 {({ field, form }: FieldProps) => (
                   <FormControl
+                    isDisabled={isDisabled}
                     isInvalid={!!(form.errors.saleEnd && form.touched.saleEnd)}
                   >
                     <FormLabel htmlFor="saleEnd">Sale End Time</FormLabel>
                     <DatePicker
                       {...field}
+                      disabled={isDisabled}
                       selectedDate={field.value}
                       id="saleEnd"
                       onChange={(val) => form.setFieldValue(field.name, val)}
@@ -260,15 +276,17 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                 )}
               </Field>
             </SimpleGrid>
-            <Button
-              colorScheme="brand"
-              alignSelf="start"
-              leftIcon={submitIcon}
-              isLoading={props.isSubmitting}
-              onClick={props.submitForm}
-            >
-              {children}
-            </Button>
+            {!isDisabled && (
+              <Button
+                colorScheme="brand"
+                alignSelf="start"
+                leftIcon={submitIcon}
+                isLoading={props.isSubmitting}
+                onClick={props.submitForm}
+              >
+                {children}
+              </Button>
+            )}
           </VStack>
         </Form>
       )}
@@ -282,8 +300,10 @@ interface FormalProps {
 
 export function EditFormalForm({ formal }: FormalProps) {
   const mutation = useEditFormal(formal.id);
+  const canWrite = useHasPermission("formals", "write");
   return (
     <FormalDetailsForm
+      isDisabled={!canWrite}
       formal={formal}
       onSubmit={async (values) => {
         await mutation.mutateAsync(values);

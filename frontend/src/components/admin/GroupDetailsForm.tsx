@@ -15,11 +15,13 @@ import { Group, groupType } from "../../model/Group";
 interface GroupDetailsFormProps {
   group: Group;
   onSubmit: (values: Group) => void | Promise<any>;
+  isDisabled?: boolean;
 }
 
 export const GroupDetailsForm: React.FC<GroupDetailsFormProps> = ({
   group,
   onSubmit,
+  isDisabled = false,
   children,
 }) => {
   return (
@@ -30,6 +32,7 @@ export const GroupDetailsForm: React.FC<GroupDetailsFormProps> = ({
             <Field name="name">
               {({ field, form }: FieldProps) => (
                 <FormControl
+                  isDisabled={isDisabled}
                   isInvalid={!!(form.errors.name && form.touched.name)}
                 >
                   <FormLabel htmlFor="name">Name</FormLabel>
@@ -41,6 +44,7 @@ export const GroupDetailsForm: React.FC<GroupDetailsFormProps> = ({
             <Field name="type">
               {({ field, form }: FieldProps) => (
                 <FormControl
+                  isDisabled={isDisabled}
                   isInvalid={!!(form.errors.type && form.touched.type)}
                 >
                   <FormLabel htmlFor="type">Lookup Type</FormLabel>
@@ -65,6 +69,7 @@ export const GroupDetailsForm: React.FC<GroupDetailsFormProps> = ({
             <Field name="lookup">
               {({ field, form }: FieldProps) => (
                 <FormControl
+                  isDisabled={isDisabled}
                   isInvalid={!!(form.errors.lookup && form.touched.lookup)}
                 >
                   <FormLabel htmlFor="lookup">Lookup Query</FormLabel>
@@ -73,15 +78,17 @@ export const GroupDetailsForm: React.FC<GroupDetailsFormProps> = ({
                 </FormControl>
               )}
             </Field>
-            <Button
-              colorScheme="brand"
-              alignSelf="start"
-              leftIcon={<Icon as={FaSave} />}
-              isLoading={props.isSubmitting}
-              onClick={props.submitForm}
-            >
-              {children}
-            </Button>
+            {!isDisabled && (
+              <Button
+                colorScheme="brand"
+                alignSelf="start"
+                leftIcon={<Icon as={FaSave} />}
+                isLoading={props.isSubmitting}
+                onClick={props.submitForm}
+              >
+                {children}
+              </Button>
+            )}
           </VStack>
         </Form>
       )}

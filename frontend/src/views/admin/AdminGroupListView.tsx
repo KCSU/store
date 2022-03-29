@@ -11,6 +11,7 @@ import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Card } from "../../components/utility/Card";
 import { useGroups } from "../../hooks/admin/useGroups";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Group, groupType } from "../../model/Group";
 
 interface GroupProps {
@@ -44,6 +45,7 @@ function AdminGroupCard({ group }: GroupProps) {
 
 export function AdminGroupListView() {
   const { data, isLoading, isError } = useGroups();
+  const canWrite = useHasPermission("groups", "write");
   if (!data) {
     return <></>;
   }
@@ -53,15 +55,17 @@ export function AdminGroupListView() {
       <Heading size="xl" mb={5}>
         Manage Groups
       </Heading>
-      <Button
-        colorScheme="brand"
-        mb={4}
-        leftIcon={<FaPlus />}
-        as={Link}
-        to="/admin/groups/create"
-      >
-        Create Group
-      </Button>
+      {canWrite && (
+        <Button
+          colorScheme="brand"
+          mb={4}
+          leftIcon={<FaPlus />}
+          as={Link}
+          to="/admin/groups/create"
+        >
+          Create Group
+        </Button>
+      )}
       <SimpleGrid
         templateColumns="repeat(auto-fill, minmax(250px, 1fr))"
         spacing="20px"

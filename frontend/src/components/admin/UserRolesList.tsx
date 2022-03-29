@@ -21,9 +21,8 @@ import { Field, FieldProps, Form, Formik } from "formik";
 import { useMemo } from "react";
 import { FaPlus, FaTrashAlt } from "react-icons/fa";
 import { CellProps, Column, useTable } from "react-table";
-import {
-  useAddUserRole,
-} from "../../hooks/admin/useAddUserRole";
+import { useAddUserRole } from "../../hooks/admin/useAddUserRole";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { useRemoveUserRole } from "../../hooks/admin/useRemoveUserRole";
 import { useRoles } from "../../hooks/admin/useRoles";
 import { useUserRoles } from "../../hooks/admin/useUserRoles";
@@ -34,8 +33,9 @@ interface UserRolesTableProps {
 }
 
 function UserRolesTable({ userRoles }: UserRolesTableProps) {
-  const columns = useMemo<Column<UserRole>[]>(
-    () => [
+  const canWrite = useHasPermission("roles", "write");
+  const columns = useMemo<Column<UserRole>[]>(() => {
+    const cols: Column<UserRole>[] = [
       {
         accessor: "userName",
         Header: "Name",
@@ -48,9 +48,11 @@ function UserRolesTable({ userRoles }: UserRolesTableProps) {
         accessor: "roleName",
         Header: "Role",
       },
-      {
+    ];
+    if (canWrite) {
+      cols.push({
         Header: "Actions",
-        Cell({row: {original}}: CellProps<UserRole>) {
+        Cell({ row: { original } }: CellProps<UserRole>) {
           const mutation = useRemoveUserRole();
           return (
             <IconButton
@@ -62,7 +64,7 @@ function UserRolesTable({ userRoles }: UserRolesTableProps) {
               onClick={() => {
                 mutation.mutate({
                   roleId: original.roleId,
-                  email: original.userEmail
+                  email: original.userEmail,
                 });
               }}
             >
@@ -70,10 +72,10 @@ function UserRolesTable({ userRoles }: UserRolesTableProps) {
             </IconButton>
           );
         },
-      },
-    ],
-    []
-  );
+      });
+    }
+    return cols;
+  }, []);
   const { getTableProps, getTableBodyProps, headerGroups, prepareRow, rows } =
     useTable({
       columns,
@@ -109,10 +111,14 @@ function UserRolesTable({ userRoles }: UserRolesTableProps) {
           })}
         </Tbody>
       </Table>
-      <Heading as="h4" size="sm">
-        Add User
-      </Heading>
-      <AddUserRoleForm />
+      {canWrite && (
+        <>
+          <Heading as="h4" size="sm">
+            Add User
+          </Heading>
+          <AddUserRoleForm />
+        </>
+      )}
     </>
   );
 }
