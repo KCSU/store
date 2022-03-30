@@ -25,6 +25,8 @@ type FormalStore interface {
 	GetGroups(ids []int) ([]model.Group, error)
 	// Update a formal
 	Update(formal *model.Formal) error
+	// Delete a formal
+	Delete(formal *model.Formal) error
 	// Update groups for a formal
 	UpdateGroups(formal model.Formal, groups []model.Group) error
 }
@@ -112,4 +114,9 @@ func (f *DBFormalStore) UpdateGroups(formal model.Formal, groups []model.Group) 
 	return f.db.Model(&formal).
 		Omit("Groups.*").Association("Groups").
 		Replace(&groups)
+}
+
+// Delete a formal
+func (f *DBFormalStore) Delete(formal *model.Formal) error {
+	return f.db.Delete(formal).Error
 }

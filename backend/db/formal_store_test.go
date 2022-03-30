@@ -211,6 +211,34 @@ func (s *FormalSuite) TestUpdateFormal() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestDeleteFormal() {
+	f := model.Formal{
+		Model: model.Model{
+			ID: 34,
+		},
+		Name:         "Test",
+		Menu:         "A Menu",
+		Price:        13,
+		GuestPrice:   0,
+		GuestLimit:   0,
+		Tickets:      150,
+		GuestTickets: 50,
+		SaleStart:    time.Date(2021, 5, 6, 10, 0, 0, 0, time.UTC),
+		SaleEnd:      time.Date(2021, 5, 7, 11, 0, 0, 0, time.UTC),
+		DateTime:     time.Date(2021, 6, 1, 17, 0, 0, 0, time.UTC),
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "formals" SET "deleted_at"`).WithArgs(
+		sqlmock.AnyArg(), f.ID,
+	).WillReturnResult(
+		sqlmock.NewResult(int64(f.ID), 1),
+	)
+	s.mock.ExpectCommit()
+	err := s.store.Delete(&f)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *FormalSuite) TestUpdateFormalGroups() {
 	groups := []model.Group{
 		{

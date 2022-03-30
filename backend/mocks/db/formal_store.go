@@ -49,6 +49,20 @@ func (_m *FormalStore) Create(formal *model.Formal) error {
 	return r0
 }
 
+// Delete provides a mock function with given fields: formal
+func (_m *FormalStore) Delete(formal *model.Formal) error {
+	ret := _m.Called(formal)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Formal) error); ok {
+		r0 = rf(formal)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Find provides a mock function with given fields: id
 func (_m *FormalStore) Find(id int) (model.Formal, error) {
 	ret := _m.Called(id)

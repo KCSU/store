@@ -120,6 +120,27 @@ func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Delete a formal
+func (ah *AdminHandler) DeleteFormal(c echo.Context) error {
+	// Get the formal ID from query
+	id := c.Param("id")
+	formalID, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+	formal, err := ah.Formals.Find(formalID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.Formals.Delete(&formal); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}
+
 // Update the list of groups who can buy tickets for the formal
 func (ah *AdminHandler) UpdateFormalGroups(c echo.Context) error {
 	// Get the formal ID from query

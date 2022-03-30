@@ -14,6 +14,7 @@ import (
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 )
 
 type AdminFormalSuite struct {
@@ -384,6 +385,76 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 
 			// Test
 			err := s.h.UpdateFormal(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+			s.formals.AssertExpectations(s.T())
+		})
+	}
+}
+
+func (s *AdminFormalSuite) TestDeleteFormal() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name   string
+		id     int
+		formal model.Formal
+		wants  *wants
+	}
+	tests := []test{
+		{
+			"Should Delete",
+			34,
+			model.Formal{
+				Model: model.Model{ID: 34},
+				Name:  "Some formal",
+			},
+			nil,
+		},
+		{
+			"Formal Not Found",
+			31,
+			model.Formal{},
+			&wants{http.StatusNotFound, "Not Found"},
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			// HTTP
+			req := httptest.NewRequest(
+				http.MethodDelete, "/formals/34", nil,
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.Itoa(test.id))
+			// Mock
+			if test.wants == nil {
+				s.formals.On("Find", test.id).Return(
+					test.formal, nil,
+				).Once()
+				s.formals.On("Delete", &test.formal).Return(nil).Once()
+			} else {
+				s.formals.On("Find", test.id).Return(
+					model.Formal{}, gorm.ErrRecordNotFound,
+				).Once()
+			}
+
+			// Test
+			err := s.h.DeleteFormal(c)
 			if test.wants == nil {
 				s.NoError(err)
 				s.Equal(http.StatusOK, rec.Code)
