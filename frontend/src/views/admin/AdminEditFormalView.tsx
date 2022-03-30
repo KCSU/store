@@ -15,6 +15,7 @@ import { Formal } from "../../model/Formal";
 import { EditFormalForm } from "../../components/admin/EditFormalForm";
 import { useFormal } from "../../hooks/admin/useFormal";
 import { EditFormalGroupsForm } from "../../components/admin/EditFormalGroupsForm";
+import { FormalStats } from "../../components/admin/FormalStats";
 
 interface FormalProps {
   formal: Formal;
@@ -42,6 +43,11 @@ function AdminEditFormalCard({ formal }: FormalProps) {
             </TabPanel>
             <TabPanel>
               <EditFormalGroupsForm formal={formal} />
+            </TabPanel>
+            <TabPanel></TabPanel>
+            <TabPanel></TabPanel>
+            <TabPanel>
+              <FormalStats formal={formal} />
             </TabPanel>
           </TabPanels>
         </Tabs>
