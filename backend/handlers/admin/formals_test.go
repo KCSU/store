@@ -138,16 +138,27 @@ func (s *AdminFormalSuite) TestGetFormal() {
 		"price": 26.3,
 		"guestPrice": 12.7,
 		"guestLimit": 3,
-		"tickets": 0,
+		"tickets": 120,
 		"guestTickets": 0,
 		"saleStart": "0001-01-01T00:00:00Z",
 		"saleEnd": "0001-01-01T00:00:00Z",
 		"dateTime": "0001-01-01T00:00:00Z",
-		"ticketsRemaining": 20,
-		"guestTicketsRemaining": 36,
 		"groups": [{
 			"id": 5,
 			"name": "Group"
+		}],
+		"ticketSales": [{
+			"id": 3,
+			"createdAt": "0001-01-01T00:00:00Z",
+			"updatedAt": "0001-01-01T00:00:00Z",
+			"deletedAt": null,
+			"isGuest": false,
+			"isQueue": false,
+			"formalId": 13,
+			"option": "Vegetarian",
+			"userId": 7,
+			"userName": "Stephen Sondheim",
+			"userEmail": "ss103@cam.ac.uk"
 		}]
 	}`
 	e := echo.New()
@@ -167,10 +178,20 @@ func (s *AdminFormalSuite) TestGetFormal() {
 			Model: model.Model{ID: 5},
 			Name:  "Group",
 		}},
+		TicketSales: []model.Ticket{{
+			Model: model.Model{ID: 3},
+			User: &model.User{
+				Model: model.Model{ID: 7},
+				Name:  "Stephen Sondheim",
+				Email: "ss103@cam.ac.uk",
+			},
+			UserId:     7,
+			MealOption: "Vegetarian",
+			FormalID:   13,
+		}},
+		Tickets: 120,
 	}
-	s.formals.On("Find", 13).Return(formal, nil)
-	s.formals.On("TicketsRemaining", &formal, true).Return(uint(36))
-	s.formals.On("TicketsRemaining", &formal, false).Return(uint(20))
+	s.formals.On("FindWithTickets", 13).Return(formal, nil)
 
 	err := s.h.GetFormal(c)
 	s.NoError(err)

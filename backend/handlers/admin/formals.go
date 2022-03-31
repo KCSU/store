@@ -46,18 +46,28 @@ func (ah *AdminHandler) GetFormal(c echo.Context) error {
 		// TODO: NewHTTPError?
 		return echo.ErrNotFound
 	}
-	formal, err := ah.Formals.Find(formalID)
+	formal, err := ah.Formals.FindWithTickets(formalID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
 		}
 		return err
 	}
-	formalDto := dto.FormalDto{
+	if err != nil {
+		return err
+	}
+	formalDto := dto.AdminFormalDto{
 		Formal: formal,
 	}
-	formalDto.TicketsRemaining = ah.Formals.TicketsRemaining(&formal, false)
-	formalDto.GuestTicketsRemaining = ah.Formals.TicketsRemaining(&formal, true)
+	tickets := make([]dto.AdminTicketDto, len(formal.TicketSales))
+	for i, t := range formal.TicketSales {
+		tickets[i] = dto.AdminTicketDto{
+			Ticket:    t,
+			UserName:  t.User.Name,
+			UserEmail: t.User.Email,
+		}
+	}
+	formalDto.TicketSales = tickets
 	groups := make([]dto.GroupDto, len(formal.Groups))
 	for j, g := range formal.Groups {
 		groups[j] = dto.GroupDto{

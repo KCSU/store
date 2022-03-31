@@ -119,6 +119,55 @@ func (s *FormalSuite) TestFindFormal() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestFindWithTickets() {
+	formal := model.Formal{
+		Model: model.Model{
+			ID: 4,
+		},
+		Name:   "Test",
+		Groups: []model.Group{},
+		TicketSales: []model.Ticket{{
+			Model:    model.Model{ID: 7},
+			FormalID: 4,
+			UserId:   12,
+			User: &model.User{
+				Model: model.Model{ID: 12},
+				Name:  "James Holden",
+				Email: "jh123@cam.ac.uk",
+			},
+			IsGuest: false,
+			IsQueue: false,
+		}},
+	}
+	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name"}).
+				AddRow(formal.ID, formal.Name),
+		)
+	// Should also preload groups
+	s.mock.ExpectQuery(`SELECT \* FROM "formal_groups"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"group_id"}),
+		)
+	t := formal.TicketSales[0]
+	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "user_id", "is_guest", "is_queue", "formal_id"}).
+				AddRow(t.ID, t.UserId, t.IsGuest, t.IsQueue, t.FormalID),
+		)
+	s.mock.ExpectQuery(`SELECT \* FROM "users"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name", "email"}).
+				AddRow(t.UserId, t.User.Name, t.User.Email),
+		)
+	f, err := s.store.FindWithTickets(4)
+	s.Require().NoError(err)
+	s.Equal(formal, f)
+	s.Len(f.TicketSales, 1)
+	s.EqualValues(t, f.TicketSales[0])
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *FormalSuite) TestTicketsRemaining() {
 	f := model.Formal{}
 	f.ID = 42
