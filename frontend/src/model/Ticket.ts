@@ -16,3 +16,8 @@ export interface Ticket {
     formalId: number;
     userId: number;
 }
+
+export type AdminTicket = Ticket & {
+    userName: string;
+    userEmail: string;
+}

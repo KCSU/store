@@ -7,6 +7,7 @@ import {
   TabPanel,
   TabPanels,
   Tabs,
+  Text,
 } from "@chakra-ui/react";
 import { Navigate, useParams } from "react-router-dom";
 import { BackButton } from "../../components/utility/BackButton";
@@ -16,6 +17,7 @@ import { EditFormalForm } from "../../components/admin/EditFormalForm";
 import { useFormal } from "../../hooks/admin/useFormal";
 import { EditFormalGroupsForm } from "../../components/admin/EditFormalGroupsForm";
 import { FormalStats } from "../../components/admin/FormalStats";
+import { FormalTicketsList } from "../../components/admin/FormalTicketsList";
 
 interface FormalProps {
   formal: Formal;
@@ -44,7 +46,9 @@ function AdminEditFormalCard({ formal }: FormalProps) {
             <TabPanel>
               <EditFormalGroupsForm formal={formal} />
             </TabPanel>
-            <TabPanel></TabPanel>
+            <TabPanel>
+              <FormalTicketsList formal={formal} />
+            </TabPanel>
             <TabPanel></TabPanel>
             <TabPanel>
               <FormalStats formal={formal} />

@@ -1,4 +1,5 @@
 import { Group } from "./Group";
+import { AdminTicket } from "./Ticket";
 
 export interface Formal {
     id: number;
@@ -18,4 +19,5 @@ export interface Formal {
     // guestList: 
     // hidden?
     groups?: Group[];
+    ticketSales?: AdminTicket[];
 }
