@@ -19,26 +19,107 @@ import {
   Select,
   Tooltip,
   useBreakpointValue,
+  Input,
+  InputGroup,
+  InputLeftAddon,
+  useColorModeValue,
+  useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Button,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
   FaAngleLeft,
   FaAngleRight,
   FaExternalLinkAlt,
+  FaSearch,
+  FaTrash,
+  FaTrashAlt,
 } from "react-icons/fa";
 import {
   CellProps,
   Column,
+  useGlobalFilter,
   usePagination,
-  useSortBy,
   useTable,
 } from "react-table";
+import { useCancelTicket } from "../../hooks/admin/useCancelTicket";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Formal } from "../../model/Formal";
 import { AdminTicket } from "../../model/Ticket";
+
+interface TicketProps {
+  ticket: AdminTicket;
+}
+
+function CancelTicketButton({ ticket }: TicketProps) {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const leastDestructiveRef = useRef(null);
+  const mutation = useCancelTicket(ticket.id);
+  return (
+    <>
+      <IconButton
+        variant="ghost"
+        size="xs"
+        colorScheme="red"
+        aria-label="Delete"
+        onClick={onOpen}
+      >
+        <Icon as={FaTrashAlt} />
+      </IconButton>
+      <AlertDialog
+        isOpen={isOpen}
+        onClose={onClose}
+        leastDestructiveRef={leastDestructiveRef}
+      >
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogHeader fontSize="lg" fontWeight="bold">
+            Cancel Ticket
+          </AlertDialogHeader>
+          <AlertDialogBody>
+            Are you sure you want to cancel this ticket?
+            {!ticket.isGuest && (
+              <Text mt={2}>
+                This will also cancel all associated guest tickets for the user{" "}
+                {ticket.userName} (
+                <Link color="teal.500" href={`mailto:${ticket.userEmail}`}>
+                  {ticket.userEmail.split("@")[0]}
+                  <Icon boxSize={3} ml={1} as={FaExternalLinkAlt} />
+                </Link>
+                ).
+              </Text>
+            )}
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={leastDestructiveRef} onClick={onClose}>
+              Close
+            </Button>
+            <Button
+              isLoading={mutation.isLoading}
+              colorScheme="red"
+              onClick={async () => {
+                await mutation.mutateAsync();
+                onClose();
+              }}
+              ml={3}
+            >
+              Cancel Ticket
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
 
 interface FormalProps {
   formal: Formal;
@@ -47,6 +128,7 @@ interface FormalProps {
 export function FormalTicketsList({ formal }: FormalProps) {
   const canWrite = useHasPermission("tickets", "write");
   const canDelete = useHasPermission("tickets", "delete");
+  const [query, setQuery] = useState("");
   const columns: Column<AdminTicket>[] = useMemo(() => {
     const base: Column<AdminTicket>[] = [
       {
@@ -72,11 +154,23 @@ export function FormalTicketsList({ formal }: FormalProps) {
       {
         accessor: "isGuest",
         Header: "Type",
-        Cell: ({ row }: CellProps<AdminTicket>) => {
-          return row.original.isGuest ? "Guest" : "King's";
+        Cell: ({ value }) => {
+          return value ? "Guest" : "King's";
         },
       },
     ];
+    if (canWrite || canDelete) {
+      base.push({
+        Header: "Actions",
+        Cell: ({ row }: CellProps<AdminTicket>) => {
+          return (
+            <Flex align="center">
+              {canDelete && <CancelTicketButton ticket={row.original} />}
+            </Flex>
+          );
+        },
+      });
+    }
     // TODO: Actions
     return base;
   }, [canDelete, canWrite]);
@@ -95,6 +189,7 @@ export function FormalTicketsList({ formal }: FormalProps) {
     page,
     previousPage,
     nextPage,
+    setGlobalFilter,
     pageOptions,
     state: { pageIndex, pageSize },
     pageCount,
@@ -104,12 +199,28 @@ export function FormalTicketsList({ formal }: FormalProps) {
       columns,
       data,
     },
+    useGlobalFilter,
     usePagination
   );
+  useEffect(() => setGlobalFilter(query), [query]);
+  const background = useColorModeValue("white", "gray.750");
   const showOptions = useBreakpointValue({ base: false, lg: true });
   // TODO: Search filter
   return (
     <>
+      <InputGroup size="sm" maxW="500px" mb={2}>
+        <InputLeftAddon>
+          <Icon as={FaSearch} />
+        </InputLeftAddon>
+        <Input
+          id="query"
+          autoComplete="off"
+          // maxW="300px"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search tickets..."
+        />
+      </InputGroup>
       <Table variant="striped" size="sm" {...getTableProps()}>
         <Thead>
           {headerGroups.map((headerGroup) => (
@@ -122,7 +233,7 @@ export function FormalTicketsList({ formal }: FormalProps) {
             </Tr>
           ))}
         </Thead>
-        <Tbody {...getTableBodyProps()}>
+        <Tbody {...getTableBodyProps()} bg={background}>
           {page.map((row) => {
             prepareRow(row);
             return (
