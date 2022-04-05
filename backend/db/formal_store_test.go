@@ -129,7 +129,7 @@ func (s *FormalSuite) TestFindWithTickets() {
 		TicketSales: []model.Ticket{{
 			Model:    model.Model{ID: 7},
 			FormalID: 4,
-			UserId:   12,
+			UserID:   12,
 			User: &model.User{
 				Model: model.Model{ID: 12},
 				Name:  "James Holden",
@@ -153,12 +153,12 @@ func (s *FormalSuite) TestFindWithTickets() {
 	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "user_id", "is_guest", "is_queue", "formal_id"}).
-				AddRow(t.ID, t.UserId, t.IsGuest, t.IsQueue, t.FormalID),
+				AddRow(t.ID, t.UserID, t.IsGuest, t.IsQueue, t.FormalID),
 		)
 	s.mock.ExpectQuery(`SELECT \* FROM "users"`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "name", "email"}).
-				AddRow(t.UserId, t.User.Name, t.User.Email),
+				AddRow(t.UserID, t.User.Name, t.User.Email),
 		)
 	f, err := s.store.FindWithTickets(4)
 	s.Require().NoError(err)

@@ -7,6 +7,6 @@ type Ticket struct {
 	MealOption string  `json:"option"`
 	FormalID   int     `json:"formalId"`
 	Formal     *Formal `json:"-" gorm:"constraint:OnDelete:CASCADE;"`
-	UserId     int     `json:"userId"`
+	UserID     int     `json:"userId"`
 	User       *User   `json:"-" gorm:"constraint:OnDelete:CASCADE;"`
 }

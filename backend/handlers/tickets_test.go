@@ -89,7 +89,7 @@ func (t *TicketSuite) TestGetTickets() {
 	tickets := []model.Ticket{
 		{
 			Model:      model.Model{ID: 6},
-			UserId:     userId,
+			UserID:     userId,
 			IsGuest:    true,
 			IsQueue:    true,
 			FormalID:   int(formals[0].ID),
@@ -98,7 +98,7 @@ func (t *TicketSuite) TestGetTickets() {
 		},
 		{
 			Model:      model.Model{ID: 47},
-			UserId:     userId,
+			UserID:     userId,
 			IsGuest:    false,
 			FormalID:   int(formals[1].ID),
 			Formal:     &formals[1],
@@ -106,7 +106,7 @@ func (t *TicketSuite) TestGetTickets() {
 		},
 		{
 			Model:      model.Model{ID: 91},
-			UserId:     userId,
+			UserID:     userId,
 			IsGuest:    false,
 			FormalID:   int(formals[0].ID),
 			Formal:     &formals[0],
@@ -398,26 +398,26 @@ func (t *TicketSuite) TestCancelTicket() {
 	}
 	tests := []test{
 		{"Incorrect User", model.Ticket{
-			UserId:   userId + 1,
+			UserID:   userId + 1,
 			FormalID: 53,
 			IsGuest:  true,
 			IsQueue:  false,
 		}, &wants{http.StatusForbidden, "Forbidden"}},
 		{"Forbid Non-Guest", model.Ticket{
-			UserId:   userId,
+			UserID:   userId,
 			FormalID: 54,
 			IsGuest:  false,
 			IsQueue:  true,
 		}, &wants{http.StatusForbidden, "Non-guest tickets must be cancelled as a group"}},
 		{"Sales Closed", model.Ticket{
-			UserId:   userId,
+			UserID:   userId,
 			FormalID: 55,
 			IsGuest:  true,
 			IsQueue:  true,
 			Formal:   &model.Formal{SaleEnd: time.Now().AddDate(0, 0, -5)},
 		}, &wants{http.StatusUnprocessableEntity, "Sales have closed."}},
 		{"Should Cancel", model.Ticket{
-			UserId:   userId,
+			UserID:   userId,
 			FormalID: 55,
 			IsGuest:  true,
 			IsQueue:  true,
@@ -473,13 +473,13 @@ func (t *TicketSuite) TestEditTicket() {
 	}
 	tests := []test{
 		{"Incorrect User", model.Ticket{
-			UserId:   userId + 1,
+			UserID:   userId + 1,
 			FormalID: 53,
 			IsGuest:  true,
 			IsQueue:  false,
 		}, "Vegetarian", &wants{http.StatusForbidden, "Forbidden"}},
 		{"Sale Closed", model.Ticket{
-			UserId:   userId,
+			UserID:   userId,
 			FormalID: 55,
 			IsGuest:  true,
 			IsQueue:  true,
@@ -488,7 +488,7 @@ func (t *TicketSuite) TestEditTicket() {
 			},
 		}, "Normal", &wants{http.StatusUnprocessableEntity, "Sales have closed."}},
 		{"Should Update", model.Ticket{
-			UserId:   userId,
+			UserID:   userId,
 			FormalID: 55,
 			IsGuest:  true,
 			IsQueue:  true,
@@ -604,7 +604,7 @@ func (t *TicketSuite) TestAddTicket() {
 					IsGuest:    true,
 					IsQueue:    true,
 					MealOption: test.option,
-					UserId:     userId,
+					UserID:     userId,
 				}).Return(nil).Once()
 			}
 			// Test

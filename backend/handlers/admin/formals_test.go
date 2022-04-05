@@ -185,7 +185,7 @@ func (s *AdminFormalSuite) TestGetFormal() {
 				Name:  "Stephen Sondheim",
 				Email: "ss103@cam.ac.uk",
 			},
-			UserId:     7,
+			UserID:     7,
 			MealOption: "Vegetarian",
 			FormalID:   13,
 		}},

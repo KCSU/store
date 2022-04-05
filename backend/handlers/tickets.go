@@ -119,7 +119,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		IsGuest:    false,
 		IsQueue:    true,
 		MealOption: t.Ticket.MealOption,
-		UserId:     userId,
+		UserID:     userId,
 	}
 	for i, gt := range t.GuestTickets {
 		tickets[i+1] = model.Ticket{
@@ -127,7 +127,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 			IsGuest:    true,
 			IsQueue:    true,
 			MealOption: gt.MealOption,
-			UserId:     userId,
+			UserID:     userId,
 		}
 	}
 	// Insert into DB
@@ -196,7 +196,7 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 	}
 
 	// Check the ticket really belongs to the logged-in user
-	if ticket.UserId != userId {
+	if ticket.UserID != userId {
 		return echo.ErrForbidden
 	}
 	// The ticket must be a guest ticket
@@ -233,7 +233,7 @@ func (h *Handler) EditTicket(c echo.Context) error {
 	}
 
 	// Check the ticket really belongs to the logged-in user
-	if ticket.UserId != userId {
+	if ticket.UserID != userId {
 		return echo.ErrForbidden
 	}
 	// Update the ticket based on request data
@@ -308,7 +308,7 @@ func (h *Handler) AddTicket(c echo.Context) error {
 		IsGuest:    true,
 		IsQueue:    true,
 		MealOption: t.MealOption,
-		UserId:     userId,
+		UserID:     userId,
 	}
 	if err := h.Tickets.Create(&ticket); err != nil {
 		return err
