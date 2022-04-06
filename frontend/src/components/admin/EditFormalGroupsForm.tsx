@@ -48,6 +48,7 @@ export function EditFormalGroupsForm({ formal }: FormalProps) {
       </HStack>
       {canWrite && (
         <Button
+          isLoading={mutation.isLoading}
           onClick={async () => {
             await mutation.mutateAsync(groups.map((g) => parseInt(g)));
           }}

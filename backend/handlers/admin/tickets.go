@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -37,6 +38,30 @@ func (ah *AdminHandler) CancelTicket(c echo.Context) error {
 		if err := ah.Tickets.Delete(ticketID); err != nil {
 			return err
 		}
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+// Update a specified ticket
+func (ah *AdminHandler) EditTicket(c echo.Context) error {
+	id := c.Param("id")
+	ticketID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+
+	t := new(dto.TicketRequestDto)
+	if err := c.Bind(t); err != nil {
+		return err
+	}
+	if err := c.Validate(t); err != nil {
+		return err
+	}
+	if err := ah.Tickets.Update(ticketID, t); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
 	}
 	return c.NoContent(http.StatusOK)
 }

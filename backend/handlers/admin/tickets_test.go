@@ -4,11 +4,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"testing"
 
 	. "github.com/kcsu/store/handlers/admin"
+	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
 	"github.com/kcsu/store/model"
+	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
@@ -103,6 +106,29 @@ func (s *AdminTicketSuite) TestCancelTicket() {
 			}
 		})
 	}
+	s.tickets.AssertExpectations(s.T())
+}
+
+func (s *AdminTicketSuite) TestEditTicket() {
+	e := echo.New()
+	e.Validator = middleware.NewValidator()
+	body := `{
+		"option": "Vegan"
+	}`
+	req := httptest.NewRequest(
+		http.MethodPut, "/tickets/7", strings.NewReader(body),
+	)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues("7")
+	s.tickets.On(
+		"Update", 7, &dto.TicketRequestDto{MealOption: "Vegan"},
+	).Return(nil).Once()
+	err := s.h.EditTicket(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
 	s.tickets.AssertExpectations(s.T())
 }
 

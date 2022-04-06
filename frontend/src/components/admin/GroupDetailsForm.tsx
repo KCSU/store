@@ -73,7 +73,7 @@ export const GroupDetailsForm: React.FC<GroupDetailsFormProps> = ({
                   isInvalid={!!(form.errors.lookup && form.touched.lookup)}
                 >
                   <FormLabel htmlFor="lookup">Lookup Query</FormLabel>
-                  <Input {...field} id="lookup" placeholder="Query" />
+                  <Input {...field} fontFamily="mono" id="lookup" placeholder="Query" />
                   <FormErrorMessage>{form.errors.lookup}</FormErrorMessage>
                 </FormControl>
               )}

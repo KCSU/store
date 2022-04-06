@@ -23,17 +23,9 @@ import {
   InputGroup,
   InputLeftAddon,
   useColorModeValue,
-  useDisclosure,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Button,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
@@ -41,8 +33,6 @@ import {
   FaAngleRight,
   FaExternalLinkAlt,
   FaSearch,
-  FaTrash,
-  FaTrashAlt,
 } from "react-icons/fa";
 import {
   CellProps,
@@ -51,75 +41,10 @@ import {
   usePagination,
   useTable,
 } from "react-table";
-import { useCancelTicket } from "../../hooks/admin/useCancelTicket";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Formal } from "../../model/Formal";
 import { AdminTicket } from "../../model/Ticket";
-
-interface TicketProps {
-  ticket: AdminTicket;
-}
-
-function CancelTicketButton({ ticket }: TicketProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const leastDestructiveRef = useRef(null);
-  const mutation = useCancelTicket(ticket.id);
-  return (
-    <>
-      <IconButton
-        variant="ghost"
-        size="xs"
-        colorScheme="red"
-        aria-label="Delete"
-        onClick={onOpen}
-      >
-        <Icon as={FaTrashAlt} />
-      </IconButton>
-      <AlertDialog
-        isOpen={isOpen}
-        onClose={onClose}
-        leastDestructiveRef={leastDestructiveRef}
-      >
-        <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader fontSize="lg" fontWeight="bold">
-            Cancel Ticket
-          </AlertDialogHeader>
-          <AlertDialogBody>
-            Are you sure you want to cancel this ticket?
-            {!ticket.isGuest && (
-              <Text mt={2}>
-                This will also cancel all associated guest tickets for the user{" "}
-                {ticket.userName} (
-                <Link color="teal.500" href={`mailto:${ticket.userEmail}`}>
-                  {ticket.userEmail.split("@")[0]}
-                  <Icon boxSize={3} ml={1} as={FaExternalLinkAlt} />
-                </Link>
-                ).
-              </Text>
-            )}
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button ref={leastDestructiveRef} onClick={onClose}>
-              Close
-            </Button>
-            <Button
-              isLoading={mutation.isLoading}
-              colorScheme="red"
-              onClick={async () => {
-                await mutation.mutateAsync();
-                onClose();
-              }}
-              ml={3}
-            >
-              Cancel Ticket
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
-}
+import { TicketActions } from "./TicketActions";
 
 interface FormalProps {
   formal: Formal;
@@ -164,9 +89,11 @@ export function FormalTicketsList({ formal }: FormalProps) {
         Header: "Actions",
         Cell: ({ row }: CellProps<AdminTicket>) => {
           return (
-            <Flex align="center">
-              {canDelete && <CancelTicketButton ticket={row.original} />}
-            </Flex>
+            <TicketActions
+              canDelete={canDelete}
+              canWrite={canWrite}
+              ticket={row.original}
+            />
           );
         },
       });
