@@ -126,6 +126,8 @@ func TestRBAC(t *testing.T) {
 			err := h(c)
 			if test.wants == nil {
 				assert.NoError(t, err)
+				assert.Equal(t, http.StatusOK, rec.Code)
+				assert.Equal(t, "test", rec.Body.String())
 			} else {
 				var he *echo.HTTPError
 				if assert.ErrorAs(t, err, &he) {
@@ -137,5 +139,4 @@ func TestRBAC(t *testing.T) {
 			users.AssertExpectations(t)
 		})
 	}
-
 }

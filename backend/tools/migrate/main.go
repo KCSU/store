@@ -19,6 +19,7 @@ func main() {
 	err = d.AutoMigrate(
 		&model.Formal{},
 		&model.Ticket{},
+		&model.ManualTicket{},
 		&model.User{},
 		&model.Group{},
 		&model.GroupUser{},

@@ -77,6 +77,7 @@ func (f *DBFormalStore) Find(id int) (model.Formal, error) {
 func (f *DBFormalStore) FindWithTickets(id int) (model.Formal, error) {
 	var formal model.Formal
 	err := f.db.Preload("Groups").
+		Preload("ManualTickets").
 		Preload("TicketSales", "NOT is_queue").
 		Preload("TicketSales.User").First(&formal, id).Error
 	return formal, err
