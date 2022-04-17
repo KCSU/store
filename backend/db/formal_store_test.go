@@ -138,6 +138,15 @@ func (s *FormalSuite) TestFindWithTickets() {
 			IsGuest: false,
 			IsQueue: false,
 		}},
+		ManualTickets: []model.ManualTicket{{
+			Model:         model.Model{ID: 8},
+			FormalID:      4,
+			MealOption:    "Vegan",
+			Type:          "complimentary",
+			Name:          "Bobby Draper",
+			Justification: "Ents officer",
+			BilledTo:      "bd456@cam.ac.uk",
+		}},
 	}
 	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
 		WillReturnRows(
@@ -148,6 +157,12 @@ func (s *FormalSuite) TestFindWithTickets() {
 	s.mock.ExpectQuery(`SELECT \* FROM "formal_groups"`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"group_id"}),
+		)
+	mt := formal.ManualTickets[0]
+	s.mock.ExpectQuery(`SELECT \* FROM "manual_tickets"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "meal_option", "type", "name", "justification", "billed_to", "formal_id"}).
+				AddRow(mt.ID, mt.MealOption, mt.Type, mt.Name, mt.Justification, mt.BilledTo, mt.FormalID),
 		)
 	t := formal.TicketSales[0]
 	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).

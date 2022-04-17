@@ -159,6 +159,18 @@ func (s *AdminFormalSuite) TestGetFormal() {
 			"userId": 7,
 			"userName": "Stephen Sondheim",
 			"userEmail": "ss103@cam.ac.uk"
+		}],
+		"manualTickets": [{
+			"id": 4,
+			"createdAt": "0001-01-01T00:00:00Z",
+			"updatedAt": "0001-01-01T00:00:00Z",
+			"deletedAt": null,
+			"formalId": 13,
+			"option": "Vegan",
+			"type": "standard",
+			"name": "Kara Thrace",
+			"justification": "Ents Committee",
+			"billedTo": "kth123@cam.ac.uk"
 		}]
 	}`
 	e := echo.New()
@@ -188,6 +200,15 @@ func (s *AdminFormalSuite) TestGetFormal() {
 			UserID:     7,
 			MealOption: "Vegetarian",
 			FormalID:   13,
+		}},
+		ManualTickets: []model.ManualTicket{{
+			Model:         model.Model{ID: 4},
+			MealOption:    "Vegan",
+			FormalID:      13,
+			Type:          "standard",
+			Name:          "Kara Thrace",
+			Justification: "Ents Committee",
+			BilledTo:      "kth123@cam.ac.uk",
 		}},
 		Tickets: 120,
 	}
