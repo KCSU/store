@@ -18,6 +18,7 @@ import { useFormal } from "../../hooks/admin/useFormal";
 import { EditFormalGroupsForm } from "../../components/admin/EditFormalGroupsForm";
 import { FormalStats } from "../../components/admin/FormalStats";
 import { FormalTicketsList } from "../../components/admin/FormalTicketsList";
+import { FormalManualTicketsList } from "../../components/admin/FormalManualTicketsList";
 
 interface FormalProps {
   formal: Formal;
@@ -49,7 +50,9 @@ function AdminEditFormalCard({ formal }: FormalProps) {
             <TabPanel>
               <FormalTicketsList formal={formal} />
             </TabPanel>
-            <TabPanel></TabPanel>
+            <TabPanel>
+              <FormalManualTicketsList formal={formal} />
+            </TabPanel>
             <TabPanel>
               <FormalStats formal={formal} />
             </TabPanel>

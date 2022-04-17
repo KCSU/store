@@ -57,7 +57,8 @@ func (ah *AdminHandler) GetFormal(c echo.Context) error {
 		return err
 	}
 	formalDto := dto.AdminFormalDto{
-		Formal: formal,
+		Formal:        formal,
+		ManualTickets: formal.ManualTickets,
 	}
 	tickets := make([]dto.AdminTicketDto, len(formal.TicketSales))
 	for i, t := range formal.TicketSales {

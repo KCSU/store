@@ -1,4 +1,5 @@
 import { Group } from "./Group";
+import { ManualTicket } from "./ManualTicket";
 import { AdminTicket } from "./Ticket";
 
 export interface Formal {
@@ -20,4 +21,5 @@ export interface Formal {
     // hidden?
     groups?: Group[];
     ticketSales?: AdminTicket[];
+    manualTickets?: ManualTicket[];
 }
