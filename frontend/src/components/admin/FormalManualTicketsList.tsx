@@ -51,7 +51,7 @@ export function FormalManualTicketsList({ formal }: FormalProps) {
         Header: "Name",
       },
       {
-        accessor: "billedTo",
+        accessor: "email",
         Header: "Crsid",
         Cell: ({value, row}) => {
           if (["standard", "guest"].includes(row.original.type)) {

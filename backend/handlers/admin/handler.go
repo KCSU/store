@@ -11,14 +11,15 @@ import (
 
 // Helper struct containing useful data and methods for admin handlers to use
 type AdminHandler struct {
-	Config  config.Config
-	Formals db.FormalStore
-	Tickets db.TicketStore
-	Users   db.UserStore
-	Groups  db.GroupStore
-	Roles   db.RoleStore
-	Auth    auth.Auth
-	Lookup  lookup.Lookup
+	Config        config.Config
+	Formals       db.FormalStore
+	Tickets       db.TicketStore
+	ManualTickets db.ManualTicketStore
+	Users         db.UserStore
+	Groups        db.GroupStore
+	Roles         db.RoleStore
+	Auth          auth.Auth
+	Lookup        lookup.Lookup
 }
 
 // Initialise the handler helper
@@ -26,10 +27,12 @@ func NewHandler(h *handlers.Handler, d *gorm.DB) *AdminHandler {
 	groups := db.NewGroupStore(d)
 	roles := db.NewRoleStore(d)
 	lookup := lookup.New(h.Config.LookupApiUrl, groups)
+	manualTickets := db.NewManualTicketStore(d)
 	return &AdminHandler{
 		h.Config,
 		h.Formals,
 		h.Tickets,
+		manualTickets,
 		h.Users,
 		groups,
 		roles,

@@ -145,7 +145,7 @@ func (s *FormalSuite) TestFindWithTickets() {
 			Type:          "complimentary",
 			Name:          "Bobby Draper",
 			Justification: "Ents officer",
-			BilledTo:      "bd456@cam.ac.uk",
+			Email:         "bd456@cam.ac.uk",
 		}},
 	}
 	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
@@ -161,8 +161,8 @@ func (s *FormalSuite) TestFindWithTickets() {
 	mt := formal.ManualTickets[0]
 	s.mock.ExpectQuery(`SELECT \* FROM "manual_tickets"`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "meal_option", "type", "name", "justification", "billed_to", "formal_id"}).
-				AddRow(mt.ID, mt.MealOption, mt.Type, mt.Name, mt.Justification, mt.BilledTo, mt.FormalID),
+			sqlmock.NewRows([]string{"id", "meal_option", "type", "name", "justification", "email", "formal_id"}).
+				AddRow(mt.ID, mt.MealOption, mt.Type, mt.Name, mt.Justification, mt.Email, mt.FormalID),
 		)
 	t := formal.TicketSales[0]
 	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).

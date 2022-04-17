@@ -19,14 +19,17 @@ import (
 
 type AdminTicketSuite struct {
 	suite.Suite
-	h       *AdminHandler
-	tickets *mocks.TicketStore
+	h             *AdminHandler
+	tickets       *mocks.TicketStore
+	manualTickets *mocks.ManualTicketStore
 }
 
 func (s *AdminTicketSuite) SetupTest() {
 	s.h = new(AdminHandler)
 	s.tickets = new(mocks.TicketStore)
+	s.manualTickets = new(mocks.ManualTicketStore)
 	s.h.Tickets = s.tickets
+	s.h.ManualTickets = s.manualTickets
 }
 
 func (s *AdminTicketSuite) TestCancelTicket() {
@@ -131,6 +134,30 @@ func (s *AdminTicketSuite) TestEditTicket() {
 	s.Equal(http.StatusOK, rec.Code)
 	s.tickets.AssertExpectations(s.T())
 }
+
+// func (s *AdminTicketSuite) TestCreateManualTicket() {
+// 	type wants struct {
+// 		status  int
+// 		message string
+// 	}
+// 	type test struct {
+// 		name   string
+// 		body   string
+// 		ticket *model.ManualTicket
+// 		wants  *wants
+// 	}
+// 	tests := []test{
+// 		{
+// 			"Should Create Ticket",
+// 			`{
+// 				"option": "Vegan",
+// 				"formalId": 1,
+// 				"type": "guest",
+// 				"name": "John Doe",
+// 				"justification": "Freebie",
+// 				"Email": "John Doe",
+// 		}
+// }
 
 func TestAdminTicketSuite(t *testing.T) {
 	suite.Run(t, new(AdminTicketSuite))

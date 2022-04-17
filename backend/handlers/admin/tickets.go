@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -64,4 +65,27 @@ func (ah *AdminHandler) EditTicket(c echo.Context) error {
 		return err
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+// Create a manual ticket
+func (ah *AdminHandler) CreateManualTicket(c echo.Context) error {
+	t := new(dto.ManualTicketDto)
+	if err := c.Bind(t); err != nil {
+		return err
+	}
+	if err := c.Validate(t); err != nil {
+		return err
+	}
+	ticket := model.ManualTicket{
+		MealOption:    t.MealOption,
+		FormalID:      t.FormalID,
+		Type:          t.Type,
+		Name:          t.Name,
+		Justification: t.Justification,
+		Email:         t.Email,
+	}
+	if err := ah.ManualTickets.Create(&ticket); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusCreated)
 }

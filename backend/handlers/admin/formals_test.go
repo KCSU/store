@@ -170,7 +170,7 @@ func (s *AdminFormalSuite) TestGetFormal() {
 			"type": "standard",
 			"name": "Kara Thrace",
 			"justification": "Ents Committee",
-			"billedTo": "kth123@cam.ac.uk"
+			"email": "kth123@cam.ac.uk"
 		}]
 	}`
 	e := echo.New()
@@ -208,7 +208,7 @@ func (s *AdminFormalSuite) TestGetFormal() {
 			Type:          "standard",
 			Name:          "Kara Thrace",
 			Justification: "Ents Committee",
-			BilledTo:      "kth123@cam.ac.uk",
+			Email:         "kth123@cam.ac.uk",
 		}},
 		Tickets: 120,
 	}

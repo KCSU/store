@@ -5,5 +5,5 @@ export interface ManualTicket {
     option: string;
     formalId: number;
     type: "complimentary" | "ents" | "standard" | "guest";
-    billedTo?: string;
+    email?: string;
 }

@@ -10,5 +10,5 @@ type ManualTicket struct {
 	Type          string `json:"type"`
 	Name          string `json:"name"`
 	Justification string `json:"justification"`
-	BilledTo      string `json:"billedTo"`
+	Email         string `json:"email"`
 }
