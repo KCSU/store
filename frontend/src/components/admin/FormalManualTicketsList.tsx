@@ -21,7 +21,9 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  Select
+  Select,
+  Link,
+  Button,
 } from "@chakra-ui/react";
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -30,11 +32,14 @@ import {
   FaAngleLeft,
   FaAngleRight,
   FaAngleDoubleRight,
+  FaExternalLinkAlt,
+  FaPlus,
 } from "react-icons/fa";
 import { Column, useGlobalFilter, usePagination, useTable } from "react-table";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Formal } from "../../model/Formal";
 import { ManualTicket } from "../../model/ManualTicket";
+import { CreateManualTicketButton } from "./CreateManualTicketButton";
 
 interface FormalProps {
   formal: Formal;
@@ -53,12 +58,14 @@ export function FormalManualTicketsList({ formal }: FormalProps) {
       {
         accessor: "email",
         Header: "Crsid",
-        Cell: ({value, row}) => {
-          if (["standard", "guest"].includes(row.original.type)) {
-            return value;
-          }
-          return "-";
-        }
+        Cell: ({ value, row }) => {
+          const crsid = value.split("@")[0];
+          return (
+            <Link href={`mailto:${value}`} isExternal>
+              {crsid} <Icon boxSize={3} as={FaExternalLinkAlt} />
+            </Link>
+          );
+        },
       },
       {
         accessor: "option",
@@ -117,19 +124,22 @@ export function FormalManualTicketsList({ formal }: FormalProps) {
   // TODO: Search filter
   return (
     <>
-      <InputGroup size="sm" maxW="500px" mb={2}>
-        <InputLeftAddon>
-          <Icon as={FaSearch} />
-        </InputLeftAddon>
-        <Input
-          id="query"
-          autoComplete="off"
-          // maxW="300px"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search tickets..."
-        />
-      </InputGroup>
+      <Flex mb={4} gap={2} justifyContent="space-between">
+        <InputGroup size="sm" maxW="500px" flex="1">
+          <InputLeftAddon>
+            <Icon as={FaSearch} />
+          </InputLeftAddon>
+          <Input
+            id="query"
+            autoComplete="off"
+            // maxW="300px"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search tickets..."
+          />
+        </InputGroup>
+        {canWrite && <CreateManualTicketButton formal={formal} />}
+      </Flex>
       <Table variant="striped" size="sm" {...getTableProps()}>
         <Thead>
           {headerGroups.map((headerGroup) => (

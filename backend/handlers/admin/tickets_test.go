@@ -135,29 +135,84 @@ func (s *AdminTicketSuite) TestEditTicket() {
 	s.tickets.AssertExpectations(s.T())
 }
 
-// func (s *AdminTicketSuite) TestCreateManualTicket() {
-// 	type wants struct {
-// 		status  int
-// 		message string
-// 	}
-// 	type test struct {
-// 		name   string
-// 		body   string
-// 		ticket *model.ManualTicket
-// 		wants  *wants
-// 	}
-// 	tests := []test{
-// 		{
-// 			"Should Create Ticket",
-// 			`{
-// 				"option": "Vegan",
-// 				"formalId": 1,
-// 				"type": "guest",
-// 				"name": "John Doe",
-// 				"justification": "Freebie",
-// 				"Email": "John Doe",
-// 		}
-// }
+func (s *AdminTicketSuite) TestCreateManualTicket() {
+	type wants struct {
+		status  int
+		message string
+	}
+	type test struct {
+		name   string
+		body   string
+		ticket *model.ManualTicket
+		wants  *wants
+	}
+	tests := []test{
+		{
+			"Should Create Ticket",
+			`{
+				"option": "Vegan",
+				"formalId": 1,
+				"type": "guest",
+				"name": "John Doe",
+				"justification": "Freebie",
+				"email": "jd123@cam.ac.uk"
+			}`,
+			&model.ManualTicket{
+				FormalID:      1,
+				MealOption:    "Vegan",
+				Type:          "guest",
+				Name:          "John Doe",
+				Justification: "Freebie",
+				Email:         "jd123@cam.ac.uk",
+			},
+			nil,
+		},
+		{
+			"Invalid Type",
+			`{
+				"option": "Vegan",
+				"formalId": 1,
+				"type": "invalid",
+				"name": "John Doe",
+				"justification": "Freebie",
+				"email": "jd123@cam.ac.uk"
+			}`,
+			nil,
+			&wants{
+				http.StatusUnprocessableEntity,
+				"Key: 'ManualTicketDto.Type' Error:Field validation for 'Type' failed on the 'oneof' tag",
+			},
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// HTTP
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			req := httptest.NewRequest(http.MethodPost, "/tickets/manual", strings.NewReader(test.body))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			// Mock
+			if test.ticket != nil {
+				s.manualTickets.On("Create", test.ticket).Return(nil).Once()
+			}
+			// Test
+			err := s.h.CreateManualTicket(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusCreated, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.status, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+		})
+	}
+	s.manualTickets.AssertExpectations(s.T())
+}
 
 func TestAdminTicketSuite(t *testing.T) {
 	suite.Run(t, new(AdminTicketSuite))

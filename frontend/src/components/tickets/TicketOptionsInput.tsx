@@ -8,6 +8,7 @@ import {
 import { isDisabled } from "@chakra-ui/utils";
 import { CreatableSelect } from "chakra-react-select";
 import { Card } from "../utility/Card";
+import { TicketOptionsSelect } from "./TicketOptionsSelect";
 
 interface TicketOptionsInputProps {
   value?: string;
@@ -25,7 +26,6 @@ export const TicketOptionsInput: React.FC<TicketOptionsInputProps> = ({
   isDisabled,
   hasShadow = true,
 }) => {
-  const options = ["Normal", "Vegetarian", "Vegan", "Pescetarian"];
   const bg = useColorModeValue("white", "gray.700");
   return (
     <Card
@@ -40,23 +40,7 @@ export const TicketOptionsInput: React.FC<TicketOptionsInputProps> = ({
       <FormControl isDisabled={isDisabled} as={HStack} spacing={4} alignItems="center">
         <FormLabel m={0}>Meal Option:</FormLabel>
         <Box flex="1">
-          <CreatableSelect
-            // TODO: fix long answers
-            isClearable
-            selectedOptionColor="brand"
-            value={{
-              label: value,
-              value,
-            }}
-            onChange={(option) => {
-              onChange?.(option?.value ?? "");
-            }}
-            size="sm"
-            options={options.map((opt) => ({
-              label: opt,
-              value: opt,
-            }))}
-          ></CreatableSelect>
+          <TicketOptionsSelect size='sm' value={value} onChange={onChange} />
         </Box>
       </FormControl>
       {footer}

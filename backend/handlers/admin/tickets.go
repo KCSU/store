@@ -84,6 +84,7 @@ func (ah *AdminHandler) CreateManualTicket(c echo.Context) error {
 		Justification: t.Justification,
 		Email:         t.Email,
 	}
+	// TODO: check if the formal exists
 	if err := ah.ManualTickets.Create(&ticket); err != nil {
 		return err
 	}
