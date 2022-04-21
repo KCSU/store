@@ -35,11 +35,12 @@ import {
   FaExternalLinkAlt,
   FaPlus,
 } from "react-icons/fa";
-import { Column, useGlobalFilter, usePagination, useTable } from "react-table";
+import { CellProps, Column, useGlobalFilter, usePagination, useTable } from "react-table";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Formal } from "../../model/Formal";
 import { ManualTicket } from "../../model/ManualTicket";
 import { CreateManualTicketButton } from "./CreateManualTicketButton";
+import { ManualTicketActions } from "./ManualTicketActions";
 
 interface FormalProps {
   formal: Formal;
@@ -85,12 +86,26 @@ export function FormalManualTicketsList({ formal }: FormalProps) {
             default:
               // Convert to title case
               return (
-                value.charAt(0).toUpperCase() + value.substr(1).toLowerCase()
+                value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
               );
           }
         },
       },
     ];
+    if (canWrite || canDelete) {
+      base.push({
+        Header: "Actions",
+        Cell: ({ row }: CellProps<ManualTicket>) => {
+          return (
+            <ManualTicketActions
+              canDelete={canDelete}
+              canWrite={canWrite}
+              ticket={row.original}
+            />
+          );
+        }
+      })
+    }
     return base;
   }, []);
   const data = useMemo(() => formal.manualTickets ?? [], [formal]);

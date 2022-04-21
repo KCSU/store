@@ -214,7 +214,7 @@ func (s *AdminTicketSuite) TestCreateManualTicket() {
 	s.manualTickets.AssertExpectations(s.T())
 }
 
-func (s *AdminTicketSuite) TestDeleteManualTicket() {
+func (s *AdminTicketSuite) TestCancelManualTicket() {
 	type wants struct {
 		status  int
 		message string
@@ -227,7 +227,7 @@ func (s *AdminTicketSuite) TestDeleteManualTicket() {
 	}
 	tests := []test{
 		{
-			"Should Delete Ticket",
+			"Should Cancel Ticket",
 			7,
 			&model.ManualTicket{
 				Model: model.Model{ID: 7},
@@ -262,7 +262,7 @@ func (s *AdminTicketSuite) TestDeleteManualTicket() {
 				s.manualTickets.On("Find", test.id).Return(model.ManualTicket{}, gorm.ErrRecordNotFound).Once()
 			}
 			// Test
-			err := s.h.DeleteManualTicket(c)
+			err := s.h.CancelManualTicket(c)
 			if test.wants == nil {
 				s.NoError(err)
 				s.Equal(http.StatusOK, rec.Code)

@@ -92,7 +92,7 @@ func (ah *AdminHandler) CreateManualTicket(c echo.Context) error {
 }
 
 // Delete a manual ticket
-func (ah *AdminHandler) DeleteManualTicket(c echo.Context) error {
+func (ah *AdminHandler) CancelManualTicket(c echo.Context) error {
 	id := c.Param("id")
 	ticketID, err := strconv.Atoi(id)
 	if err != nil {
