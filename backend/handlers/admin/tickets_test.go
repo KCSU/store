@@ -180,7 +180,7 @@ func (s *AdminTicketSuite) TestCreateManualTicket() {
 			nil,
 			&wants{
 				http.StatusUnprocessableEntity,
-				"Key: 'ManualTicketDto.Type' Error:Field validation for 'Type' failed on the 'oneof' tag",
+				"Key: 'CreateManualTicketDto.Type' Error:Field validation for 'Type' failed on the 'oneof' tag",
 			},
 		},
 	}
