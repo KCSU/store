@@ -90,3 +90,22 @@ func (ah *AdminHandler) CreateManualTicket(c echo.Context) error {
 	}
 	return c.NoContent(http.StatusCreated)
 }
+
+// Delete a manual ticket
+func (ah *AdminHandler) DeleteManualTicket(c echo.Context) error {
+	id := c.Param("id")
+	ticketID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	if _, err := ah.ManualTickets.Find(ticketID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.ManualTickets.Delete(ticketID); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}

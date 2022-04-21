@@ -43,7 +43,7 @@ func (t *DBManualTicketStore) Create(ticket *model.ManualTicket) error {
 
 // Delete a manual ticket
 func (t *DBManualTicketStore) Delete(id int) error {
-	panic("unimplemented")
+	return t.db.Delete(&model.ManualTicket{}, id).Error
 }
 
 // Update a manual ticket

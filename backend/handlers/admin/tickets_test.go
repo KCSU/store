@@ -214,6 +214,70 @@ func (s *AdminTicketSuite) TestCreateManualTicket() {
 	s.manualTickets.AssertExpectations(s.T())
 }
 
+func (s *AdminTicketSuite) TestDeleteManualTicket() {
+	type wants struct {
+		status  int
+		message string
+	}
+	type test struct {
+		name   string
+		id     int
+		ticket *model.ManualTicket
+		wants  *wants
+	}
+	tests := []test{
+		{
+			"Should Delete Ticket",
+			7,
+			&model.ManualTicket{
+				Model: model.Model{ID: 7},
+			},
+			nil,
+		},
+		{
+			"Should Return Not Found",
+			7,
+			nil,
+			&wants{
+				http.StatusNotFound,
+				"Not Found",
+			},
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// HTTP
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodDelete, "/tickets/manual/7", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			// Language: go
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.Itoa(test.id))
+			// Mock
+			if test.ticket != nil {
+				s.manualTickets.On("Find", test.id).Return(*test.ticket, nil).Once()
+				s.manualTickets.On("Delete", test.id).Return(nil).Once()
+			} else {
+				s.manualTickets.On("Find", test.id).Return(model.ManualTicket{}, gorm.ErrRecordNotFound).Once()
+			}
+			// Test
+			err := s.h.DeleteManualTicket(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.status, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+		})
+	}
+	s.manualTickets.AssertExpectations(s.T())
+}
+
 func TestAdminTicketSuite(t *testing.T) {
 	suite.Run(t, new(AdminTicketSuite))
 }
