@@ -278,6 +278,93 @@ func (s *AdminTicketSuite) TestCancelManualTicket() {
 	s.manualTickets.AssertExpectations(s.T())
 }
 
+func (s *AdminTicketSuite) TestEditManualTicket() {
+	type wants struct {
+		status  int
+		message string
+	}
+	type test struct {
+		name   string
+		id     int
+		body   string
+		ticket *model.ManualTicket
+		wants  *wants
+	}
+	tests := []test{
+		{
+			"Should Edit Ticket",
+			7,
+			`{
+				"option": "Vegan",
+				"type": "guest",
+				"name": "John Doe",
+				"justification": "Freebie",
+				"email": "jd1234@cam.ac.uk"
+			}`,
+			&model.ManualTicket{
+				Model:         model.Model{ID: 7},
+				MealOption:    "Vegan",
+				FormalID:      3,
+				Type:          "guest",
+				Name:          "John Doe",
+				Justification: "Freebie",
+				Email:         "jd1234@cam.ac.uk",
+			},
+			nil,
+		},
+		{
+			"Should Return Not Found",
+			7,
+			`{
+				"option": "Vegan",
+				"type": "guest",
+				"name": "John Doe",
+				"justification": "Freebie",
+				"email": "jd1234@cam.ac.uk"
+			}`,
+			nil,
+			&wants{http.StatusNotFound, "Not Found"},
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// HTTP
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			req := httptest.NewRequest(http.MethodPut, "/tickets/manual/7", strings.NewReader(test.body))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(strconv.Itoa(test.id))
+			// Mock
+			if test.ticket != nil {
+				tr := model.ManualTicket{
+					FormalID: test.ticket.FormalID,
+				}
+				tr.ID = test.ticket.ID
+				s.manualTickets.On("Find", test.id).Return(tr, nil).Once()
+				s.manualTickets.On("Update", test.ticket).Return(nil).Once()
+			} else {
+				s.manualTickets.On("Find", test.id).Return(model.ManualTicket{}, gorm.ErrRecordNotFound).Once()
+			}
+			// Test
+			err := s.h.EditManualTicket(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.status, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+		})
+	}
+	s.manualTickets.AssertExpectations(s.T())
+}
+
 func TestAdminTicketSuite(t *testing.T) {
 	suite.Run(t, new(AdminTicketSuite))
 }

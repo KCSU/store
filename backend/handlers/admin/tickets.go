@@ -69,7 +69,7 @@ func (ah *AdminHandler) EditTicket(c echo.Context) error {
 
 // Create a manual ticket
 func (ah *AdminHandler) CreateManualTicket(c echo.Context) error {
-	t := new(dto.ManualTicketDto)
+	t := new(dto.CreateManualTicketDto)
 	if err := c.Bind(t); err != nil {
 		return err
 	}
@@ -105,6 +105,37 @@ func (ah *AdminHandler) CancelManualTicket(c echo.Context) error {
 		return err
 	}
 	if err := ah.ManualTickets.Delete(ticketID); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+func (ah *AdminHandler) EditManualTicket(c echo.Context) error {
+	id := c.Param("id")
+	ticketID, err := strconv.Atoi(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	t := new(dto.EditManualTicketDto)
+	if err := c.Bind(t); err != nil {
+		return err
+	}
+	if err := c.Validate(t); err != nil {
+		return err
+	}
+	ticket, err := ah.ManualTickets.Find(ticketID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	ticket.MealOption = t.MealOption
+	ticket.Type = t.Type
+	ticket.Name = t.Name
+	ticket.Justification = t.Justification
+	ticket.Email = t.Email
+	if err := ah.ManualTickets.Update(&ticket); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)

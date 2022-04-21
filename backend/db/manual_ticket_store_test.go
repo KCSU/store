@@ -95,6 +95,30 @@ func (s *ManualTicketSuite) TestCreateManualTicket() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *ManualTicketSuite) TestUpdateManualTicket() {
+	ticket := model.ManualTicket{
+		FormalID:      13,
+		MealOption:    "Vegan",
+		Type:          "guest",
+		Name:          "John Doe",
+		Justification: "Dancer",
+		Email:         "jd143@cam.ac.uk",
+	}
+	ticket.ID = 11
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "manual_tickets"`).WithArgs(
+		sqlmock.AnyArg(), nil,
+		ticket.MealOption, ticket.FormalID, ticket.Type,
+		ticket.Name, ticket.Justification, ticket.Email,
+		ticket.ID,
+	).WillReturnResult(
+		sqlmock.NewResult(int64(ticket.ID), 1),
+	)
+	s.mock.ExpectCommit()
+	s.NoError(s.store.Update(&ticket))
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *ManualTicketSuite) TestDeleteManualTicket() {
 	ticketId := 11
 	s.mock.ExpectBegin()

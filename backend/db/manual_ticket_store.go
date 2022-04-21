@@ -12,7 +12,7 @@ type ManualTicketStore interface {
 	// Create a manual ticket
 	Create(ticket *model.ManualTicket) error
 	// Update a manual ticket
-	Update(id int, ticket *model.ManualTicket) error
+	Update(ticket *model.ManualTicket) error
 	// Delete a manual ticket
 	Delete(id int) error
 }
@@ -47,6 +47,6 @@ func (t *DBManualTicketStore) Delete(id int) error {
 }
 
 // Update a manual ticket
-func (t *DBManualTicketStore) Update(id int, ticket *model.ManualTicket) error {
-	panic("unimplemented")
+func (t *DBManualTicketStore) Update(ticket *model.ManualTicket) error {
+	return t.db.Omit("CreatedAt").Save(ticket).Error
 }
