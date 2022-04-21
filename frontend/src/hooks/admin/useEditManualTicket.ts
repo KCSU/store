@@ -1,14 +1,17 @@
 import { useToast } from "@chakra-ui/react";
 import { useQueryClient } from "react-query";
 import { api } from "../../config/api";
+import { ManualTicket } from "../../model/ManualTicket";
 import { useCustomMutation } from "../mutations/useCustomMutation";
 
-export function useEditTicket(ticketId: number) {
+export type EditManualTicketDto = Omit<ManualTicket, "formalId" | "id">;
+
+export function useEditManualTicket(ticketId: number) {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useCustomMutation(
-    (option: string) => {
-      return api.put<void>(`admin/tickets/${ticketId}`, { option });
+    (dto: EditManualTicketDto) => {
+      return api.put<void>(`admin/tickets/manual/${ticketId}`, dto);
     },
     {
       onSuccess() {

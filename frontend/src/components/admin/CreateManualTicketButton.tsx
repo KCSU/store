@@ -23,7 +23,6 @@ import { FaPlus } from "react-icons/fa";
 import { useCreateManualTicket } from "../../hooks/admin/useCreateManualTicket";
 import { Formal } from "../../model/Formal";
 import { ManualTicketType } from "../../model/ManualTicket";
-import { TicketOptionsInput } from "../tickets/TicketOptionsInput";
 import { TicketOptionsSelect } from "../tickets/TicketOptionsSelect";
 
 interface FormalProps {
@@ -69,7 +68,7 @@ export function CreateManualTicketButton({ formal }: FormalProps) {
           <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Create Manual Ticket</ModalHeader>
+              <ModalHeader>Create Special Ticket</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
                 <Form>
