@@ -4,10 +4,10 @@ import {
   FaCalendarDay,
   FaCog,
   FaHome,
+  FaReceipt,
   FaShieldAlt,
   FaTicketAlt,
   FaUsers,
-  FaUserShield,
 } from "react-icons/fa";
 import { UserContext } from "../../model/User";
 import { AdminSidebarItem, SidebarItem } from "./SidebarItem";
@@ -58,6 +58,13 @@ const adminRoutes = [
     action: "read",
     icon: FaShieldAlt,
   },
+  {
+    to: "/admin/bills",
+    title: "Billing",
+    resource: "billing",
+    action: "read",
+    icon: FaReceipt,
+  }
 ];
 
 interface SidebarContentProps {

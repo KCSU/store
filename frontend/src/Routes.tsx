@@ -18,6 +18,7 @@ import { AdminEditGroupView } from "./views/admin/AdminEditGroupView";
 import { AdminCreateGroupView } from "./views/admin/AdminCreateGroupView";
 import { AdminPermissionsView } from "./views/admin/AdminPermissionsView";
 import { AdminEditRoleView } from "./views/admin/AdminEditRoleView";
+import { AdminBillsListView } from "./views/admin/AdminBillsListView";
 
 const MotionBox = motionComponent<BoxProps, 'div'>(Box);
 
@@ -69,6 +70,12 @@ export function Routes() {
       path: "/admin/roles/:id",
       element: <AdminEditRoleView/>,
       resource: "roles",
+      action: "read"
+    },
+    {
+      path: "/admin/bills",
+      element: <AdminBillsListView/>,
+      resource: "billing",
       action: "read"
     }
   ];

@@ -19,6 +19,7 @@ export interface Formal {
     dateTime: Date;
     // guestList: 
     // hidden?
+    billId?: string;
     groups?: Group[];
     ticketSales?: AdminTicket[];
     manualTickets?: ManualTicket[];

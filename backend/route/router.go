@@ -134,6 +134,6 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	permissions.DELETE("/:id", ah.DeletePermission, rbac.M("permissions", "delete"))
 
 	bills := a.Group("/bills")
-	bills.GET("", ah.GetBills, rbac.M("bills", "read"))
-	bills.GET("/:id", ah.GetBill, rbac.M("bills", "read"))
+	bills.GET("", ah.GetBills, rbac.M("billing", "read"))
+	bills.GET("/:id", ah.GetBill, rbac.M("billing", "read"))
 }
