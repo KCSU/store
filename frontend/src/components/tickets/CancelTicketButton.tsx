@@ -13,7 +13,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import { useCancelTickets } from "../../hooks/mutations/useCancelTickets";
 
 export interface CancelTicketButtonProps {
-  formalId: number;
+  formalId: string;
   size?: string;
   confirmText: string;
   body?: string;

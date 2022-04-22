@@ -91,7 +91,7 @@ function reducer(
   }
 }
 
-export function useQueueRequest(id: number) {
+export function useQueueRequest(id: string) {
   return useReducer(reducer, <QueueRequest>{
     formalId: id,
     ticket: {

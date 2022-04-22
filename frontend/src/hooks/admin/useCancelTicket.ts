@@ -3,7 +3,7 @@ import { useQueryClient } from "react-query";
 import { api } from "../../config/api";
 import { useCustomMutation } from "../mutations/useCustomMutation";
 
-export function useCancelTicket(id: number) {
+export function useCancelTicket(id: string) {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useCustomMutation(

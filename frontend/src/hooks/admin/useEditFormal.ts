@@ -4,7 +4,7 @@ import { api } from "../../config/api";
 import { Formal } from "../../model/Formal";
 import { useCustomMutation } from "../mutations/useCustomMutation";
 
-export function useEditFormal(formalId: number) {
+export function useEditFormal(formalId: string) {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useCustomMutation(

@@ -3,7 +3,7 @@ import { Group } from "./Group";
 import { Permission } from "./Permission";
 
 export interface User {
-    id: number;
+    id: string;
     name: string;
     email: string;
     groups: Group[]

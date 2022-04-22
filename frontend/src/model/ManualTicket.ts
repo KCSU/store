@@ -1,11 +1,11 @@
 export type ManualTicketType = "complimentary" | "ents" | "standard" | "guest";
 
 export interface ManualTicket {
-    id: number;
+    id: string;
     name: string;
     justification: string;
     option: string;
-    formalId: number;
+    formalId: string;
     type: ManualTicketType;
     email: string;
 }

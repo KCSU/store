@@ -3,7 +3,7 @@ import { api } from "../../config/api";
 import { FormalDto, parseFormal } from "../../helpers/parseFormal";
 import { Formal } from "../../model/Formal";
 
-export function useFormal(id: number) {
+export function useFormal(id: string) {
   return useQuery<Formal>(
     ["admin/formals", {id}],
     async () => {

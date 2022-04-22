@@ -3,7 +3,7 @@ import { api } from "../../config/api";
 import { Formal } from "../../model/Formal";
 import { useCustomMutation } from "../mutations/useCustomMutation";
 
-export type CreateFormalDto = Omit<Formal, "groups" | "id"> & { groups: number[] };
+export type CreateFormalDto = Omit<Formal, "groups" | "id"> & { groups: string[] };
 
 export function useCreateFormal() {
   const queryClient = useQueryClient();

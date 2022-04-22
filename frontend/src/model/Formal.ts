@@ -3,7 +3,7 @@ import { ManualTicket } from "./ManualTicket";
 import { AdminTicket } from "./Ticket";
 
 export interface Formal {
-    id: number;
+    id: string;
     name: string;
     menu: string; // TODO:
     price: number;

@@ -4,7 +4,7 @@ import { useCustomMutation } from "../mutations/useCustomMutation";
 
 export function useCancelTickets() {
     const queryClient = useQueryClient();
-    return useCustomMutation((formalId: number) => {
+    return useCustomMutation((formalId: string) => {
         return api.delete<void>(`formals/${formalId}/tickets`);
     }, {
         onSuccess() {

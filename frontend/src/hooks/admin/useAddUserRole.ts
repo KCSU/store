@@ -3,7 +3,7 @@ import { api } from "../../config/api";
 import { useCustomMutation } from "../mutations/useCustomMutation";
 
 export interface AddUserRoleDto {
-  roleId: number;
+  roleId: string;
   email: string;
 }
 

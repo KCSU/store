@@ -1,5 +1,5 @@
 export interface Group {
-    id: number;
+    id: string;
     name: string;
     type: string;
     lookup: string;
@@ -22,6 +22,6 @@ export function groupType(type: string) {
 
 export interface GroupUser {
     userEmail: string;
-    groupId: number;
+    groupId: string;
     isManual: boolean;
 }

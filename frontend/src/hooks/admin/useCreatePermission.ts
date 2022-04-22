@@ -4,7 +4,7 @@ import { Permission } from "../../model/Permission";
 import { useCustomMutation } from "../mutations/useCustomMutation";
 
 export type CreatePermissionDto = Omit<Permission, "id"> & {
-    roleId: number
+    roleId: string
 }
 
 export function useCreatePermission() {

@@ -12,7 +12,7 @@ import { useCancelTicket } from "../../hooks/mutations/useCancelTicket";
 
 export interface CancelGuestTicketDialogProps {
   isOpen: boolean;
-  ticketId: number;
+  ticketId: string;
   confirmText?: string;
   onClose: () => void;
 }

@@ -115,7 +115,7 @@ function EditQueueTicketModal({ isOpen, onClose, ticket }: EditQueueTicketModalP
 }
 
 interface CancelGuestTicketButtonProps {
-  ticketId: number;
+  ticketId: string;
 }
 
 function CancelGuestTicketButton({ ticketId }: CancelGuestTicketButtonProps) {

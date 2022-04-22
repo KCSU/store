@@ -4,7 +4,7 @@ import { api } from "../../config/api";
 import { FormalTicket } from "../../model/Ticket";
 import { useCustomMutation } from "../mutations/useCustomMutation";
 
-export function useEditTicket(ticketId: number) {
+export function useEditTicket(ticketId: string) {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useCustomMutation(
@@ -30,7 +30,7 @@ export function useEditTicket(ticketId: number) {
 
 function updateTicket(
   t: FormalTicket,
-  ticketId: number,
+  ticketId: string,
   option: string
 ): FormalTicket {
   if (t.ticket.id === ticketId) {

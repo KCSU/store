@@ -1,7 +1,7 @@
 import { TicketRequest } from "./TicketRequest";
 
 export interface QueueRequest {
-    formalId: number;
+    formalId: string;
     ticket: TicketRequest;
     guestTickets: TicketRequest[];
 }

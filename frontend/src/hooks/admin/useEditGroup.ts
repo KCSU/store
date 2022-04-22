@@ -4,7 +4,7 @@ import { api } from "../../config/api";
 import { Group } from "../../model/Group";
 import { useCustomMutation } from "../mutations/useCustomMutation";
 
-export function useEditGroup(groupId: number) {
+export function useEditGroup(groupId: string) {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useCustomMutation(

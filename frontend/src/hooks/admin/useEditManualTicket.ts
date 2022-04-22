@@ -6,7 +6,7 @@ import { useCustomMutation } from "../mutations/useCustomMutation";
 
 export type EditManualTicketDto = Omit<ManualTicket, "formalId" | "id">;
 
-export function useEditManualTicket(ticketId: number) {
+export function useEditManualTicket(ticketId: string) {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useCustomMutation(

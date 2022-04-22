@@ -9,12 +9,12 @@ export interface FormalTicket {
 }
 
 export interface Ticket {
-    id: number;
+    id: string;
     isGuest: boolean;
     isQueue: boolean;
     option: string;
-    formalId: number;
-    userId: number;
+    formalId: string;
+    userId: string;
 }
 
 export type AdminTicket = Ticket & {

@@ -4,7 +4,7 @@ import { api } from "../../config/api";
 import { TicketRequest } from "../../model/TicketRequest";
 import { useCustomMutation } from "./useCustomMutation";
 
-export function useAddTicket(formalId: number) {
+export function useAddTicket(formalId: string) {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useCustomMutation(

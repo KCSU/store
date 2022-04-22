@@ -1,6 +1,6 @@
 export interface UserRole {
-    userId: number;
-    roleId: number;
+    userId: string;
+    roleId: string;
     userName: string;
     userEmail: string;
     roleName: string;
