@@ -3,8 +3,8 @@ package admin
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
@@ -17,7 +17,7 @@ import (
 // all the guest tickets for the same formal and user
 func (ah *AdminHandler) CancelTicket(c echo.Context) error {
 	id := c.Param("id")
-	ticketID, err := strconv.Atoi(id)
+	ticketID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -46,7 +46,7 @@ func (ah *AdminHandler) CancelTicket(c echo.Context) error {
 // Update a specified ticket
 func (ah *AdminHandler) EditTicket(c echo.Context) error {
 	id := c.Param("id")
-	ticketID, err := strconv.Atoi(id)
+	ticketID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -94,7 +94,7 @@ func (ah *AdminHandler) CreateManualTicket(c echo.Context) error {
 // Delete a manual ticket
 func (ah *AdminHandler) CancelManualTicket(c echo.Context) error {
 	id := c.Param("id")
-	ticketID, err := strconv.Atoi(id)
+	ticketID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -112,7 +112,7 @@ func (ah *AdminHandler) CancelManualTicket(c echo.Context) error {
 
 func (ah *AdminHandler) EditManualTicket(c echo.Context) error {
 	id := c.Param("id")
-	ticketID, err := strconv.Atoi(id)
+	ticketID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}

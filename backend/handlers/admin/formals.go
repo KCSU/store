@@ -3,8 +3,8 @@ package admin
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -41,7 +41,7 @@ func (ah *AdminHandler) GetFormals(c echo.Context) error {
 func (ah *AdminHandler) GetFormal(c echo.Context) error {
 	// Get the formal ID from query
 	id := c.Param("id")
-	formalID, err := strconv.Atoi(id)
+	formalID, err := uuid.Parse(id)
 	if err != nil {
 		// TODO: NewHTTPError?
 		return echo.ErrNotFound
@@ -110,7 +110,7 @@ func (ah *AdminHandler) CreateFormal(c echo.Context) error {
 func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 	// Get the formal ID from query
 	id := c.Param("id")
-	formalID, err := strconv.Atoi(id)
+	formalID, err := uuid.Parse(id)
 	if err != nil {
 		// TODO: NewHTTPError?
 		return echo.ErrNotFound
@@ -124,7 +124,7 @@ func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 	}
 	// FIXME: CHECK THE FORMAL EXISTS
 	formal := f.Formal()
-	formal.ID = uint(formalID)
+	formal.ID = formalID
 	if err := ah.Formals.Update(&formal); err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 func (ah *AdminHandler) DeleteFormal(c echo.Context) error {
 	// Get the formal ID from query
 	id := c.Param("id")
-	formalID, err := strconv.Atoi(id)
+	formalID, err := uuid.Parse(id)
 	if err != nil {
 		return err
 	}
@@ -156,12 +156,12 @@ func (ah *AdminHandler) DeleteFormal(c echo.Context) error {
 func (ah *AdminHandler) UpdateFormalGroups(c echo.Context) error {
 	// Get the formal ID from query
 	id := c.Param("id")
-	formalID, err := strconv.Atoi(id)
+	formalID, err := uuid.Parse(id)
 	if err != nil {
 		// TODO: NewHTTPError?
 		return echo.ErrNotFound
 	}
-	ids := []int{}
+	ids := []uuid.UUID{}
 	if err := c.Bind(&ids); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

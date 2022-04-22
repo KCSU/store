@@ -3,8 +3,8 @@ package admin
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
@@ -70,7 +70,7 @@ func (ah *AdminHandler) CreatePermission(c echo.Context) error {
 func (ah *AdminHandler) DeletePermission(c echo.Context) error {
 	// Get the permission ID from query
 	id := c.Param("id")
-	permissionID, err := strconv.Atoi(id)
+	permissionID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -102,7 +102,7 @@ func (ah *AdminHandler) CreateRole(c echo.Context) error {
 
 func (ah *AdminHandler) UpdateRole(c echo.Context) error {
 	id := c.Param("id")
-	roleID, err := strconv.Atoi(id)
+	roleID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -129,7 +129,7 @@ func (ah *AdminHandler) UpdateRole(c echo.Context) error {
 
 func (ah *AdminHandler) DeleteRole(c echo.Context) error {
 	id := c.Param("id")
-	roleID, err := strconv.Atoi(id)
+	roleID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}

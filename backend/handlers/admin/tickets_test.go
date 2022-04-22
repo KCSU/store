@@ -1,12 +1,13 @@
 package admin_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
@@ -39,37 +40,37 @@ func (s *AdminTicketSuite) TestCancelTicket() {
 	}
 	type test struct {
 		name   string
-		id     int
+		id     uuid.UUID
 		ticket *model.Ticket
 		wants  *wants
 	}
 	tests := []test{
 		{
 			"Ticket Not Found",
-			17,
+			uuid.New(),
 			nil,
 			&wants{http.StatusNotFound, "Not Found"},
 		},
 		{
 			"Should Cancel Guest",
-			13,
+			uuid.MustParse("c0187157-a065-41b4-a29e-018f49934701"),
 			&model.Ticket{
-				Model:      model.Model{ID: 13},
+				Model:      model.Model{ID: uuid.MustParse("c0187157-a065-41b4-a29e-018f49934701")},
 				IsGuest:    true,
-				FormalID:   1,
-				UserID:     3,
+				FormalID:   uuid.New(),
+				UserID:     uuid.New(),
 				MealOption: "Vegetarian",
 			},
 			nil,
 		},
 		{
 			"Should Cancel All",
-			26,
+			uuid.MustParse("57ae970f-7f82-471b-a60c-46d4269f2e81"),
 			&model.Ticket{
-				Model:      model.Model{ID: 26},
+				Model:      model.Model{ID: uuid.MustParse("57ae970f-7f82-471b-a60c-46d4269f2e81")},
 				IsGuest:    false,
-				FormalID:   9,
-				UserID:     5,
+				FormalID:   uuid.New(),
+				UserID:     uuid.New(),
 				MealOption: "Vegan",
 			},
 			nil,
@@ -83,7 +84,7 @@ func (s *AdminTicketSuite) TestCancelTicket() {
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(test.id))
+			c.SetParamValues(test.id.String())
 			// Mock
 			if test.ticket != nil {
 				s.tickets.On("Find", test.id).Return(*test.ticket, nil).Once()
@@ -118,16 +119,17 @@ func (s *AdminTicketSuite) TestEditTicket() {
 	body := `{
 		"option": "Vegan"
 	}`
+	id := uuid.New()
 	req := httptest.NewRequest(
-		http.MethodPut, "/tickets/7", strings.NewReader(body),
+		http.MethodPut, fmt.Sprint("/tickets/", id), strings.NewReader(body),
 	)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
-	c.SetParamValues("7")
+	c.SetParamValues(id.String())
 	s.tickets.On(
-		"Update", 7, &dto.TicketRequestDto{MealOption: "Vegan"},
+		"Update", id, &dto.TicketRequestDto{MealOption: "Vegan"},
 	).Return(nil).Once()
 	err := s.h.EditTicket(c)
 	s.NoError(err)
@@ -151,14 +153,14 @@ func (s *AdminTicketSuite) TestCreateManualTicket() {
 			"Should Create Ticket",
 			`{
 				"option": "Vegan",
-				"formalId": 1,
+				"formalId": "eb6d25f9-14e8-4abe-90e2-80542c73a2b6",
 				"type": "guest",
 				"name": "John Doe",
 				"justification": "Freebie",
 				"email": "jd123@cam.ac.uk"
 			}`,
 			&model.ManualTicket{
-				FormalID:      1,
+				FormalID:      uuid.MustParse("eb6d25f9-14e8-4abe-90e2-80542c73a2b6"),
 				MealOption:    "Vegan",
 				Type:          "guest",
 				Name:          "John Doe",
@@ -171,7 +173,7 @@ func (s *AdminTicketSuite) TestCreateManualTicket() {
 			"Invalid Type",
 			`{
 				"option": "Vegan",
-				"formalId": 1,
+				"formalId": "9739dbf9-4ce3-44e5-b9e1-cdfb0ac8de14",
 				"type": "invalid",
 				"name": "John Doe",
 				"justification": "Freebie",
@@ -221,22 +223,22 @@ func (s *AdminTicketSuite) TestCancelManualTicket() {
 	}
 	type test struct {
 		name   string
-		id     int
+		id     uuid.UUID
 		ticket *model.ManualTicket
 		wants  *wants
 	}
 	tests := []test{
 		{
 			"Should Cancel Ticket",
-			7,
+			uuid.MustParse("06a1832e-4231-4ccb-bc80-e41680bc5a2b"),
 			&model.ManualTicket{
-				Model: model.Model{ID: 7},
+				Model: model.Model{ID: uuid.MustParse("06a1832e-4231-4ccb-bc80-e41680bc5a2b")},
 			},
 			nil,
 		},
 		{
 			"Should Return Not Found",
-			7,
+			uuid.New(),
 			nil,
 			&wants{
 				http.StatusNotFound,
@@ -248,12 +250,16 @@ func (s *AdminTicketSuite) TestCancelManualTicket() {
 		s.Run(test.name, func() {
 			// HTTP
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodDelete, "/tickets/manual/7", nil)
+			req := httptest.NewRequest(
+				http.MethodDelete,
+				fmt.Sprint("/tickets/manual/", test.id),
+				nil,
+			)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			// Language: go
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(test.id))
+			c.SetParamValues(test.id.String())
 			// Mock
 			if test.ticket != nil {
 				s.manualTickets.On("Find", test.id).Return(*test.ticket, nil).Once()
@@ -285,7 +291,7 @@ func (s *AdminTicketSuite) TestEditManualTicket() {
 	}
 	type test struct {
 		name   string
-		id     int
+		id     uuid.UUID
 		body   string
 		ticket *model.ManualTicket
 		wants  *wants
@@ -293,7 +299,7 @@ func (s *AdminTicketSuite) TestEditManualTicket() {
 	tests := []test{
 		{
 			"Should Edit Ticket",
-			7,
+			uuid.MustParse("0aa3b271-d66e-4b3b-af6e-e84ead601171"),
 			`{
 				"option": "Vegan",
 				"type": "guest",
@@ -302,9 +308,9 @@ func (s *AdminTicketSuite) TestEditManualTicket() {
 				"email": "jd1234@cam.ac.uk"
 			}`,
 			&model.ManualTicket{
-				Model:         model.Model{ID: 7},
+				Model:         model.Model{ID: uuid.MustParse("0aa3b271-d66e-4b3b-af6e-e84ead601171")},
 				MealOption:    "Vegan",
-				FormalID:      3,
+				FormalID:      uuid.New(),
 				Type:          "guest",
 				Name:          "John Doe",
 				Justification: "Freebie",
@@ -314,7 +320,7 @@ func (s *AdminTicketSuite) TestEditManualTicket() {
 		},
 		{
 			"Should Return Not Found",
-			7,
+			uuid.MustParse("fcfe1c65-36be-434c-b5ca-8644f971ac91"),
 			`{
 				"option": "Vegan",
 				"type": "guest",
@@ -331,12 +337,16 @@ func (s *AdminTicketSuite) TestEditManualTicket() {
 			// HTTP
 			e := echo.New()
 			e.Validator = middleware.NewValidator()
-			req := httptest.NewRequest(http.MethodPut, "/tickets/manual/7", strings.NewReader(test.body))
+			req := httptest.NewRequest(
+				http.MethodPut,
+				fmt.Sprint("/tickets/manual/", test.id),
+				strings.NewReader(test.body),
+			)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(test.id))
+			c.SetParamValues(test.id.String())
 			// Mock
 			if test.ticket != nil {
 				tr := model.ManualTicket{

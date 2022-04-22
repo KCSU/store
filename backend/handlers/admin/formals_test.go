@@ -1,13 +1,14 @@
 package admin_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
@@ -33,7 +34,7 @@ func (s *AdminFormalSuite) SetupTest() {
 func (s *AdminFormalSuite) TestGetFormals() {
 	const expectedJSON = `[
 		{
-			"id": 1,
+			"id": "a49b7a96-92f3-49a1-88bb-e99c3549fc25",
 			"createdAt": "0001-01-01T00:00:00Z",
 			"updatedAt": "0001-01-01T00:00:00Z",
 			"deletedAt": null,
@@ -52,7 +53,7 @@ func (s *AdminFormalSuite) TestGetFormals() {
 			"groups": []
 		},
 		{
-			"id": 6,
+			"id": "9acf368c-0c7b-4ef2-85e4-d34bfae8dd2e",
 			"createdAt": "0001-01-01T00:00:00Z",
 			"updatedAt": "0001-01-01T00:00:00Z",
 			"deletedAt": null,
@@ -70,11 +71,11 @@ func (s *AdminFormalSuite) TestGetFormals() {
 			"guestTicketsRemaining": 31,
 			"groups": [
 				{
-					"id": 2,
+					"id": "56b7ebef-23a9-47d5-88f3-aacc9898807d",
 					"name": "Group A"
 				},
 				{
-					"id": 4,
+					"id": "416e9375-8b09-4b04-a459-436b078dd375",
 					"name": "Group B"
 				}
 			]
@@ -88,25 +89,25 @@ func (s *AdminFormalSuite) TestGetFormals() {
 	// Mock database
 	formals := []model.Formal{
 		{
-			Model:      model.Model{ID: 1},
+			Model:      model.Model{ID: uuid.MustParse("a49b7a96-92f3-49a1-88bb-e99c3549fc25")},
 			Name:       "Test 1",
 			Menu:       "A menu",
 			Price:      21.3,
 			GuestPrice: 11.6,
 		},
 		{
-			Model:      model.Model{ID: 6},
+			Model:      model.Model{ID: uuid.MustParse("9acf368c-0c7b-4ef2-85e4-d34bfae8dd2e")},
 			Name:       "Test 2",
 			Menu:       "Another menu",
 			Price:      15.6,
 			GuestPrice: 27.2,
 			Groups: []model.Group{
 				{
-					Model: model.Model{ID: 2},
+					Model: model.Model{ID: uuid.MustParse("56b7ebef-23a9-47d5-88f3-aacc9898807d")},
 					Name:  "Group A",
 				},
 				{
-					Model: model.Model{ID: 4},
+					Model: model.Model{ID: uuid.MustParse("416e9375-8b09-4b04-a459-436b078dd375")},
 					Name:  "Group B",
 				},
 			},
@@ -129,7 +130,7 @@ func (s *AdminFormalSuite) TestGetFormals() {
 
 func (s *AdminFormalSuite) TestGetFormal() {
 	const expectedJSON = `{
-		"id": 13,
+		"id": "c5212510-4fb2-4623-8117-9dca85ed3ea2",
 		"createdAt": "0001-01-01T00:00:00Z",
 		"updatedAt": "0001-01-01T00:00:00Z",
 		"deletedAt": null,
@@ -144,28 +145,28 @@ func (s *AdminFormalSuite) TestGetFormal() {
 		"saleEnd": "0001-01-01T00:00:00Z",
 		"dateTime": "0001-01-01T00:00:00Z",
 		"groups": [{
-			"id": 5,
+			"id": "97e9db3b-077a-4150-bc20-66b5a8490083",
 			"name": "Group"
 		}],
 		"ticketSales": [{
-			"id": 3,
+			"id": "af7960bf-dca3-45e5-869e-5637db289e5e",
 			"createdAt": "0001-01-01T00:00:00Z",
 			"updatedAt": "0001-01-01T00:00:00Z",
 			"deletedAt": null,
 			"isGuest": false,
 			"isQueue": false,
-			"formalId": 13,
+			"formalId": "c5212510-4fb2-4623-8117-9dca85ed3ea2",
 			"option": "Vegetarian",
-			"userId": 7,
+			"userId": "809331d0-f3ad-4cc4-bbc8-5149737ffca4",
 			"userName": "Stephen Sondheim",
 			"userEmail": "ss103@cam.ac.uk"
 		}],
 		"manualTickets": [{
-			"id": 4,
+			"id": "3cf7795b-858b-40d7-9541-91e46e433215",
 			"createdAt": "0001-01-01T00:00:00Z",
 			"updatedAt": "0001-01-01T00:00:00Z",
 			"deletedAt": null,
-			"formalId": 13,
+			"formalId": "c5212510-4fb2-4623-8117-9dca85ed3ea2",
 			"option": "Vegan",
 			"type": "standard",
 			"name": "Kara Thrace",
@@ -174,37 +175,37 @@ func (s *AdminFormalSuite) TestGetFormal() {
 		}]
 	}`
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/formals/13", nil)
+	req := httptest.NewRequest(http.MethodGet, "/formals/c5212510-4fb2-4623-8117-9dca85ed3ea2", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
-	c.SetParamValues("13")
+	c.SetParamValues("c5212510-4fb2-4623-8117-9dca85ed3ea2")
 	formal := model.Formal{
-		Model:      model.Model{ID: 13},
+		Model:      model.Model{ID: uuid.MustParse("c5212510-4fb2-4623-8117-9dca85ed3ea2")},
 		Name:       "Test 5",
 		Menu:       "Another menu",
 		Price:      26.3,
 		GuestPrice: 12.7,
 		GuestLimit: 3,
 		Groups: []model.Group{{
-			Model: model.Model{ID: 5},
+			Model: model.Model{ID: uuid.MustParse("97e9db3b-077a-4150-bc20-66b5a8490083")},
 			Name:  "Group",
 		}},
 		TicketSales: []model.Ticket{{
-			Model: model.Model{ID: 3},
+			Model: model.Model{ID: uuid.MustParse("af7960bf-dca3-45e5-869e-5637db289e5e")},
 			User: &model.User{
-				Model: model.Model{ID: 7},
+				Model: model.Model{ID: uuid.MustParse("809331d0-f3ad-4cc4-bbc8-5149737ffca4")},
 				Name:  "Stephen Sondheim",
 				Email: "ss103@cam.ac.uk",
 			},
-			UserID:     7,
+			UserID:     uuid.MustParse("809331d0-f3ad-4cc4-bbc8-5149737ffca4"),
 			MealOption: "Vegetarian",
-			FormalID:   13,
+			FormalID:   uuid.MustParse("c5212510-4fb2-4623-8117-9dca85ed3ea2"),
 		}},
 		ManualTickets: []model.ManualTicket{{
-			Model:         model.Model{ID: 4},
+			Model:         model.Model{ID: uuid.MustParse("3cf7795b-858b-40d7-9541-91e46e433215")},
 			MealOption:    "Vegan",
-			FormalID:      13,
+			FormalID:      uuid.MustParse("c5212510-4fb2-4623-8117-9dca85ed3ea2"),
 			Type:          "standard",
 			Name:          "Kara Thrace",
 			Justification: "Ents Committee",
@@ -212,7 +213,7 @@ func (s *AdminFormalSuite) TestGetFormal() {
 		}},
 		Tickets: 120,
 	}
-	s.formals.On("FindWithTickets", 13).Return(formal, nil)
+	s.formals.On("FindWithTickets", formal.ID).Return(formal, nil)
 
 	err := s.h.GetFormal(c)
 	s.NoError(err)
@@ -229,7 +230,7 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 	type test struct {
 		name   string
 		body   string
-		groups []int
+		groups []uuid.UUID
 		formal *model.Formal
 		wants  *wants
 	}
@@ -247,9 +248,15 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 				"saleStart": "2022-02-10T11:30:00Z",
 				"saleEnd": "2022-03-01T17:45:00Z",
 				"dateTime": "2022-03-05T20:30:00Z",
-				"groups": [11, 3]
+				"groups": [
+					"d9577854-0f8b-4350-ae42-4a5572913444",
+					"609f4ef2-d516-4281-abb1-98fc687fd991"
+				]
 			}`,
-			[]int{11, 3},
+			[]uuid.UUID{
+				uuid.MustParse("d9577854-0f8b-4350-ae42-4a5572913444"),
+				uuid.MustParse("609f4ef2-d516-4281-abb1-98fc687fd991"),
+			},
 			&model.Formal{
 				Name:         "A formal",
 				Menu:         "Some menu",
@@ -270,9 +277,10 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 					2022, 03, 05, 20, 30,
 					0, 0, time.UTC,
 				),
-				Groups: []model.Group{
-					{Model: model.Model{ID: 11}, Name: "Group 1"},
-				},
+				Groups: []model.Group{{
+					Model: model.Model{ID: uuid.MustParse("609f4ef2-d516-4281-abb1-98fc687fd991")},
+					Name:  "Group 1",
+				}},
 			},
 			&wants{http.StatusUnprocessableEntity, "Selected groups do not exist."},
 		},
@@ -289,9 +297,15 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 				"saleStart": "2022-02-10T11:30:00Z",
 				"saleEnd": "2022-03-01T17:45:00Z",
 				"dateTime": "2022-03-05T20:30:00Z",
-				"groups": [11, 3]
+				"groups": [
+					"d9577854-0f8b-4350-ae42-4a5572913444",
+					"609f4ef2-d516-4281-abb1-98fc687fd991"
+				]
 			}`,
-			[]int{11, 3},
+			[]uuid.UUID{
+				uuid.MustParse("d9577854-0f8b-4350-ae42-4a5572913444"),
+				uuid.MustParse("609f4ef2-d516-4281-abb1-98fc687fd991"),
+			},
 			&model.Formal{
 				Name:         "A formal",
 				Menu:         "Some menu",
@@ -313,8 +327,18 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 					0, 0, time.UTC,
 				),
 				Groups: []model.Group{
-					{Model: model.Model{ID: 11}, Name: "Group 1"},
-					{Model: model.Model{ID: 3}, Name: "Group 2"},
+					{
+						Model: model.Model{
+							ID: uuid.MustParse("d9577854-0f8b-4350-ae42-4a5572913444"),
+						},
+						Name: "Group 1",
+					},
+					{
+						Model: model.Model{
+							ID: uuid.MustParse("609f4ef2-d516-4281-abb1-98fc687fd991"),
+						},
+						Name: "Group 2",
+					},
 				},
 			},
 			nil,
@@ -383,7 +407,7 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 				"dateTime": "2022-03-05T20:30:00Z"
 			}`,
 			model.Formal{
-				Model:        model.Model{ID: 34},
+				Model:        model.Model{ID: uuid.MustParse("3008f056-8e1e-4971-af88-27e9146da1ae")},
 				Name:         "Some formal",
 				Menu:         "Some menu",
 				Price:        20,
@@ -413,13 +437,13 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 			e.Validator = middleware.NewValidator()
 			// HTTP
 			req := httptest.NewRequest(
-				http.MethodPut, "/formals/34", strings.NewReader(test.body),
+				http.MethodPut, "/formals/3008f056-8e1e-4971-af88-27e9146da1ae", strings.NewReader(test.body),
 			)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(int(test.formal.ID)))
+			c.SetParamValues(test.formal.ID.String())
 			// Mock
 			if test.wants == nil {
 				s.formals.On("Update", &test.formal).Return(nil).Once()
@@ -449,23 +473,23 @@ func (s *AdminFormalSuite) TestDeleteFormal() {
 	}
 	type test struct {
 		name   string
-		id     int
+		id     uuid.UUID
 		formal model.Formal
 		wants  *wants
 	}
 	tests := []test{
 		{
 			"Should Delete",
-			34,
+			uuid.MustParse("08d84aba-ce1b-49b7-8946-eca7e4f95aeb"),
 			model.Formal{
-				Model: model.Model{ID: 34},
+				Model: model.Model{ID: uuid.MustParse("08d84aba-ce1b-49b7-8946-eca7e4f95aeb")},
 				Name:  "Some formal",
 			},
 			nil,
 		},
 		{
 			"Formal Not Found",
-			31,
+			uuid.MustParse("25bebb0e-a5ab-4344-9b9d-349bda25f669"),
 			model.Formal{},
 			&wants{http.StatusNotFound, "Not Found"},
 		},
@@ -476,13 +500,15 @@ func (s *AdminFormalSuite) TestDeleteFormal() {
 			e.Validator = middleware.NewValidator()
 			// HTTP
 			req := httptest.NewRequest(
-				http.MethodDelete, "/formals/34", nil,
+				http.MethodDelete,
+				fmt.Sprintf("/formals/%s", test.id.String()),
+				nil,
 			)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(test.id))
+			c.SetParamValues(test.id.String())
 			// Mock
 			if test.wants == nil {
 				s.formals.On("Find", test.id).Return(
@@ -520,22 +546,31 @@ func (s *AdminFormalSuite) TestUpdateFormalGroups() {
 	type test struct {
 		name   string
 		body   string
-		ids    []int
+		ids    []uuid.UUID
 		formal model.Formal
 		groups []model.Group
 		wants  *wants
 	}
+	id := uuid.MustParse("bc6a54fa-0ccb-48f2-9ba7-3ab7e15e053d")
 	tests := []test{
 		{
 			"Invalid Groups",
-			`[2, 45, 3]`,
-			[]int{2, 45, 3},
+			`[
+				"ada9b70c-be1d-4ad4-a852-337c2df26184",
+				"6a0cf98f-05ea-403d-a46d-3ca59c89b4a9",
+				"5cec7779-c8cb-482d-8deb-235c537c31da"
+			]`,
+			[]uuid.UUID{
+				uuid.MustParse("ada9b70c-be1d-4ad4-a852-337c2df26184"),
+				uuid.MustParse("6a0cf98f-05ea-403d-a46d-3ca59c89b4a9"),
+				uuid.MustParse("5cec7779-c8cb-482d-8deb-235c537c31da"),
+			},
 			model.Formal{
-				Model: model.Model{ID: 12},
+				Model: model.Model{ID: id},
 				Name:  "My Formal",
 			},
 			[]model.Group{{
-				Model: model.Model{ID: 45},
+				Model: model.Model{ID: uuid.MustParse("6a0cf98f-05ea-403d-a46d-3ca59c89b4a9")},
 				Name:  "A Group",
 			}},
 			&wants{
@@ -545,19 +580,25 @@ func (s *AdminFormalSuite) TestUpdateFormalGroups() {
 		},
 		{
 			"Should Update",
-			`[11, 13]`,
-			[]int{11, 13},
+			`[
+				"ada9b70c-be1d-4ad4-a852-337c2df26184",
+				"6a0cf98f-05ea-403d-a46d-3ca59c89b4a9"
+			]`,
+			[]uuid.UUID{
+				uuid.MustParse("ada9b70c-be1d-4ad4-a852-337c2df26184"),
+				uuid.MustParse("6a0cf98f-05ea-403d-a46d-3ca59c89b4a9"),
+			},
 			model.Formal{
-				Model: model.Model{ID: 12},
+				Model: model.Model{ID: id},
 				Name:  "My Formal",
 			},
 			[]model.Group{
 				{
-					Model: model.Model{ID: 11},
+					Model: model.Model{ID: uuid.MustParse("ada9b70c-be1d-4ad4-a852-337c2df26184")},
 					Name:  "A Group",
 				},
 				{
-					Model: model.Model{ID: 13},
+					Model: model.Model{ID: uuid.MustParse("6a0cf98f-05ea-403d-a46d-3ca59c89b4a9")},
 					Name:  "B Group",
 				},
 			},
@@ -570,15 +611,15 @@ func (s *AdminFormalSuite) TestUpdateFormalGroups() {
 			e.Validator = middleware.NewValidator()
 			// HTTP
 			req := httptest.NewRequest(
-				http.MethodPut, "/formals/12/groups", strings.NewReader(test.body),
+				http.MethodPut, "/formals/bc6a54fa-0ccb-48f2-9ba7-3ab7e15e053d/groups", strings.NewReader(test.body),
 			)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(int(test.formal.ID)))
+			c.SetParamValues(test.formal.ID.String())
 
-			s.formals.On("Find", int(test.formal.ID)).Return(test.formal, nil).Once()
+			s.formals.On("Find", test.formal.ID).Return(test.formal, nil).Once()
 			s.formals.On("GetGroups", test.ids).Return(test.groups, nil).Once()
 			// Mock
 			if test.wants == nil {

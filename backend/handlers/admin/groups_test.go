@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
@@ -37,7 +37,7 @@ func (s *AdminGroupSuite) SetupTest() {
 func (s *AdminGroupSuite) TestGetGroups() {
 	const expectedJSON = `[
 		{
-			"id":1,
+			"id": "6e503329-d12f-466f-b985-a78bb1fec364",
 			"createdAt":"0001-01-01T00:00:00Z",
 			"updatedAt":"0001-01-01T00:00:00Z",
 			"deletedAt":null,
@@ -46,7 +46,7 @@ func (s *AdminGroupSuite) TestGetGroups() {
 			"lookup":"GRPA"
 		},
 		{
-			"id":51,
+			"id": "89c89641-5bdd-4770-b40f-0e25305e3530",
 			"createdAt":"0001-01-01T00:00:00Z",
 			"updatedAt":"0001-01-01T00:00:00Z",
 			"deletedAt":null,
@@ -63,13 +63,13 @@ func (s *AdminGroupSuite) TestGetGroups() {
 	// Mock database
 	groups := []model.Group{
 		{
-			Model:  model.Model{ID: 1},
+			Model:  model.Model{ID: uuid.MustParse("6e503329-d12f-466f-b985-a78bb1fec364")},
 			Name:   "Group A",
 			Type:   "inst",
 			Lookup: "GRPA",
 		},
 		{
-			Model:  model.Model{ID: 51},
+			Model:  model.Model{ID: uuid.MustParse("89c89641-5bdd-4770-b40f-0e25305e3530")},
 			Name:   "Group B",
 			Type:   "group",
 			Lookup: "GRPB",
@@ -86,7 +86,7 @@ func (s *AdminGroupSuite) TestGetGroups() {
 
 func (s *AdminGroupSuite) TestGetGroup() {
 	const expectedJSON = `{
-		"id":34,
+		"id": "a2140fcf-89a8-4c90-bb24-c85f21aeb2e0",
 		"createdAt":"0001-01-01T00:00:00Z",
 		"updatedAt":"0001-01-01T00:00:00Z",
 		"deletedAt":null,
@@ -95,13 +95,13 @@ func (s *AdminGroupSuite) TestGetGroup() {
 		"lookup":"MGRP",
 		"users":[
 			{
-				"groupId":34,
+				"groupId": "a2140fcf-89a8-4c90-bb24-c85f21aeb2e0",
 				"userEmail":"abc123@cam.ac.uk",
 				"isManual":false,
 				"createdAt":"0001-01-01T00:00:00Z"
 			},
 			{
-				"groupId":34,
+				"groupId": "a2140fcf-89a8-4c90-bb24-c85f21aeb2e0",
 				"userEmail":"def456@cam.ac.uk",
 				"isManual":true,
 				"createdAt":"0001-01-01T00:00:00Z"
@@ -110,31 +110,33 @@ func (s *AdminGroupSuite) TestGetGroup() {
 	}`
 	// Init HTTP
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/groups/34", nil)
+	id := uuid.MustParse("a2140fcf-89a8-4c90-bb24-c85f21aeb2e0")
+	req := httptest.NewRequest(http.MethodGet, "/groups/a2140fcf-89a8-4c90-bb24-c85f21aeb2e0", nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
-	c.SetParamValues("34")
+	c.SetParamValues(id.String())
+
 	// Mock database
 	group := model.Group{
-		Model:  model.Model{ID: 34},
+		Model:  model.Model{ID: id},
 		Name:   "My Group",
 		Type:   "inst",
 		Lookup: "MGRP",
 		GroupUsers: []model.GroupUser{
 			{
-				GroupID:   34,
+				GroupID:   id,
 				UserEmail: "abc123@cam.ac.uk",
 				IsManual:  false,
 			},
 			{
-				GroupID:   34,
+				GroupID:   id,
 				UserEmail: "def456@cam.ac.uk",
 				IsManual:  true,
 			},
 		},
 	}
-	s.groups.On("Find", 34).Return(group, nil)
+	s.groups.On("Find", id).Return(group, nil)
 
 	err := s.h.GetGroup(c)
 	s.NoError(err)
@@ -159,7 +161,7 @@ func (s *AdminGroupSuite) TestCreateGroup() {
 			"Missing Lookup",
 			`{
 				"name": "A group",
-				"type": "inst"	
+				"type": "inst"
 			}`,
 			model.Group{},
 			&wants{
@@ -171,7 +173,7 @@ func (s *AdminGroupSuite) TestCreateGroup() {
 			"Should Create: manual",
 			`{
 				"name": "Manual Group",
-				"type": "manual"	
+				"type": "manual"
 			}`,
 			model.Group{
 				Name: "Manual Group",
@@ -254,10 +256,10 @@ func (s *AdminGroupSuite) TestUpdateGroup() {
 			"Should Update: manual",
 			`{
 				"name": "Manual Group",
-				"type": "manual"	
+				"type": "manual"
 			}`,
 			model.Group{
-				Model: model.Model{ID: 13},
+				Model: model.Model{ID: uuid.New()},
 				Name:  "Manual Group",
 				Type:  "manual",
 			},
@@ -271,7 +273,7 @@ func (s *AdminGroupSuite) TestUpdateGroup() {
 				"lookup": "MYGRP"
 			}`,
 			model.Group{
-				Model:  model.Model{ID: 13},
+				Model:  model.Model{ID: uuid.New()},
 				Name:   "My Group",
 				Type:   "inst",
 				Lookup: "MYGRP",
@@ -285,16 +287,18 @@ func (s *AdminGroupSuite) TestUpdateGroup() {
 			e.Validator = middleware.NewValidator()
 			// HTTP
 			req := httptest.NewRequest(
-				http.MethodPut, "/groups/13", strings.NewReader(test.body),
+				http.MethodPut,
+				fmt.Sprint("/groups/", test.group.ID),
+				strings.NewReader(test.body),
 			)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(int(test.group.ID)))
+			c.SetParamValues(test.group.ID.String())
 			// Mock
 			if test.wants == nil {
-				s.groups.On("Find", int(test.group.ID)).Return(
+				s.groups.On("Find", test.group.ID).Return(
 					model.Group{
 						Model:  model.Model{ID: test.group.ID},
 						Name:   "Initial",
@@ -328,22 +332,22 @@ func (s *AdminGroupSuite) TestDeleteGroup() {
 	}
 	type test struct {
 		name  string
-		id    int
+		id    uuid.UUID
 		group model.Group
 		wants *wants
 	}
 	tests := []test{
 		{
 			"Group Not Found",
-			34,
+			uuid.New(),
 			model.Group{},
 			&wants{http.StatusNotFound, "Not Found"},
 		},
 		{
 			"Should Delete",
-			22,
+			uuid.MustParse("1109c678-e0f2-4675-94eb-d0b4bb61c862"),
 			model.Group{
-				Model:  model.Model{ID: 22},
+				Model:  model.Model{ID: uuid.MustParse("1109c678-e0f2-4675-94eb-d0b4bb61c862")},
 				Name:   "Group",
 				Type:   "inst",
 				Lookup: "GRP",
@@ -362,7 +366,7 @@ func (s *AdminGroupSuite) TestDeleteGroup() {
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(test.id))
+			c.SetParamValues(test.id.String())
 			// Mock
 			if test.wants == nil {
 				s.groups.On("Find", test.id).Return(
@@ -404,6 +408,7 @@ func (s *AdminGroupSuite) TestAddGroupUser() {
 		group     *model.Group
 		wants     *wants
 	}
+	id := uuid.New()
 	tests := []test{
 		{
 			"Invalid email",
@@ -434,12 +439,12 @@ func (s *AdminGroupSuite) TestAddGroupUser() {
 		{
 			"Should add user",
 			`{
-				"userEmail": "def456@cam.ac.uk"	
+				"userEmail": "def456@cam.ac.uk"
 			}`,
 			"def456@cam.ac.uk",
 			true,
 			&model.Group{
-				Model: model.Model{ID: 12},
+				Model: model.Model{ID: id},
 				Name:  "My Group",
 			},
 			nil,
@@ -451,19 +456,21 @@ func (s *AdminGroupSuite) TestAddGroupUser() {
 			e.Validator = middleware.NewValidator()
 			// HTTP
 			req := httptest.NewRequest(
-				http.MethodPost, "/groups/12/users", strings.NewReader(test.body),
+				http.MethodPost,
+				fmt.Sprint("/groups/", id, "/users"),
+				strings.NewReader(test.body),
 			)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues("12")
+			c.SetParamValues(id.String())
 			// Mock
 			if test.findGroup {
 				if test.group == nil {
-					s.groups.On("Find", 12).Once().Return(model.Group{}, gorm.ErrRecordNotFound)
+					s.groups.On("Find", id).Once().Return(model.Group{}, gorm.ErrRecordNotFound)
 				} else {
-					s.groups.On("Find", 12).Once().Return(*test.group, nil)
+					s.groups.On("Find", id).Once().Return(*test.group, nil)
 				}
 			}
 			if test.wants == nil {
@@ -500,6 +507,7 @@ func (s *AdminGroupSuite) TestRemoveGroupUser() {
 		group     *model.Group
 		wants     *wants
 	}
+	id := uuid.New()
 	tests := []test{
 		{
 			"Invalid email",
@@ -530,12 +538,12 @@ func (s *AdminGroupSuite) TestRemoveGroupUser() {
 		{
 			"Should remove user",
 			`{
-				"userEmail": "def456@cam.ac.uk"	
+				"userEmail": "def456@cam.ac.uk"
 			}`,
 			"def456@cam.ac.uk",
 			true,
 			&model.Group{
-				Model: model.Model{ID: 12},
+				Model: model.Model{ID: id},
 				Name:  "My Group",
 			},
 			nil,
@@ -547,19 +555,21 @@ func (s *AdminGroupSuite) TestRemoveGroupUser() {
 			e.Validator = middleware.NewValidator()
 			// HTTP
 			req := httptest.NewRequest(
-				http.MethodPost, "/groups/12/users", strings.NewReader(test.body),
+				http.MethodPost,
+				fmt.Sprint("/groups/", id, "/users"),
+				strings.NewReader(test.body),
 			)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues("12")
+			c.SetParamValues(id.String())
 			// Mock
 			if test.findGroup {
 				if test.group == nil {
-					s.groups.On("Find", 12).Once().Return(model.Group{}, gorm.ErrRecordNotFound)
+					s.groups.On("Find", id).Once().Return(model.Group{}, gorm.ErrRecordNotFound)
 				} else {
-					s.groups.On("Find", 12).Once().Return(*test.group, nil)
+					s.groups.On("Find", id).Once().Return(*test.group, nil)
 				}
 			}
 			if test.wants == nil {
@@ -598,7 +608,7 @@ func (s *AdminGroupSuite) TestLookupGroupUsers() {
 		{
 			"Should Replace",
 			model.Group{
-				Model:  model.Model{ID: 13},
+				Model:  model.Model{ID: uuid.New()},
 				Name:   "My Group",
 				Type:   "inst",
 				Lookup: "MYGRP",
@@ -621,9 +631,9 @@ func (s *AdminGroupSuite) TestLookupGroupUsers() {
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(int(test.group.ID)))
+			c.SetParamValues(test.group.ID.String())
 			// Mock
-			s.groups.On("Find", int(test.group.ID)).Return(
+			s.groups.On("Find", test.group.ID).Return(
 				test.group, nil,
 			).Once()
 			if test.wants == nil {

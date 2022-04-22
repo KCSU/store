@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
@@ -35,33 +35,33 @@ func (s *AdminRoleSuite) SetupTest() {
 func (s *AdminRoleSuite) TestGetRoles() {
 	const expectedJSON = `[
 		{
-			"id":45,
+			"id": "bec928b2-fd8e-4e46-ab6a-811c41fd5260",
 			"createdAt":"0001-01-01T00:00:00Z",
 			"updatedAt":"0001-01-01T00:00:00Z",
 			"deletedAt":null,
 			"name":"Admin",
 			"permissions":[
 				{
-					"id":23,
+					"id": "7e3ef068-9e8f-48c4-9f63-9d016f815b64",
 					"resource":"groups",
 					"action":"read"
 				},
 				{
-					"id":11,
+					"id": "29c37fe8-6e5b-46d9-a988-40a3ffe7d58a",
 					"resource":"formals",
 					"action":"write"
 				}
 			]
 		},
 		{
-			"id":4,
+			"id": "bc71fbe4-de50-49b0-b7aa-381c0da566ef",
 			"createdAt":"0001-01-01T00:00:00Z",
 			"updatedAt":"0001-01-01T00:00:00Z",
 			"deletedAt":null,
 			"name":"Something",
 			"permissions":[
 				{
-					"id":31,
+					"id": "e0bd7d92-4dd6-4a97-b4b2-d9ef30f89d55",
 					"resource":"tickets",
 					"action":"*"
 				}
@@ -76,30 +76,30 @@ func (s *AdminRoleSuite) TestGetRoles() {
 	// Mock DB
 	roles := []model.Role{
 		{
-			Model: model.Model{ID: 45},
+			Model: model.Model{ID: uuid.MustParse("bec928b2-fd8e-4e46-ab6a-811c41fd5260")},
 			Name:  "Admin",
 			Permissions: []model.Permission{
 				{
-					ID:       23,
-					RoleID:   45,
+					ID:       uuid.MustParse("7e3ef068-9e8f-48c4-9f63-9d016f815b64"),
+					RoleID:   uuid.MustParse("bec928b2-fd8e-4e46-ab6a-811c41fd5260"),
 					Resource: "groups",
 					Action:   "read",
 				},
 				{
-					ID:       11,
-					RoleID:   45,
+					ID:       uuid.MustParse("29c37fe8-6e5b-46d9-a988-40a3ffe7d58a"),
+					RoleID:   uuid.MustParse("bec928b2-fd8e-4e46-ab6a-811c41fd5260"),
 					Resource: "formals",
 					Action:   "write",
 				},
 			},
 		},
 		{
-			Model: model.Model{ID: 4},
+			Model: model.Model{ID: uuid.MustParse("bc71fbe4-de50-49b0-b7aa-381c0da566ef")},
 			Name:  "Something",
 			Permissions: []model.Permission{
 				{
-					ID:       31,
-					RoleID:   4,
+					ID:       uuid.MustParse("e0bd7d92-4dd6-4a97-b4b2-d9ef30f89d55"),
+					RoleID:   uuid.MustParse("bc71fbe4-de50-49b0-b7aa-381c0da566ef"),
 					Resource: "tickets",
 					Action:   "*",
 				},
@@ -121,8 +121,8 @@ func (s *AdminRoleSuite) TestGetUserRoles() {
 		  "userEmail": "abc123@cam.ac.uk",
 		  "userName": "A. Bell",
 		  "roleName": "Admin",
-		  "userId": 26,
-		  "roleId": 45
+		  "userId": "e14792f2-6faa-4378-89b0-e2261bdd8dc4",
+		  "roleId": "5b77d20e-0f14-4680-b8b5-cc962ddd8eb9"
 		}
 	]`
 	// Init HTTP
@@ -131,18 +131,20 @@ func (s *AdminRoleSuite) TestGetUserRoles() {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	// Mock DB
+	userId := uuid.MustParse("e14792f2-6faa-4378-89b0-e2261bdd8dc4")
+	roleId := uuid.MustParse("5b77d20e-0f14-4680-b8b5-cc962ddd8eb9")
 	userRoles := []model.UserRole{{
 		Role: model.Role{
-			Model: model.Model{ID: 45},
+			Model: model.Model{ID: roleId},
 			Name:  "Admin",
 		},
 		User: model.User{
-			Model: model.Model{ID: 26},
+			Model: model.Model{ID: userId},
 			Email: "abc123@cam.ac.uk",
 			Name:  "A. Bell",
 		},
-		RoleID: 45,
-		UserID: 26,
+		RoleID: roleId,
+		UserID: userId,
 	}}
 	s.roles.On("GetUserRoles").Return(userRoles, nil)
 	// Run test
@@ -154,6 +156,7 @@ func (s *AdminRoleSuite) TestGetUserRoles() {
 }
 
 func (s *AdminRoleSuite) TestCreatePermission() {
+	roleId := uuid.MustParse("b7780926-570a-48df-a4a9-09970f26db55")
 	type wants struct {
 		code    int
 		message string
@@ -172,7 +175,7 @@ func (s *AdminRoleSuite) TestCreatePermission() {
 			`{
 				"resource": "formals",
 				"action": "read",
-				"roleId": 5
+				"roleId": "b7780926-570a-48df-a4a9-09970f26db55"
 			}`,
 			true,
 			nil,
@@ -187,7 +190,7 @@ func (s *AdminRoleSuite) TestCreatePermission() {
 			`{
 				"resource": "*s",
 				"action": "read",
-				"roleId": 5
+				"roleId": "b7780926-570a-48df-a4a9-09970f26db55"
 			}`,
 			false,
 			nil,
@@ -202,7 +205,7 @@ func (s *AdminRoleSuite) TestCreatePermission() {
 			`{
 				"resource": "*",
 				"action": "1abc",
-				"roleId": 5
+				"roleId": "b7780926-570a-48df-a4a9-09970f26db55"
 			}`,
 			false,
 			nil,
@@ -217,17 +220,17 @@ func (s *AdminRoleSuite) TestCreatePermission() {
 			`{
 				"resource": "formals",
 				"action": "*",
-				"roleId": 5
+				"roleId": "b7780926-570a-48df-a4a9-09970f26db55"
 			}`,
 			true,
 			&model.Role{
 				Name:  "My Role",
-				Model: model.Model{ID: 5},
+				Model: model.Model{ID: roleId},
 			},
 			&model.Permission{
 				Resource: "formals",
 				Action:   "*",
-				RoleID:   5,
+				RoleID:   roleId,
 			},
 			nil,
 		},
@@ -246,9 +249,9 @@ func (s *AdminRoleSuite) TestCreatePermission() {
 			// Mock
 			if test.valid {
 				if test.role != nil {
-					s.roles.On("Find", 5).Return(*test.role, nil).Once()
+					s.roles.On("Find", roleId).Return(*test.role, nil).Once()
 				} else {
-					s.roles.On("Find", 5).Return(model.Role{}, gorm.ErrRecordNotFound).Once()
+					s.roles.On("Find", roleId).Return(model.Role{}, gorm.ErrRecordNotFound).Once()
 				}
 				if test.permission != nil {
 					s.roles.On("CreatePermission", test.permission).
@@ -268,14 +271,14 @@ func (s *AdminRoleSuite) TestCreatePermission() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.roles.AssertExpectations(s.T())
 		})
 	}
+	s.roles.AssertExpectations(s.T())
 }
 
 func (s *AdminRoleSuite) TestDeletePermission() {
 	e := echo.New()
-	id := 42
+	id := uuid.New()
 	route := fmt.Sprint("/permissions/", id)
 	req := httptest.NewRequest(
 		http.MethodDelete, route, nil,
@@ -283,7 +286,7 @@ func (s *AdminRoleSuite) TestDeletePermission() {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
-	c.SetParamValues(strconv.Itoa(id))
+	c.SetParamValues(id.String())
 	// Mock
 	s.roles.On("DeletePermission", id).Return(nil).Once()
 	// Test
@@ -337,7 +340,7 @@ func (s *AdminRoleSuite) TestUpdateRole() {
 			"Should Update",
 			`{"name": "Admin"}`,
 			model.Role{
-				Model: model.Model{ID: 17},
+				Model: model.Model{ID: uuid.New()},
 				Name:  "Admin",
 			},
 			nil,
@@ -355,10 +358,10 @@ func (s *AdminRoleSuite) TestUpdateRole() {
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetParamNames("id")
-			c.SetParamValues(strconv.Itoa(int(test.role.ID)))
+			c.SetParamValues(test.role.ID.String())
 			// Mock
 			if test.wants == nil {
-				s.roles.On("Find", int(test.role.ID)).Return(
+				s.roles.On("Find", test.role.ID).Return(
 					model.Role{
 						Model: model.Model{ID: test.role.ID},
 						Name:  "initial",
@@ -385,9 +388,9 @@ func (s *AdminRoleSuite) TestUpdateRole() {
 
 func (s *AdminRoleSuite) TestDeleteRole() {
 	e := echo.New()
-	id := 47
+	id := uuid.New()
 	role := model.Role{
-		Model: model.Model{ID: uint(id)},
+		Model: model.Model{ID: id},
 		Name:  "Admin",
 	}
 	route := fmt.Sprint("/roles/", id)
@@ -397,7 +400,7 @@ func (s *AdminRoleSuite) TestDeleteRole() {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
-	c.SetParamValues(strconv.Itoa(id))
+	c.SetParamValues(id.String())
 	// Mock
 	s.roles.On("Find", id).Return(role, nil).Once()
 	s.roles.On("Delete", &role).Return(nil).Once()
@@ -416,7 +419,7 @@ func (s *AdminRoleSuite) TestAddUserRole() {
 	type test struct {
 		name   string
 		body   string
-		roleId int
+		roleId uuid.UUID
 		email  string
 		role   *model.Role
 		user   *model.User
@@ -426,10 +429,10 @@ func (s *AdminRoleSuite) TestAddUserRole() {
 		{
 			"Role Not Found",
 			`{
-				"roleId": 7,
+				"roleId": "72fa0314-f29c-4ed0-8654-c50626e4d481",
 				"email": "abc123@cam.ac.uk"
 			}`,
-			7,
+			uuid.MustParse("72fa0314-f29c-4ed0-8654-c50626e4d481"),
 			"abc123@cam.ac.uk",
 			nil,
 			nil,
@@ -441,13 +444,13 @@ func (s *AdminRoleSuite) TestAddUserRole() {
 		{
 			"User Not Found",
 			`{
-				"roleId": 7,
+				"roleId": "72fa0314-f29c-4ed0-8654-c50626e4d481",
 				"email": "abc123@cam.ac.uk"
 			}`,
-			7,
+			uuid.MustParse("72fa0314-f29c-4ed0-8654-c50626e4d481"),
 			"abc123@cam.ac.uk",
 			&model.Role{
-				Model: model.Model{ID: 7},
+				Model: model.Model{ID: uuid.MustParse("72fa0314-f29c-4ed0-8654-c50626e4d481")},
 				Name:  "Admin",
 			},
 			nil,
@@ -459,17 +462,17 @@ func (s *AdminRoleSuite) TestAddUserRole() {
 		{
 			"Should Add",
 			`{
-				"roleId": 9,
+				"roleId": "d8cb8bde-6b6f-489e-916c-4830a5bd605c",
 				"email": "def456@cam.ac.uk"
 			}`,
-			9,
+			uuid.MustParse("d8cb8bde-6b6f-489e-916c-4830a5bd605c"),
 			"def456@cam.ac.uk",
 			&model.Role{
-				Model: model.Model{ID: 9},
+				Model: model.Model{ID: uuid.MustParse("d8cb8bde-6b6f-489e-916c-4830a5bd605c")},
 				Name:  "Admin",
 			},
 			&model.User{
-				Model: model.Model{ID: 17},
+				Model: model.Model{ID: uuid.New()},
 				Name:  "James Holden",
 				Email: "def456@cam.ac.uk",
 			},
@@ -531,7 +534,7 @@ func (s *AdminRoleSuite) TestRemoveUserRole() {
 	type test struct {
 		name   string
 		body   string
-		roleId int
+		roleId uuid.UUID
 		email  string
 		role   *model.Role
 		user   *model.User
@@ -541,10 +544,10 @@ func (s *AdminRoleSuite) TestRemoveUserRole() {
 		{
 			"Role Not Found",
 			`{
-				"roleId": 11,
+				"roleId": "6f1816f1-bf17-49d0-8a28-30437413d414",
 				"email": "abc123@cam.ac.uk"
 			}`,
-			11,
+			uuid.MustParse("6f1816f1-bf17-49d0-8a28-30437413d414"),
 			"abc123@cam.ac.uk",
 			nil,
 			nil,
@@ -556,13 +559,13 @@ func (s *AdminRoleSuite) TestRemoveUserRole() {
 		{
 			"User Not Found",
 			`{
-				"roleId": 7,
+				"roleId": "8de2f033-8716-40d1-a19e-53b1a5104d9a",
 				"email": "hij123@cam.ac.uk"
 			}`,
-			7,
+			uuid.MustParse("8de2f033-8716-40d1-a19e-53b1a5104d9a"),
 			"hij123@cam.ac.uk",
 			&model.Role{
-				Model: model.Model{ID: 7},
+				Model: model.Model{ID: uuid.MustParse("8de2f033-8716-40d1-a19e-53b1a5104d9a")},
 				Name:  "Admin",
 			},
 			nil,
@@ -574,17 +577,17 @@ func (s *AdminRoleSuite) TestRemoveUserRole() {
 		{
 			"Should Remove",
 			`{
-				"roleId": 9,
+				"roleId": "b8f179a5-48de-49e5-b2a2-8e9bdc316aab",
 				"email": "def456@cam.ac.uk"
 			}`,
-			9,
+			uuid.MustParse("b8f179a5-48de-49e5-b2a2-8e9bdc316aab"),
 			"def456@cam.ac.uk",
 			&model.Role{
-				Model: model.Model{ID: 9},
+				Model: model.Model{ID: uuid.MustParse("b8f179a5-48de-49e5-b2a2-8e9bdc316aab")},
 				Name:  "Admin",
 			},
 			&model.User{
-				Model: model.Model{ID: 17},
+				Model: model.Model{ID: uuid.New()},
 				Name:  "James Holden",
 				Email: "def456@cam.ac.uk",
 			},

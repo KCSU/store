@@ -3,8 +3,8 @@ package admin
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
@@ -24,7 +24,7 @@ func (ah *AdminHandler) GetGroups(c echo.Context) error {
 func (ah *AdminHandler) GetGroup(c echo.Context) error {
 	// Get the group ID from query
 	id := c.Param("id")
-	groupID, err := strconv.Atoi(id)
+	groupID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -63,7 +63,7 @@ func (ah *AdminHandler) CreateGroup(c echo.Context) error {
 func (ah *AdminHandler) UpdateGroup(c echo.Context) error {
 	// Get the group ID from query
 	id := c.Param("id")
-	groupID, err := strconv.Atoi(id)
+	groupID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -95,7 +95,7 @@ func (ah *AdminHandler) UpdateGroup(c echo.Context) error {
 func (ah *AdminHandler) DeleteGroup(c echo.Context) error {
 	// Get the group ID from query
 	id := c.Param("id")
-	groupID, err := strconv.Atoi(id)
+	groupID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -116,7 +116,7 @@ func (ah *AdminHandler) DeleteGroup(c echo.Context) error {
 func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
 	// Get the group ID from query
 	id := c.Param("id")
-	groupID, err := strconv.Atoi(id)
+	groupID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -145,7 +145,7 @@ func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
 func (ah *AdminHandler) RemoveGroupUser(c echo.Context) error {
 	// Get the group ID from query
 	id := c.Param("id")
-	groupID, err := strconv.Atoi(id)
+	groupID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -173,7 +173,7 @@ func (ah *AdminHandler) RemoveGroupUser(c echo.Context) error {
 func (ah *AdminHandler) LookupGroupUsers(c echo.Context) error {
 	// Get the group ID from query
 	id := c.Param("id")
-	groupID, err := strconv.Atoi(id)
+	groupID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
