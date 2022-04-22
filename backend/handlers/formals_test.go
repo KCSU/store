@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/handlers"
 	mocks "github.com/kcsu/store/mocks/db"
 	"github.com/kcsu/store/model"
@@ -14,7 +15,7 @@ import (
 
 const expectedJSON = `[
 	{
-		"id": 1,
+		"id": "215292b8-4911-4d93-81dd-ebafb1aa6489",
 		"createdAt": "0001-01-01T00:00:00Z",
 		"updatedAt": "0001-01-01T00:00:00Z",
 		"deletedAt": null,
@@ -33,7 +34,7 @@ const expectedJSON = `[
 		"groups": []
 	},
 	{
-		"id": 6,
+		"id": "202ca011-4cf8-4bf4-b318-c644be23ba85",
 		"createdAt": "0001-01-01T00:00:00Z",
 		"updatedAt": "0001-01-01T00:00:00Z",
 		"deletedAt": null,
@@ -51,11 +52,11 @@ const expectedJSON = `[
 		"guestTicketsRemaining": 31,
 		"groups": [
 			{
-				"id": 2,
+				"id": "ce22bfb1-b932-4073-a6a9-01e4787deecb",
 				"name": "Group A"
 			},
 			{
-				"id": 4,
+				"id": "bcdb4d1c-7deb-49c0-aaaa-8adb053ecfc2",
 				"name": "Group B"
 			}
 		]
@@ -75,25 +76,25 @@ func TestGetFormals(t *testing.T) {
 	// Mock database
 	formals := []model.Formal{
 		{
-			Model:      model.Model{ID: 1},
+			Model:      model.Model{ID: uuid.MustParse("215292b8-4911-4d93-81dd-ebafb1aa6489")},
 			Name:       "Test 1",
 			Menu:       "A menu",
 			Price:      21.3,
 			GuestPrice: 11.6,
 		},
 		{
-			Model:      model.Model{ID: 6},
+			Model:      model.Model{ID: uuid.MustParse("202ca011-4cf8-4bf4-b318-c644be23ba85")},
 			Name:       "Test 2",
 			Menu:       "Another menu",
 			Price:      15.6,
 			GuestPrice: 27.2,
 			Groups: []model.Group{
 				{
-					Model: model.Model{ID: 2},
+					Model: model.Model{ID: uuid.MustParse("ce22bfb1-b932-4073-a6a9-01e4787deecb")},
 					Name:  "Group A",
 				},
 				{
-					Model: model.Model{ID: 4},
+					Model: model.Model{ID: uuid.MustParse("bcdb4d1c-7deb-49c0-aaaa-8adb053ecfc2")},
 					Name:  "Group B",
 				},
 			},

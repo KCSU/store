@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 	"sort"
-	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
@@ -26,7 +26,7 @@ func (h *Handler) GetTickets(c echo.Context) error {
 		return err
 	}
 	// Group tickets by formal and guest status
-	dtos := map[uint]dto.TicketDto{}
+	dtos := map[uuid.UUID]dto.TicketDto{}
 	for _, t := range tickets {
 		if myDto, hasDto := dtos[t.Formal.ID]; hasDto {
 			if t.IsGuest {
@@ -77,7 +77,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		return err
 	}
 
-	formal, err := h.Formals.Find(int(t.FormalId))
+	formal, err := h.Formals.Find(t.FormalId)
 	if err != nil {
 		// Check whether error is formal existence?
 		return err
@@ -104,7 +104,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 
 	// Check that ticket does not already exist
 	// TODO: users
-	ticketExists, err := h.Tickets.ExistsByFormal(int(t.FormalId), userId)
+	ticketExists, err := h.Tickets.ExistsByFormal(t.FormalId, userId)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 	// Instantiate DB objects to be inserted
 	tickets := make([]model.Ticket, len(t.GuestTickets)+1)
 	tickets[0] = model.Ticket{
-		FormalID:   int(t.FormalId),
+		FormalID:   t.FormalId,
 		IsGuest:    false,
 		IsQueue:    true,
 		MealOption: t.Ticket.MealOption,
@@ -123,7 +123,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 	}
 	for i, gt := range t.GuestTickets {
 		tickets[i+1] = model.Ticket{
-			FormalID:   int(t.FormalId),
+			FormalID:   t.FormalId,
 			IsGuest:    true,
 			IsQueue:    true,
 			MealOption: gt.MealOption,
@@ -145,7 +145,7 @@ func (h *Handler) CancelTickets(c echo.Context) error {
 
 	// Get the formal ID from query
 	id := c.Param("id")
-	formalID, err := strconv.Atoi(id)
+	formalID, err := uuid.Parse(id)
 	if err != nil {
 		// TODO: NewHTTPError?
 		return echo.ErrNotFound
@@ -176,7 +176,7 @@ func (h *Handler) CancelTickets(c echo.Context) error {
 func (h *Handler) CancelTicket(c echo.Context) error {
 	userId := h.Auth.GetUserId(c)
 	id := c.Param("id")
-	ticketID, err := strconv.Atoi(id)
+	ticketID, err := uuid.Parse(id)
 	if err != nil {
 		// Should this be a different error?
 		return echo.ErrNotFound
@@ -214,7 +214,7 @@ func (h *Handler) CancelTicket(c echo.Context) error {
 func (h *Handler) EditTicket(c echo.Context) error {
 	userId := h.Auth.GetUserId(c)
 	id := c.Param("id")
-	ticketID, err := strconv.Atoi(id)
+	ticketID, err := uuid.Parse(id)
 	if err != nil {
 		return echo.ErrNotFound
 	}
@@ -258,7 +258,7 @@ func (h *Handler) AddTicket(c echo.Context) error {
 	userId := h.Auth.GetUserId(c)
 	// Parse request data
 	id := c.Param("id")
-	formalID, err := strconv.Atoi(id)
+	formalID, err := uuid.Parse(id)
 	if err != nil {
 		// TODO: NewHTTPError?
 		return echo.ErrNotFound
@@ -323,7 +323,7 @@ func (h *Handler) canBuyTickets(user *model.User, formal *model.Formal) (bool, e
 	if err != nil {
 		return false, err
 	}
-	s := map[uint]bool{}
+	s := map[uuid.UUID]bool{}
 	for _, g := range userGroups {
 		s[g.ID] = true
 	}

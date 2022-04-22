@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/kcsu/store/auth"
 	. "github.com/kcsu/store/handlers"
 	am "github.com/kcsu/store/mocks/auth"
@@ -54,9 +54,9 @@ func (a *AuthSuite) TestGetUser() {
 		Email:          "kt494@cam.ac.uk",
 		ProviderUserId: "123456",
 	}
-	user.ID = 5
+	user.ID = uuid.MustParse("0772fa76-844f-4d1b-b057-e7e329d1f8ad")
 	userJson := `{
-		"id":5,
+		"id": "0772fa76-844f-4d1b-b057-e7e329d1f8ad",
 		"createdAt":"0001-01-01T00:00:00Z",
 		"updatedAt":"0001-01-01T00:00:00Z",
 		"deletedAt":null,
@@ -64,26 +64,26 @@ func (a *AuthSuite) TestGetUser() {
 		"email":"kt494@cam.ac.uk",
 		"groups": [
 			{
-				"id": 34,
+				"id": "16f55b41-eeaf-4423-bd61-10f46c2739a7",
 				"name": "Battlestar"
 			}
 		],
 		"permissions": [
 			{
-				"id": 12,
+				"id": "2f4af0ac-ec3c-4257-b278-af7846f9a55b",
 				"resource": "formals",
 				"action": "read"
 			}
 		]
 	}`
-	a.auth.On("GetUserId", c).Return(int(user.ID))
-	a.users.On("Find", int(user.ID)).Return(user, nil)
+	a.auth.On("GetUserId", c).Return(user.ID)
+	a.users.On("Find", user.ID).Return(user, nil)
 	a.users.On("Groups", &user).Return([]model.Group{{
-		Model: model.Model{ID: 34},
+		Model: model.Model{ID: uuid.MustParse("16f55b41-eeaf-4423-bd61-10f46c2739a7")},
 		Name:  "Battlestar",
 	}}, nil)
 	a.users.On("Permissions", &user).Return([]model.Permission{{
-		ID:       12,
+		ID:       uuid.MustParse("2f4af0ac-ec3c-4257-b278-af7846f9a55b"),
 		Resource: "formals",
 		Action:   "read",
 	}}, nil)
@@ -117,7 +117,7 @@ func (a *AuthSuite) TestAuthCallback() {
 		Email:          "jl815@cam.ac.uk",
 		ProviderUserId: "109632",
 	}
-	user.ID = 415
+	user.ID = uuid.New()
 	oauthUser := goth.User{
 		Name:   user.Name,
 		Email:  user.Email,
@@ -148,7 +148,7 @@ func (a *AuthSuite) TestAuthCallback() {
 	a.NoError(err)
 	a.True(token.Valid)
 	claims := token.Claims.(*auth.JwtClaims)
-	a.Equal(strconv.Itoa(int(user.ID)), claims.Subject)
+	a.Equal(user.ID.String(), claims.Subject)
 	a.Equal(user.Name, claims.Name)
 	a.Equal(user.Email, claims.Email)
 	a.auth.AssertExpectations(a.T())

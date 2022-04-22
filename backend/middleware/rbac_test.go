@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/middleware"
 	am "github.com/kcsu/store/mocks/auth"
 	um "github.com/kcsu/store/mocks/db"
@@ -98,6 +99,7 @@ func TestRBAC(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// Setup
+			userId := uuid.New()
 			auth := new(am.Auth)
 			users := new(um.UserStore)
 			rbac := NewRBAC(RbacConfig{
@@ -111,13 +113,13 @@ func TestRBAC(t *testing.T) {
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			// Mock
-			auth.On("GetUserId", c).Return(12).Once()
+			auth.On("GetUserId", c).Return(userId).Once()
 			user := model.User{
-				Model: model.Model{ID: 12},
+				Model: model.Model{ID: userId},
 				Name:  "James Holden",
 				Email: "jh123@cam.ac.uk",
 			}
-			users.On("Find", 12).Return(user, nil).Once()
+			users.On("Find", userId).Return(user, nil).Once()
 			users.On("Permissions", &user).Return(test.permissions, nil).Once()
 			// Test
 			h := middleware(func(c echo.Context) error {

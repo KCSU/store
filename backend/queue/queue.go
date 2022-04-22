@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
@@ -17,7 +18,7 @@ func min(a, b int) int {
 	return b
 }
 
-func GetSuccesses(tickets []model.Ticket, maxTickets int) []int {
+func GetSuccesses(tickets []model.Ticket, maxTickets int) []uuid.UUID {
 	// Shuffle the list
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(tickets), func(i, j int) {
@@ -26,14 +27,14 @@ func GetSuccesses(tickets []model.Ticket, maxTickets int) []int {
 	// Get the IDs of tickets which have been successfully bought
 	ticketSuccess := min(maxTickets, len(tickets))
 	tickets = tickets[0:ticketSuccess]
-	successes := make([]int, 0, ticketSuccess)
+	successes := make([]uuid.UUID, 0, ticketSuccess)
 	for _, t := range tickets {
-		successes = append(successes, int(t.ID))
+		successes = append(successes, t.ID)
 	}
 	return successes
 }
 
-func UpdateSuccesses(tickets []int, d *gorm.DB) error {
+func UpdateSuccesses(tickets []uuid.UUID, d *gorm.DB) error {
 	// Change these tickets from queue tickets to successful purchases
 	return d.Model(&model.Ticket{}).Where("id IN ?", tickets).Update("is_queue", false).Error
 }
@@ -44,15 +45,15 @@ func GetNonGuestQueue(formal *model.Formal, d *gorm.DB) ([]model.Ticket, error) 
 	return tickets, err
 }
 
-func GetGuestQueueByUsers(formal *model.Formal, users []int, d *gorm.DB) ([]model.Ticket, error) {
+func GetGuestQueueByUsers(formal *model.Formal, users []uuid.UUID, d *gorm.DB) ([]model.Ticket, error) {
 	var guestTickets []model.Ticket
 	err := d.Model(&formal).Association("TicketSales").Find(&guestTickets, "is_guest AND is_queue AND user_id IN ?", users)
 	return guestTickets, err
 
 }
 
-func GetSuccessfulUserIDs(formal *model.Formal, d *gorm.DB) ([]int, error) {
-	var successfulUsers []int
+func GetSuccessfulUserIDs(formal *model.Formal, d *gorm.DB) ([]uuid.UUID, error) {
+	var successfulUsers []uuid.UUID
 	err := d.Model(&model.Ticket{}).Not("is_guest OR is_queue").Distinct("user_id").Pluck("user_id", &successfulUsers).Error
 	return successfulUsers, err
 }
