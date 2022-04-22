@@ -281,7 +281,7 @@ const CreateFormalForm: React.FC<CreateFormalForm> = ({
                     defaultValue={field.value.map((g: Group) => g.id)}
                     onChange={(val) => {
                       const groups = availableGroups.filter((g) =>
-                        val.includes(g.id.toString())
+                        val.includes(g.id)
                       ).map(g => g.id);
                       form.setFieldValue(field.name, groups);
                     }}
@@ -289,7 +289,7 @@ const CreateFormalForm: React.FC<CreateFormalForm> = ({
                   >
                     <Stack>
                       {availableGroups.map((g) => (
-                        <Checkbox value={g.id.toString()} key={g.id}>
+                        <Checkbox value={g.id} key={g.id}>
                           {g.name}
                         </Checkbox>
                       ))}

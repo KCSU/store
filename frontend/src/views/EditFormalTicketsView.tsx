@@ -6,12 +6,11 @@ import { useTickets } from "../hooks/queries/useTickets";
 
 export function EditFormalTicketsView() {
     const {id} = useParams();
-    const ticketId = parseInt(id ?? "0");
     const {data, isLoading, isError} = useTickets();
     if (isError || isLoading || !data) {
         return null;
     }
-    const ticket = data.find(t => t.ticket.id === ticketId);
+    const ticket = data.find(t => t.ticket.id === id);
     if (!ticket) {
         return null;
     }

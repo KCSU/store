@@ -58,8 +58,7 @@ function AdminEditGroupCard({ group }: GroupProps) {
 
 export function AdminEditGroupView() {
   const { groupId } = useParams();
-  const groupIdNum = parseInt(groupId ?? "0");
-  const { data: group, isLoading, isError } = useGroup(groupIdNum);
+  const { data: group, isLoading, isError } = useGroup(groupId ?? '');
   if (isError) {
     // TODO: return an error!
     return <Navigate to="/admin/groups" />;

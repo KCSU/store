@@ -133,7 +133,7 @@ function AddUserRoleForm() {
     <Formik
       initialValues={{
         email: "",
-        roleId: 0,
+        roleId: "",
       }}
       onSubmit={async (values, form) => {
         await mutation.mutateAsync(values);
@@ -165,17 +165,11 @@ function AddUserRoleForm() {
                 >
                   <Select
                     {...field}
-                    onChange={(e) =>
-                      form.setFieldValue(
-                        "roleId",
-                        parseInt(e.target.value || "0")
-                      )
-                    }
                     placeholder="Choose Role"
                     size="sm"
                   >
                     {data.map((role) => (
-                      <option key={role.id} value={role.id.toString()}>
+                      <option key={role.id} value={role.id}>
                         {role.name}
                       </option>
                     ))}

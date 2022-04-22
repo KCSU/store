@@ -22,7 +22,7 @@ export type QueueRequestAction =
     }
   | {
       type: "id";
-      value: number;
+      value: string;
     }
   | {
       type: "removeGuestTicket";

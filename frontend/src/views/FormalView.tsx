@@ -149,9 +149,8 @@ function FormalCard({formal}: FormalCardProps) {
 export function FormalView() {
   // Get the formal
   const { formalId } = useParams();
-  const formalIdNum = parseInt(formalId ?? "0");
   const { data: formals, isLoading, isError } = useFormals();
-  const formal = formals?.find((f) => f.id === formalIdNum);
+  const formal = formals?.find((f) => f.id === formalId);
   if (isError) {
     // TODO: return an error!
     return <Navigate to="/" />;

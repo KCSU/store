@@ -23,7 +23,7 @@ export function EditFormalGroupsForm({ formal }: FormalProps) {
   const mutation = useEditFormalGroups(formal.id);
   const canWrite = useHasPermission("formals", "write");
   const [groups, setGroups] = useState(
-    formal.groups?.map((g) => g.id.toString()) ?? []
+    formal.groups?.map((g) => g.id) ?? []
   );
 
   // TODO: handle with loading states
@@ -40,7 +40,7 @@ export function EditFormalGroupsForm({ formal }: FormalProps) {
           onChange={(v) => setGroups(v as string[])}
         >
           {available.map((g) => (
-            <Checkbox key={g.id} value={g.id.toString()}>
+            <Checkbox key={g.id} value={g.id}>
               {g.name}
             </Checkbox>
           ))}
@@ -50,7 +50,7 @@ export function EditFormalGroupsForm({ formal }: FormalProps) {
         <Button
           isLoading={mutation.isLoading}
           onClick={async () => {
-            await mutation.mutateAsync(groups.map((g) => parseInt(g)));
+            await mutation.mutateAsync(groups);
           }}
           colorScheme="brand"
           leftIcon={<Icon as={FaSave} />}

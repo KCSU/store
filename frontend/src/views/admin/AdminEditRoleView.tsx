@@ -35,7 +35,6 @@ import { Role } from "../../model/Role";
 
 export function AdminEditRoleView() {
   const { id } = useParams();
-  const roleId = parseInt(id ?? "0");
   const { data, isLoading, isError } = useRoles();
   const canWrite = useHasPermission("roles", "write");
   const canDelete = useHasPermission("roles", "delete");
@@ -43,7 +42,7 @@ export function AdminEditRoleView() {
   if (isLoading || isError || !data) {
     return <></>;
   }
-  const role = data.find((r) => r.id === roleId);
+  const role = data.find((r) => r.id === id);
   if (!role) {
     return <></>;
   }

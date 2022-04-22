@@ -11,7 +11,7 @@ export function AdminCreateGroupView() {
   const mutation = useCreateGroup();
   const navigate = useNavigate();
   const defaultGroup: Group = {
-    id: 0,
+    id: '',
     name: '',
     type: 'inst',
     lookup: ''

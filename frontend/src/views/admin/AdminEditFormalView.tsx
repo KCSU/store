@@ -65,8 +65,7 @@ function AdminEditFormalCard({ formal }: FormalProps) {
 
 export function AdminEditFormalView() {
   const { formalId } = useParams();
-  const formalIdNum = parseInt(formalId ?? "0");
-  const { data: formal, isLoading, isError } = useFormal(formalIdNum);
+  const { data: formal, isLoading, isError } = useFormal(formalId ?? '');
   if (isError) {
     // TODO: return an error!
     return <Navigate to="/admin/formals" />;
