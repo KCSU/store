@@ -1,5 +1,7 @@
 package model
 
+import "github.com/google/uuid"
+
 type Role struct {
 	Model
 	Name        string       `json:"name"`
@@ -9,8 +11,8 @@ type Role struct {
 
 // FIXME: should this be registered as an official join table?
 type UserRole struct {
-	UserID uint
+	UserID uuid.UUID
 	User   User
-	RoleID uint
+	RoleID uuid.UUID
 	Role   Role
 }

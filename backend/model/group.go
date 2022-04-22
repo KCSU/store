@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Group struct {
@@ -17,7 +19,7 @@ type Group struct {
 // not exist.
 // TODO: still maybe figure out a way to sort that out
 type GroupUser struct {
-	GroupID   int       `gorm:"primaryKey" json:"groupId"`
+	GroupID   uuid.UUID `gorm:"type:uuid;primaryKey" json:"groupId"`
 	UserEmail string    `gorm:"primaryKey" json:"userEmail"`
 	IsManual  bool      `gorm:"default:false" json:"isManual"`
 	CreatedAt time.Time `json:"createdAt"`

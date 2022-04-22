@@ -17,6 +17,8 @@ require (
 	gorm.io/gorm v1.21.16
 )
 
+require github.com/google/uuid v1.3.0 // indirect
+
 require (
 	cloud.google.com/go/compute v1.5.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

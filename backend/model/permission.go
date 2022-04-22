@@ -1,11 +1,15 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Permission struct {
-	ID        uint      `gorm:"type:SERIAL;primarykey" json:"id"`
+	ID        uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()" json:"id"`
 	CreatedAt time.Time `json:"-"`
 	Resource  string    `json:"resource"`
 	Action    string    `json:"action"`
-	RoleID    uint      `json:"-"`
+	RoleID    uuid.UUID `json:"-"`
 }
