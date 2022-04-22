@@ -17,6 +17,7 @@ func main() {
 	}
 	// TODO: manual migration
 	err = d.AutoMigrate(
+		&model.Bill{},
 		&model.Formal{},
 		&model.Ticket{},
 		&model.ManualTicket{},

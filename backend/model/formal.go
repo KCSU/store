@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Formal struct {
 	Model
@@ -14,6 +18,7 @@ type Formal struct {
 	SaleStart     time.Time      `json:"saleStart"`
 	SaleEnd       time.Time      `json:"saleEnd"`
 	DateTime      time.Time      `json:"dateTime"`
+	BillId        *uuid.UUID     `json:"billId"`
 	TicketSales   []Ticket       `json:"-"`
 	ManualTickets []ManualTicket `json:"-"`
 	Groups        []Group        `json:"groups,omitempty" gorm:"many2many:formal_groups;"`
