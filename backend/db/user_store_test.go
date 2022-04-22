@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
 	"github.com/markbates/goth"
@@ -53,7 +54,7 @@ func (s *UserSuite) TestFindOrCreate() {
 		Name:   "Chrisjen Avasarala",
 		Email:  "cja67@cam.ac.uk",
 	}
-	userId := 1
+	userId := uuid.New()
 	s.mock.ExpectBegin()
 	s.mock.ExpectQuery(`INSERT INTO "users"`).
 		WillReturnRows(sqlmock.NewRows(
@@ -66,7 +67,7 @@ func (s *UserSuite) TestFindOrCreate() {
 		Email:          au.Email,
 		ProviderUserId: au.UserID,
 	}
-	user.ID = uint(userId)
+	user.ID = userId
 	s.NoError(err)
 	s.Equal(user.Name, u.Name)
 	s.Equal(user.ID, u.ID)
@@ -81,13 +82,13 @@ func (s *UserSuite) TestFindUser() {
 		Email:          "jmh23@cam.ac.uk",
 		ProviderUserId: "abc123",
 	}
-	user.ID = 27
+	user.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "users"`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "name", "email", "provider_user_id"}).
 				AddRow(user.ID, user.Name, user.Email, user.ProviderUserId),
 		)
-	u, err := s.store.Find(int(user.ID))
+	u, err := s.store.Find(user.ID)
 	s.Require().NoError(err)
 	s.Equal(user, u)
 	s.NoError(s.mock.ExpectationsWereMet())
@@ -99,7 +100,7 @@ func (s *UserSuite) TestFindUserByEmail() {
 		Email:          "jmh23@cam.ac.uk",
 		ProviderUserId: "abc123",
 	}
-	user.ID = 27
+	user.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "users"`).
 		WithArgs(user.Email).
 		WillReturnRows(
@@ -133,9 +134,9 @@ func (s *UserSuite) TestExists() {
 
 func (s *UserSuite) TestGroups() {
 	groups := make([]model.Group, 2)
-	groups[0].ID = 1
+	groups[0].ID = uuid.New()
 	groups[0].Name = "test 1"
-	groups[1].ID = 2
+	groups[1].ID = uuid.New()
 	groups[1].Name = "test 2"
 	s.mock.ExpectQuery(`SELECT .* FROM "groups"`).
 		WillReturnRows(
@@ -144,7 +145,7 @@ func (s *UserSuite) TestGroups() {
 				AddRow(groups[1].ID, groups[1].Name),
 		)
 	u := model.User{}
-	u.ID = 1
+	u.ID = uuid.New()
 	g, err := s.store.Groups(&u)
 	s.NoError(err)
 	s.Equal(groups, g)
@@ -154,12 +155,12 @@ func (s *UserSuite) TestGroups() {
 func (s *UserSuite) TestPermissions() {
 	perms := []model.Permission{
 		{
-			ID:       1,
+			ID:       uuid.New(),
 			Resource: "formals",
 			Action:   "read",
 		},
 		{
-			ID:       2,
+			ID:       uuid.New(),
 			Resource: "tickets",
 			Action:   "*",
 		},
@@ -172,7 +173,7 @@ func (s *UserSuite) TestPermissions() {
 				AddRow(perms[1].ID, perms[1].Resource, perms[1].Action),
 		)
 	u := model.User{}
-	u.ID = 2
+	u.ID = uuid.New()
 	p, err := s.store.Permissions(&u)
 	s.NoError(err)
 	s.Equal(perms, p)

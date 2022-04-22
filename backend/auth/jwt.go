@@ -1,9 +1,8 @@
 package auth
 
 import (
-	"strconv"
-
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -27,9 +26,9 @@ func (auth *GoogleAuth) GetClaims(c echo.Context) *JwtClaims {
 // Load the user's id from the current context
 //
 // Requires authentication middleware
-func (auth *GoogleAuth) GetUserId(c echo.Context) int {
+func (auth *GoogleAuth) GetUserId(c echo.Context) uuid.UUID {
 	claims := auth.GetClaims(c)
-	id, err := strconv.Atoi(claims.Subject)
+	id, err := uuid.Parse(claims.Subject)
 	if err != nil {
 		panic(err) // FIXME: hmmmmm...
 	}

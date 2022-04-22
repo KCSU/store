@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/kcsu/store/config"
 	"github.com/labstack/echo/v4"
@@ -29,7 +30,7 @@ const (
 type Auth interface {
 	GetAuthUrl(c echo.Context) (string, error)
 	CompleteUserAuth(c echo.Context) (goth.User, error)
-	GetUserId(c echo.Context) int
+	GetUserId(c echo.Context) uuid.UUID
 }
 
 // Helper struct for authentication

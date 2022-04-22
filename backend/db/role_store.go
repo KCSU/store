@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"gorm.io/gorm"
 )
@@ -12,11 +13,11 @@ type RoleStore interface {
 	// Retrieve user-role mapping
 	GetUserRoles() ([]model.UserRole, error)
 	// Retrieve a single role
-	Find(id int) (model.Role, error)
+	Find(id uuid.UUID) (model.Role, error)
 	// Create a permission
 	CreatePermission(permission *model.Permission) error
 	// Delete a permission
-	DeletePermission(id int) error
+	DeletePermission(id uuid.UUID) error
 	// Create a role
 	Create(role *model.Role) error
 	// Update a role
@@ -60,7 +61,7 @@ func (r *DBRoleStore) GetUserRoles() ([]model.UserRole, error) {
 }
 
 // Retrieve a single role
-func (r *DBRoleStore) Find(id int) (model.Role, error) {
+func (r *DBRoleStore) Find(id uuid.UUID) (model.Role, error) {
 	var role model.Role
 	err := r.db.First(&role, id).Error
 	return role, err
@@ -75,7 +76,7 @@ func (r *DBRoleStore) CreatePermission(permission *model.Permission) error {
 }
 
 // Delete a permission
-func (r *DBRoleStore) DeletePermission(id int) error {
+func (r *DBRoleStore) DeletePermission(id uuid.UUID) error {
 	return r.db.Delete(&model.Permission{}, id).Error
 }
 

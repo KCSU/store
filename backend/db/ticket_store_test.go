@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
@@ -52,15 +53,15 @@ func (s *TicketSuite) TestGetByUserId() {
 		Name:    "Test Formal",
 		Tickets: 55,
 	}
-	formal.ID = 5
+	formal.ID = uuid.New()
 	ticket := model.Ticket{
-		FormalID: int(formal.ID),
+		FormalID: formal.ID,
 		IsGuest:  false,
 		IsQueue:  true,
 		Formal:   &formal,
 	}
-	ticket.ID = 1
-	userId := 65
+	ticket.ID = uuid.New()
+	userId := uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
 		WithArgs(userId).
 		WillReturnRows(
@@ -81,34 +82,35 @@ func (s *TicketSuite) TestGetByUserId() {
 
 func (s *TicketSuite) TestFindTicket() {
 	ticket := model.Ticket{
-		FormalID: 21,
+		FormalID: uuid.New(),
 		IsGuest:  false,
 		IsQueue:  true,
 	}
-	ticket.ID = 34
+	ticket.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
 		WithArgs(ticket.ID).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "formal_id", "is_guest", "is_queue"}).
 				AddRow(ticket.ID, ticket.FormalID, ticket.IsGuest, ticket.IsQueue),
 		)
-	t, err := s.store.Find(int(ticket.ID))
+	t, err := s.store.Find(ticket.ID)
 	s.NoError(err)
 	s.Equal(ticket, t)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func (s *TicketSuite) TestFindTicketWithFormal() {
+	fid := uuid.New()
 	ticket := model.Ticket{
-		FormalID: 21,
+		FormalID: fid,
 		IsGuest:  false,
 		IsQueue:  true,
 		Formal: &model.Formal{
-			Model: model.Model{ID: 21},
+			Model: model.Model{ID: fid},
 			Name:  "Test Formal",
 		},
 	}
-	ticket.ID = 34
+	ticket.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
 		WithArgs(ticket.ID).
 		WillReturnRows(
@@ -121,35 +123,35 @@ func (s *TicketSuite) TestFindTicketWithFormal() {
 			sqlmock.NewRows([]string{"id", "name"}).
 				AddRow(ticket.Formal.ID, ticket.Formal.Name),
 		)
-	t, err := s.store.FindWithFormal(int(ticket.ID))
+	t, err := s.store.FindWithFormal(ticket.ID)
 	s.NoError(err)
 	s.Equal(ticket, t)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func (s *TicketSuite) TestUpdateTicket() {
-	id := 312
+	id := uuid.New()
 	mealOption := "Vegetarian"
 	// s.mock.Expe
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "tickets"`).
 		WithArgs(mealOption, sqlmock.AnyArg(), id).
-		WillReturnResult(sqlmock.NewResult(int64(id), 1))
+		WillReturnResult(sqlmock.NewResult(0, 1))
 	s.mock.ExpectCommit()
 	err := s.store.Update(id, &dto.TicketRequestDto{MealOption: mealOption})
 	s.NoError(err)
 	s.NoError(s.mock.ExpectationsWereMet())
-
 }
 
 func (s *TicketSuite) TestBatchCreate() {
+	fid := uuid.New()
 	tickets := []model.Ticket{
 		{
-			FormalID: 1,
+			FormalID: fid,
 			IsGuest:  true,
 		},
 		{
-			FormalID: 1,
+			FormalID: fid,
 			IsGuest:  false,
 		},
 	}
@@ -157,8 +159,8 @@ func (s *TicketSuite) TestBatchCreate() {
 	s.mock.ExpectQuery(`INSERT INTO "tickets"`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id"}).
-				AddRow(1).
-				AddRow(2),
+				AddRow(uuid.New()).
+				AddRow(uuid.New()),
 		)
 	s.mock.ExpectCommit()
 	err := s.store.BatchCreate(tickets)
@@ -168,14 +170,14 @@ func (s *TicketSuite) TestBatchCreate() {
 
 func (s *TicketSuite) TestCreateTicket() {
 	ticket := model.Ticket{
-		FormalID: 76,
+		FormalID: uuid.New(),
 		IsGuest:  true,
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectQuery(`INSERT INTO "tickets"`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id"}).
-				AddRow(1),
+				AddRow(uuid.New()),
 		)
 	s.mock.ExpectCommit()
 	err := s.store.Create(&ticket)
@@ -184,8 +186,8 @@ func (s *TicketSuite) TestCreateTicket() {
 }
 
 func (s *TicketSuite) TestCountGuestByFormal() {
-	userId := 420
-	formalId := 12
+	userId := uuid.New()
+	formalId := uuid.New()
 	mockCount := 3
 	s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
 		WithArgs(formalId, userId).
@@ -199,8 +201,8 @@ func (s *TicketSuite) TestCountGuestByFormal() {
 }
 
 func (s *TicketSuite) TestExistsByFormal() {
-	userId := 420
-	formalId := 12
+	userId := uuid.New()
+	formalId := uuid.New()
 	s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
 		WithArgs(formalId, userId).
 		WillReturnRows(
@@ -221,8 +223,8 @@ func (s *TicketSuite) TestExistsByFormal() {
 }
 
 func (s *TicketSuite) TestDeleteByFormal() {
-	userId := 234
-	formalId := 567
+	userId := uuid.New()
+	formalId := uuid.New()
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "tickets" SET "deleted_at"`).
 		WithArgs(sqlmock.AnyArg(), formalId, userId).
@@ -234,11 +236,11 @@ func (s *TicketSuite) TestDeleteByFormal() {
 }
 
 func (s *TicketSuite) TestDeleteTicket() {
-	ticketId := 69
+	ticketId := uuid.New()
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "tickets" SET "deleted_at"`).
 		WithArgs(sqlmock.AnyArg(), ticketId).
-		WillReturnResult(sqlmock.NewResult(int64(ticketId), 1))
+		WillReturnResult(sqlmock.NewResult(0, 1))
 	s.mock.ExpectCommit()
 	err := s.store.Delete(ticketId)
 	s.NoError(err)

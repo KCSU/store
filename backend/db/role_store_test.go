@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
 	"github.com/stretchr/testify/suite"
@@ -46,27 +47,28 @@ func (s *RoleSuite) TearDownTest() {
 }
 
 func (s *RoleSuite) TestGetRoles() {
+	id := uuid.New()
 	roles := []model.Role{
 		{
-			Model: model.Model{ID: 2},
+			Model: model.Model{ID: id},
 			Name:  "Formal Admin",
 			Permissions: []model.Permission{
 				{
-					ID:       6,
-					RoleID:   2,
+					ID:       uuid.New(),
+					RoleID:   id,
 					Resource: "formals",
 					Action:   "read",
 				},
 				{
-					ID:       7,
-					RoleID:   2,
+					ID:       uuid.New(),
+					RoleID:   id,
 					Resource: "formals",
 					Action:   "write",
 				},
 			},
 		},
 		{
-			Model:       model.Model{ID: 4},
+			Model:       model.Model{ID: uuid.New()},
 			Name:        "Doer of nothing",
 			Permissions: []model.Permission{},
 		},
@@ -93,12 +95,12 @@ func (s *RoleSuite) TestGetRoles() {
 
 func (s *RoleSuite) TestGetUserRoles() {
 	user := model.User{
-		Model: model.Model{ID: 5},
+		Model: model.Model{ID: uuid.New()},
 		Email: "abc123@cam.ac.uk",
 		Name:  "A. Bell",
 	}
 	role := model.Role{
-		Model: model.Model{ID: 7},
+		Model: model.Model{ID: uuid.New()},
 		Name:  "Admin",
 	}
 	userRole := model.UserRole{
@@ -120,7 +122,7 @@ func (s *RoleSuite) TestGetUserRoles() {
 
 func (s *RoleSuite) TestFindRole() {
 	role := model.Role{
-		Model: model.Model{ID: 11},
+		Model: model.Model{ID: uuid.New()},
 		Name:  "My Role",
 	}
 	s.mock.ExpectQuery(`SELECT \* FROM "roles"`).WithArgs(role.ID).
@@ -129,7 +131,7 @@ func (s *RoleSuite) TestFindRole() {
 				role.ID, role.Name,
 			),
 		)
-	r, err := s.store.Find(int(role.ID))
+	r, err := s.store.Find(role.ID)
 	s.Require().NoError(err)
 	s.Equal(role, r)
 	s.NoError(s.mock.ExpectationsWereMet())
@@ -137,17 +139,17 @@ func (s *RoleSuite) TestFindRole() {
 
 func (s *RoleSuite) TestCreatePermission() {
 	permission := model.Permission{
-		RoleID:   5,
+		RoleID:   uuid.New(),
 		Resource: "formals",
 		Action:   "*",
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectQuery(`INSERT INTO "permissions"`).
 		WithArgs(
-			sqlmock.AnyArg(), "formals", "*", 5,
+			sqlmock.AnyArg(), "formals", "*", permission.RoleID,
 		).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id"}).AddRow(15),
+			sqlmock.NewRows([]string{"id"}).AddRow(uuid.New()),
 		)
 	s.mock.ExpectCommit()
 	err := s.store.CreatePermission(&permission)
@@ -156,11 +158,11 @@ func (s *RoleSuite) TestCreatePermission() {
 }
 
 func (s *RoleSuite) TestDeletePermission() {
-	permissionId := 420
+	permissionId := uuid.New()
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`DELETE FROM "permissions"`).
 		WithArgs(permissionId).
-		WillReturnResult(sqlmock.NewResult(int64(permissionId), 1))
+		WillReturnResult(sqlmock.NewResult(0, 1))
 	s.mock.ExpectCommit()
 	err := s.store.DeletePermission(permissionId)
 	s.NoError(err)
@@ -168,24 +170,25 @@ func (s *RoleSuite) TestDeletePermission() {
 }
 
 func (s *RoleSuite) TestCreateRole() {
+	id := uuid.New()
 	role := model.Role{
 		Name: "Treasurer",
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectQuery(`INSERT INTO "roles"`).WillReturnRows(
-		sqlmock.NewRows([]string{"id"}).AddRow(92),
+		sqlmock.NewRows([]string{"id"}).AddRow(id),
 	)
 	s.mock.ExpectCommit()
 	err := s.store.Create(&role)
 	s.NoError(err)
-	s.EqualValues(92, role.ID)
+	s.EqualValues(id, role.ID)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func (s *RoleSuite) TestUpdateRole() {
 	r := model.Role{
 		Model: model.Model{
-			ID: 13,
+			ID: uuid.New(),
 		},
 		Name: "Admin2",
 	}
@@ -193,7 +196,7 @@ func (s *RoleSuite) TestUpdateRole() {
 	s.mock.ExpectExec(`UPDATE "roles"`).WithArgs(
 		sqlmock.AnyArg(), nil, r.Name, r.ID,
 	).WillReturnResult(
-		sqlmock.NewResult(int64(r.ID), 1),
+		sqlmock.NewResult(0, 1),
 	)
 	s.mock.ExpectCommit()
 	err := s.store.Update(&r)
@@ -204,18 +207,18 @@ func (s *RoleSuite) TestUpdateRole() {
 func (s *RoleSuite) TestDeleteRole() {
 	role := model.Role{
 		Name:  "Ents",
-		Model: model.Model{ID: 2},
+		Model: model.Model{ID: uuid.New()},
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`DELETE FROM "user_roles"`).
 		WithArgs(role.ID).
 		WillReturnResult(
-			sqlmock.NewResult(int64(role.ID), 13),
+			sqlmock.NewResult(0, 13),
 		)
 	s.mock.ExpectExec(`UPDATE "roles" SET "deleted_at"`).
 		WithArgs(sqlmock.AnyArg(), role.ID).
 		WillReturnResult(
-			sqlmock.NewResult(int64(role.ID), 1),
+			sqlmock.NewResult(0, 1),
 		)
 	s.mock.ExpectCommit()
 	err := s.store.Delete(&role)
@@ -226,23 +229,23 @@ func (s *RoleSuite) TestDeleteRole() {
 func (s *RoleSuite) TestAddUserRole() {
 	role := model.Role{
 		Name:  "Admin",
-		Model: model.Model{ID: 69},
+		Model: model.Model{ID: uuid.New()},
 	}
 	user := model.User{
 		Name:  "Tony Stark",
 		Email: "ts123@cam.ac.uk",
-		Model: model.Model{ID: 22},
+		Model: model.Model{ID: uuid.New()},
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "roles" SET "updated_at"`).WithArgs(
 		sqlmock.AnyArg(), role.ID,
 	).WillReturnResult(
-		sqlmock.NewResult(int64(role.ID), 1),
+		sqlmock.NewResult(0, 1),
 	)
-	s.mock.ExpectExec(`INSERT INTO "user_roles"`).WithArgs(
-		role.ID, user.ID,
-	).WillReturnResult(
-		sqlmock.NewResult(int64(role.ID), 1),
+	s.mock.ExpectQuery(`INSERT INTO "user_roles"`).WithArgs(
+		sqlmock.AnyArg(), sqlmock.AnyArg(),
+	).WillReturnRows(
+		sqlmock.NewRows([]string{"role_id", "user_id"}).AddRow(role.ID, user.ID),
 	)
 	s.mock.ExpectCommit()
 	err := s.store.AddUserRole(&role, &user)
@@ -253,18 +256,18 @@ func (s *RoleSuite) TestAddUserRole() {
 func (s *RoleSuite) TestRemoveUserRole() {
 	role := model.Role{
 		Name:  "Admin",
-		Model: model.Model{ID: 69},
+		Model: model.Model{ID: uuid.New()},
 	}
 	user := model.User{
 		Name:  "Tony Stark",
 		Email: "ts123@cam.ac.uk",
-		Model: model.Model{ID: 22},
+		Model: model.Model{ID: uuid.New()},
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`DELETE FROM "user_roles"`).WithArgs(
 		role.ID, user.ID,
 	).WillReturnResult(
-		sqlmock.NewResult(int64(role.ID), 1),
+		sqlmock.NewResult(0, 1),
 	)
 	s.mock.ExpectCommit()
 	err := s.store.RemoveUserRole(&role, &user)

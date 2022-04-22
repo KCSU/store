@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"gorm.io/gorm"
 )
@@ -16,15 +17,15 @@ type FormalStore interface {
 	// Retrieve all formals
 	All() ([]model.Formal, error)
 	// Get a formal by id
-	Find(id int) (model.Formal, error)
+	Find(id uuid.UUID) (model.Formal, error)
 	// Get a formal by id with tickets
-	FindWithTickets(id int) (model.Formal, error)
+	FindWithTickets(id uuid.UUID) (model.Formal, error)
 	// Get the number of tickets remaining for a specified formal
 	TicketsRemaining(formal *model.Formal, isGuest bool) uint
 	// Create a formal
 	Create(formal *model.Formal) error
 	// Find all groups with specified ids
-	GetGroups(ids []int) ([]model.Group, error)
+	GetGroups(ids []uuid.UUID) ([]model.Group, error)
 	// Update a formal
 	Update(formal *model.Formal) error
 	// Delete a formal
@@ -67,14 +68,14 @@ func (f *DBFormalStore) All() ([]model.Formal, error) {
 }
 
 // Get a formal by id
-func (f *DBFormalStore) Find(id int) (model.Formal, error) {
+func (f *DBFormalStore) Find(id uuid.UUID) (model.Formal, error) {
 	var formal model.Formal
 	err := f.db.Preload("Groups").First(&formal, id).Error
 	return formal, err
 }
 
 // Get a formal by id with tickets
-func (f *DBFormalStore) FindWithTickets(id int) (model.Formal, error) {
+func (f *DBFormalStore) FindWithTickets(id uuid.UUID) (model.Formal, error) {
 	var formal model.Formal
 	err := f.db.Preload("Groups").
 		Preload("ManualTickets").
@@ -101,7 +102,7 @@ func (f *DBFormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uin
 }
 
 // Find all groups with specified ids
-func (f *DBFormalStore) GetGroups(ids []int) ([]model.Group, error) {
+func (f *DBFormalStore) GetGroups(ids []uuid.UUID) ([]model.Group, error) {
 	if len(ids) == 0 {
 		return []model.Group{}, nil
 	}

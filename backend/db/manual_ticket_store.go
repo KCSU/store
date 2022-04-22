@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"gorm.io/gorm"
 )
@@ -8,13 +9,13 @@ import (
 // Helper for using Manual Tickets in the database
 type ManualTicketStore interface {
 	// Get a manual ticket by id
-	Find(id int) (model.ManualTicket, error)
+	Find(id uuid.UUID) (model.ManualTicket, error)
 	// Create a manual ticket
 	Create(ticket *model.ManualTicket) error
 	// Update a manual ticket
 	Update(ticket *model.ManualTicket) error
 	// Delete a manual ticket
-	Delete(id int) error
+	Delete(id uuid.UUID) error
 }
 
 // Helper struct for using Manual Tickets in the database
@@ -30,7 +31,7 @@ func NewManualTicketStore(db *gorm.DB) ManualTicketStore {
 }
 
 // Find a manual ticket by id
-func (t *DBManualTicketStore) Find(id int) (model.ManualTicket, error) {
+func (t *DBManualTicketStore) Find(id uuid.UUID) (model.ManualTicket, error) {
 	var ticket model.ManualTicket
 	err := t.db.First(&ticket, id).Error
 	return ticket, err
@@ -42,7 +43,7 @@ func (t *DBManualTicketStore) Create(ticket *model.ManualTicket) error {
 }
 
 // Delete a manual ticket
-func (t *DBManualTicketStore) Delete(id int) error {
+func (t *DBManualTicketStore) Delete(id uuid.UUID) error {
 	return t.db.Delete(&model.ManualTicket{}, id).Error
 }
 

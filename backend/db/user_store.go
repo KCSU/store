@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"github.com/markbates/goth"
 	"gorm.io/gorm"
@@ -12,7 +13,7 @@ type UserStore interface {
 	// Update, retrieve or create a user from OAuth data
 	FindOrCreate(gu *goth.User) (model.User, error)
 	// Get a user by id
-	Find(id int) (model.User, error)
+	Find(id uuid.UUID) (model.User, error)
 	// Get a user by email
 	FindByEmail(email string) (model.User, error)
 	// Check if a user with the specified email exists
@@ -50,7 +51,7 @@ func (u *DBUserStore) FindOrCreate(gu *goth.User) (model.User, error) {
 }
 
 // Get a user by id
-func (u *DBUserStore) Find(id int) (model.User, error) {
+func (u *DBUserStore) Find(id uuid.UUID) (model.User, error) {
 	var user model.User
 	err := u.db.First(&user, id).Error
 	return user, err

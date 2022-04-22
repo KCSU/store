@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ type GroupStore interface {
 	// Retrieve all groups
 	Get() ([]model.Group, error)
 	// Retrieve a single group
-	Find(id int) (model.Group, error)
+	Find(id uuid.UUID) (model.Group, error)
 	// Add a user to the group
 	AddUser(group *model.Group, email string) error
 	// Remove a user from the group
@@ -45,7 +46,7 @@ func (g *DBGroupStore) Get() ([]model.Group, error) {
 }
 
 // Retrieve a single group
-func (g *DBGroupStore) Find(id int) (model.Group, error) {
+func (g *DBGroupStore) Find(id uuid.UUID) (model.Group, error) {
 	var group model.Group
 	err := g.db.Preload("GroupUsers").First(&group, id).Error
 	return group, err
@@ -78,7 +79,7 @@ func (g *DBGroupStore) ReplaceLookupUsers(group *model.Group, users []model.Grou
 	newUsers := make([]model.GroupUser, len(users))
 	for i, user := range users {
 		newUsers[i] = model.GroupUser{
-			GroupID:   int(group.ID),
+			GroupID:   group.ID,
 			UserEmail: user.UserEmail,
 			IsManual:  false,
 		}

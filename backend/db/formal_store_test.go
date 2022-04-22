@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
 	"github.com/stretchr/testify/suite"
@@ -49,56 +50,60 @@ func (s *FormalSuite) TearDownTest() {
 }
 
 func (s *FormalSuite) TestGetFormals() {
+	id := uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "formals" WHERE date_time > NOW()`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id"}).AddRow(3),
+			sqlmock.NewRows([]string{"id"}).AddRow(id),
 		)
 	fs, err := s.store.Get()
 	s.Require().NoError(err)
 	s.Len(fs, 1)
-	s.EqualValues(3, fs[0].ID)
+	s.EqualValues(id, fs[0].ID)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func (s *FormalSuite) TestGetFormalsWithGroups() {
+	fid := uuid.New()
+	gid := uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "formals" WHERE date_time > NOW()`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id"}).AddRow(3),
+			sqlmock.NewRows([]string{"id"}).AddRow(fid),
 		)
 	// Should also preload groups
 	s.mock.ExpectQuery(`SELECT \* FROM "formal_groups"`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"group_id", "formal_id"}).AddRow(42, 3),
+			sqlmock.NewRows([]string{"group_id", "formal_id"}).AddRow(gid, fid),
 		)
 	s.mock.ExpectQuery(`SELECT \* FROM "groups"`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id"}).AddRow(42),
+			sqlmock.NewRows([]string{"id"}).AddRow(gid),
 		)
 	fs, err := s.store.GetWithGroups()
 	s.Require().NoError(err)
 	s.Len(fs, 1)
-	s.EqualValues(3, fs[0].ID)
+	s.EqualValues(fid, fs[0].ID)
 	s.Len(fs[0].Groups, 1)
-	s.EqualValues(42, fs[0].Groups[0].ID)
+	s.EqualValues(gid, fs[0].Groups[0].ID)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func (s *FormalSuite) TestAllFormals() {
+	id := uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id"}).AddRow(56),
+			sqlmock.NewRows([]string{"id"}).AddRow(id),
 		)
 	fs, err := s.store.All()
 	s.Require().NoError(err)
 	s.Len(fs, 1)
-	s.EqualValues(56, fs[0].ID)
+	s.EqualValues(id, fs[0].ID)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func (s *FormalSuite) TestFindFormal() {
 	formal := model.Formal{
 		Model: model.Model{
-			ID: 4,
+			ID: uuid.New(),
 		},
 		Name:   "Test",
 		Groups: []model.Group{},
@@ -113,25 +118,27 @@ func (s *FormalSuite) TestFindFormal() {
 		WillReturnRows(
 			sqlmock.NewRows([]string{"group_id"}),
 		)
-	f, err := s.store.Find(4)
+	f, err := s.store.Find(formal.ID)
 	s.Require().NoError(err)
 	s.Equal(formal, f)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func (s *FormalSuite) TestFindWithTickets() {
+	formalID := uuid.New()
+	userID := uuid.New()
 	formal := model.Formal{
 		Model: model.Model{
-			ID: 4,
+			ID: formalID,
 		},
 		Name:   "Test",
 		Groups: []model.Group{},
 		TicketSales: []model.Ticket{{
-			Model:    model.Model{ID: 7},
-			FormalID: 4,
-			UserID:   12,
+			Model:    model.Model{ID: uuid.New()},
+			FormalID: formalID,
+			UserID:   userID,
 			User: &model.User{
-				Model: model.Model{ID: 12},
+				Model: model.Model{ID: userID},
 				Name:  "James Holden",
 				Email: "jh123@cam.ac.uk",
 			},
@@ -139,8 +146,8 @@ func (s *FormalSuite) TestFindWithTickets() {
 			IsQueue: false,
 		}},
 		ManualTickets: []model.ManualTicket{{
-			Model:         model.Model{ID: 8},
-			FormalID:      4,
+			Model:         model.Model{ID: uuid.New()},
+			FormalID:      formalID,
 			MealOption:    "Vegan",
 			Type:          "complimentary",
 			Name:          "Bobby Draper",
@@ -175,7 +182,7 @@ func (s *FormalSuite) TestFindWithTickets() {
 			sqlmock.NewRows([]string{"id", "name", "email"}).
 				AddRow(t.UserID, t.User.Name, t.User.Email),
 		)
-	f, err := s.store.FindWithTickets(4)
+	f, err := s.store.FindWithTickets(formalID)
 	s.Require().NoError(err)
 	s.Equal(formal, f)
 	s.Len(f.TicketSales, 1)
@@ -185,7 +192,7 @@ func (s *FormalSuite) TestFindWithTickets() {
 
 func (s *FormalSuite) TestTicketsRemaining() {
 	f := model.Formal{}
-	f.ID = 42
+	f.ID = uuid.New()
 	f.Tickets = 23
 	f.GuestTickets = 27
 	mockCount := 10
@@ -205,16 +212,16 @@ func (s *FormalSuite) TestTicketsRemaining() {
 }
 
 func (s *FormalSuite) TestGetGroups() {
-	ids := []int{2, 4, 7}
+	ids := []uuid.UUID{uuid.New(), uuid.New(), uuid.New()}
 	targetGroups := []model.Group{
-		{Model: model.Model{ID: 2}, Name: "A"},
-		{Model: model.Model{ID: 4}, Name: "B"},
-		{Model: model.Model{ID: 7}, Name: "C"},
+		{Model: model.Model{ID: ids[0]}, Name: "A"},
+		{Model: model.Model{ID: ids[1]}, Name: "B"},
+		{Model: model.Model{ID: ids[2]}, Name: "C"},
 	}
-	s.mock.ExpectQuery(`SELECT \* FROM "groups"`).WithArgs(2, 4, 7).
+	s.mock.ExpectQuery(`SELECT \* FROM "groups"`).WithArgs(ids[0], ids[1], ids[2]).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "name"}).
-				AddRow(2, "A").AddRow(4, "B").AddRow(7, "C"),
+				AddRow(ids[0], "A").AddRow(ids[1], "B").AddRow(ids[2], "C"),
 		)
 	groups, err := s.store.GetGroups(ids)
 	s.NoError(err)
@@ -223,19 +230,21 @@ func (s *FormalSuite) TestGetGroups() {
 }
 
 func (s *FormalSuite) TestCreateFormal() {
+	fid := uuid.New()
+	gid := uuid.New()
 	formal := model.Formal{
 		Name: "Test",
 		Groups: []model.Group{
-			{Model: model.Model{ID: 5}},
+			{Model: model.Model{ID: gid}},
 		},
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectQuery(`INSERT INTO "formals"`).WillReturnRows(
-		sqlmock.NewRows([]string{"id"}).AddRow(12),
+		sqlmock.NewRows([]string{"id"}).AddRow(fid),
 	)
-	s.mock.ExpectExec(`INSERT INTO "formal_groups"`).WithArgs(12, 5).
-		WillReturnResult(
-			sqlmock.NewResult(12, 1),
+	s.mock.ExpectQuery(`INSERT INTO "formal_groups"`).WithArgs(fid, gid).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"group_id", "formal_id"}).AddRow(gid, fid),
 		)
 	s.mock.ExpectCommit()
 	err := s.store.Create(&formal)
@@ -247,7 +256,7 @@ func (s *FormalSuite) TestUpdateFormal() {
 	// We need to check all fields are updated, even zeroes
 	f := model.Formal{
 		Model: model.Model{
-			ID: 34,
+			ID: uuid.New(),
 		},
 		Name:         "Test",
 		Menu:         "A Menu",
@@ -267,7 +276,7 @@ func (s *FormalSuite) TestUpdateFormal() {
 		f.GuestPrice, f.GuestLimit, f.Tickets, f.GuestTickets,
 		f.SaleStart, f.SaleEnd, f.DateTime, f.ID,
 	).WillReturnResult(
-		sqlmock.NewResult(int64(f.ID), 1),
+		sqlmock.NewResult(0, 1),
 	)
 	s.mock.ExpectCommit()
 	err := s.store.Update(&f)
@@ -278,7 +287,7 @@ func (s *FormalSuite) TestUpdateFormal() {
 func (s *FormalSuite) TestDeleteFormal() {
 	f := model.Formal{
 		Model: model.Model{
-			ID: 34,
+			ID: uuid.New(),
 		},
 		Name:         "Test",
 		Menu:         "A Menu",
@@ -295,7 +304,7 @@ func (s *FormalSuite) TestDeleteFormal() {
 	s.mock.ExpectExec(`UPDATE "formals" SET "deleted_at"`).WithArgs(
 		sqlmock.AnyArg(), f.ID,
 	).WillReturnResult(
-		sqlmock.NewResult(int64(f.ID), 1),
+		sqlmock.NewResult(0, 1),
 	)
 	s.mock.ExpectCommit()
 	err := s.store.Delete(&f)
@@ -306,33 +315,34 @@ func (s *FormalSuite) TestDeleteFormal() {
 func (s *FormalSuite) TestUpdateFormalGroups() {
 	groups := []model.Group{
 		{
-			Model: model.Model{ID: 3},
+			Model: model.Model{ID: uuid.New()},
 			Name:  "Group 1",
 		},
 		{
-			Model: model.Model{ID: 56},
+			Model: model.Model{ID: uuid.New()},
 			Name:  "Group 2",
 		},
 	}
-	formalId := 32
+	formalId := uuid.New()
 	formal := model.Formal{
-		Model: model.Model{ID: uint(formalId)},
+		Model: model.Model{ID: formalId},
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "formals"`).
 		WithArgs(sqlmock.AnyArg(), formalId).
 		WillReturnResult(
-			sqlmock.NewResult(int64(formalId), 1),
+			sqlmock.NewResult(0, 1),
 		)
-	s.mock.ExpectExec(`INSERT INTO "formal_groups"`).
-		WithArgs(formalId, 3, formalId, 56).
-		WillReturnResult(
-			sqlmock.NewResult(56, 1),
+	s.mock.ExpectQuery(`INSERT INTO "formal_groups"`).
+		WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"group_id", "formal_id"}).
+				AddRow(groups[0].ID, formalId).AddRow(groups[1].ID, formalId),
 		)
 	s.mock.ExpectCommit()
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`DELETE FROM "formal_groups"`).
-		WithArgs(formalId, 3, 56).
+		WithArgs(formalId, groups[0].ID, groups[1].ID).
 		WillReturnResult(
 			sqlmock.NewResult(0, 0),
 		)

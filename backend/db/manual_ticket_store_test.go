@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
 	"github.com/stretchr/testify/suite"
@@ -47,16 +48,16 @@ func (s *ManualTicketSuite) TearDownTest() {
 
 func (s *ManualTicketSuite) TestFindManualTicket() {
 	ticket := model.ManualTicket{
-		FormalID:      13,
+		FormalID:      uuid.New(),
 		MealOption:    "Vegan",
 		Type:          "guest",
 		Name:          "John Doe",
 		Justification: "Dancer",
 		Email:         "jd123@cam.ac.uk",
 	}
-	ticket.ID = 11
+	ticket.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "manual_tickets"`).
-		WithArgs(11).
+		WithArgs(ticket.ID).
 		WillReturnRows(
 			sqlmock.NewRows(
 				[]string{"id", "formal_id", "meal_option", "type", "name", "justification", "email"},
@@ -65,7 +66,7 @@ func (s *ManualTicketSuite) TestFindManualTicket() {
 				ticket.Type, ticket.Name, ticket.Justification, ticket.Email,
 			),
 		)
-	t, err := s.store.Find(11)
+	t, err := s.store.Find(ticket.ID)
 	s.Require().NoError(err)
 	s.Equal(ticket, t)
 	s.NoError(s.mock.ExpectationsWereMet())
@@ -73,7 +74,7 @@ func (s *ManualTicketSuite) TestFindManualTicket() {
 
 func (s *ManualTicketSuite) TestCreateManualTicket() {
 	ticket := model.ManualTicket{
-		FormalID:      13,
+		FormalID:      uuid.New(),
 		MealOption:    "Vegan",
 		Type:          "guest",
 		Name:          "John Doe",
@@ -88,7 +89,7 @@ func (s *ManualTicketSuite) TestCreateManualTicket() {
 			ticket.Name, ticket.Justification, ticket.Email,
 		).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id"}).AddRow(54),
+			sqlmock.NewRows([]string{"id"}).AddRow(uuid.New()),
 		)
 	s.mock.ExpectCommit()
 	s.NoError(s.store.Create(&ticket))
@@ -97,14 +98,14 @@ func (s *ManualTicketSuite) TestCreateManualTicket() {
 
 func (s *ManualTicketSuite) TestUpdateManualTicket() {
 	ticket := model.ManualTicket{
-		FormalID:      13,
+		FormalID:      uuid.New(),
 		MealOption:    "Vegan",
 		Type:          "guest",
 		Name:          "John Doe",
 		Justification: "Dancer",
 		Email:         "jd143@cam.ac.uk",
 	}
-	ticket.ID = 11
+	ticket.ID = uuid.New()
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "manual_tickets"`).WithArgs(
 		sqlmock.AnyArg(), nil,
@@ -112,7 +113,7 @@ func (s *ManualTicketSuite) TestUpdateManualTicket() {
 		ticket.Name, ticket.Justification, ticket.Email,
 		ticket.ID,
 	).WillReturnResult(
-		sqlmock.NewResult(int64(ticket.ID), 1),
+		sqlmock.NewResult(0, 1),
 	)
 	s.mock.ExpectCommit()
 	s.NoError(s.store.Update(&ticket))
@@ -120,11 +121,11 @@ func (s *ManualTicketSuite) TestUpdateManualTicket() {
 }
 
 func (s *ManualTicketSuite) TestDeleteManualTicket() {
-	ticketId := 11
+	ticketId := uuid.New()
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "manual_tickets" SET "deleted_at"`).
 		WithArgs(sqlmock.AnyArg(), ticketId).
-		WillReturnResult(sqlmock.NewResult(int64(ticketId), 1))
+		WillReturnResult(sqlmock.NewResult(0, 1))
 	s.mock.ExpectCommit()
 	s.NoError(s.store.Delete(ticketId))
 	s.NoError(s.mock.ExpectationsWereMet())

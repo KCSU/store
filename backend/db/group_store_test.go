@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
 	. "github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
 	"github.com/stretchr/testify/suite"
@@ -46,24 +47,26 @@ func (s *GroupSuite) TearDownTest() {
 }
 
 func (s *GroupSuite) TestGetGroups() {
+	id := uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "groups"`).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id"}).AddRow(56),
+			sqlmock.NewRows([]string{"id"}).AddRow(id),
 		)
 	fs, err := s.store.Get()
 	s.Require().NoError(err)
 	s.Len(fs, 1)
-	s.EqualValues(56, fs[0].ID)
+	s.EqualValues(id, fs[0].ID)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func (s *GroupSuite) TestFindGroup() {
+	id := uuid.New()
 	group := model.Group{
-		Model: model.Model{ID: 5},
+		Model: model.Model{ID: id},
 		Name:  "Group",
 		GroupUsers: []model.GroupUser{
 			{
-				GroupID:   5,
+				GroupID:   id,
 				UserEmail: "abc123@cam.ac.uk",
 			},
 		},
@@ -81,7 +84,7 @@ func (s *GroupSuite) TestFindGroup() {
 					group.GroupUsers[0].UserEmail,
 				),
 		)
-	g, err := s.store.Find(5)
+	g, err := s.store.Find(id)
 	s.Require().NoError(err)
 	s.Equal(group, g)
 	s.NoError(s.mock.ExpectationsWereMet())
@@ -89,17 +92,17 @@ func (s *GroupSuite) TestFindGroup() {
 
 func (s *GroupSuite) TestAddUser() {
 	group := model.Group{
-		Model: model.Model{ID: 2},
+		Model: model.Model{ID: uuid.New()},
 		Name:  "A Group",
 	}
 	email := "abc123@cam.ac.uk"
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "groups" SET "updated_at"`).
 		WithArgs(sqlmock.AnyArg(), group.ID).
-		WillReturnResult(sqlmock.NewResult(int64(group.ID), 1))
+		WillReturnResult(sqlmock.NewResult(0, 1))
 	s.mock.ExpectExec(`INSERT INTO "group_users"`).
 		WithArgs(group.ID, email, true, sqlmock.AnyArg()).
-		WillReturnResult(sqlmock.NewResult(23, 1))
+		WillReturnResult(sqlmock.NewResult(0, 1))
 	s.mock.ExpectCommit()
 	err := s.store.AddUser(&group, email)
 	s.Require().NoError(err)
@@ -108,14 +111,14 @@ func (s *GroupSuite) TestAddUser() {
 
 func (s *GroupSuite) TestRemoveUser() {
 	group := model.Group{
-		Model: model.Model{ID: 2},
+		Model: model.Model{ID: uuid.New()},
 		Name:  "A Group",
 	}
 	email := "abc123@cam.ac.uk"
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`DELETE FROM "group_users"`).
 		WithArgs(group.ID, email).
-		WillReturnResult(sqlmock.NewResult(2, 1))
+		WillReturnResult(sqlmock.NewResult(0, 1))
 	s.mock.ExpectCommit()
 	err := s.store.RemoveUser(&group, email)
 	s.Require().NoError(err)
@@ -124,7 +127,7 @@ func (s *GroupSuite) TestRemoveUser() {
 
 func (s *GroupSuite) TestReplaceLookupUsers() {
 	group := model.Group{
-		Model:  model.Model{ID: 17},
+		Model:  model.Model{ID: uuid.New()},
 		Name:   "Group 1",
 		Type:   "inst",
 		Lookup: "LKUP",
@@ -137,11 +140,11 @@ func (s *GroupSuite) TestReplaceLookupUsers() {
 	s.mock.ExpectExec(`DELETE FROM "group_users"`).
 		WithArgs(
 			group.ID,
-		).WillReturnResult(sqlmock.NewResult(17, 6))
+		).WillReturnResult(sqlmock.NewResult(0, 6))
 	s.mock.ExpectExec(`INSERT INTO "group_users"`).WithArgs(
 		group.ID, users[0].UserEmail, users[0].IsManual, sqlmock.AnyArg(),
 		group.ID, users[1].UserEmail, users[1].IsManual, sqlmock.AnyArg(),
-	).WillReturnResult(sqlmock.NewResult(17, 2))
+	).WillReturnResult(sqlmock.NewResult(0, 2))
 	s.mock.ExpectCommit()
 	err := s.store.ReplaceLookupUsers(&group, users)
 	s.Require().NoError(err)
@@ -156,7 +159,7 @@ func (s *GroupSuite) TestCreateGroup() {
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectQuery(`INSERT INTO "groups"`).WillReturnRows(
-		sqlmock.NewRows([]string{"id"}).AddRow(14),
+		sqlmock.NewRows([]string{"id"}).AddRow(uuid.New()),
 	)
 	s.mock.ExpectCommit()
 	err := s.store.Create(&group)
@@ -167,7 +170,7 @@ func (s *GroupSuite) TestCreateGroup() {
 func (s *GroupSuite) TestUpdateGroup() {
 	g := model.Group{
 		Model: model.Model{
-			ID: 25,
+			ID: uuid.New(),
 		},
 		Name:   "Group",
 		Type:   "inst",
@@ -178,7 +181,7 @@ func (s *GroupSuite) TestUpdateGroup() {
 		sqlmock.AnyArg(), nil,
 		g.Name, g.Type, g.Lookup, g.ID,
 	).WillReturnResult(
-		sqlmock.NewResult(int64(g.ID), 1),
+		sqlmock.NewResult(0, 1),
 	)
 	s.mock.ExpectCommit()
 	err := s.store.Update(&g)
@@ -189,7 +192,7 @@ func (s *GroupSuite) TestUpdateGroup() {
 func (s *GroupSuite) TestDeleteGroup() {
 	g := model.Group{
 		Model: model.Model{
-			ID: 37,
+			ID: uuid.New(),
 		},
 		Name: "To Delete",
 		Type: "manual",
@@ -197,11 +200,11 @@ func (s *GroupSuite) TestDeleteGroup() {
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`DELETE FROM "group_users"`).WithArgs(g.ID).
 		WillReturnResult(
-			sqlmock.NewResult(int64(g.ID), 15),
+			sqlmock.NewResult(0, 15),
 		)
 	s.mock.ExpectExec(`UPDATE "groups" SET "deleted_at"`).WithArgs(sqlmock.AnyArg(), g.ID).
 		WillReturnResult(
-			sqlmock.NewResult(int64(g.ID), 1),
+			sqlmock.NewResult(0, 1),
 		)
 	s.mock.ExpectCommit()
 	err := s.store.Delete(&g)
