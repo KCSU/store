@@ -242,7 +242,7 @@ func (s *FormalSuite) TestCreateFormal() {
 	s.mock.ExpectQuery(`INSERT INTO "formals"`).WillReturnRows(
 		sqlmock.NewRows([]string{"id"}).AddRow(fid),
 	)
-	s.mock.ExpectQuery(`INSERT INTO "formal_groups"`).WithArgs(fid, gid).
+	s.mock.ExpectQuery(`INSERT INTO "formal_groups"`).WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg()).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"group_id", "formal_id"}).AddRow(gid, fid),
 		)
@@ -274,7 +274,7 @@ func (s *FormalSuite) TestUpdateFormal() {
 		sqlmock.AnyArg(), nil,
 		f.Name, f.Menu, f.Price,
 		f.GuestPrice, f.GuestLimit, f.Tickets, f.GuestTickets,
-		f.SaleStart, f.SaleEnd, f.DateTime, f.ID,
+		f.SaleStart, f.SaleEnd, f.DateTime, nil, f.ID,
 	).WillReturnResult(
 		sqlmock.NewResult(0, 1),
 	)

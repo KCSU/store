@@ -78,7 +78,7 @@ func (s *BillSuite) TestFindBill() {
 		Formals: []model.Formal{{
 			Model:  model.Model{ID: uuid.New()},
 			Name:   "Test Formal",
-			BillId: &id,
+			BillID: &id,
 		}},
 	}
 	s.mock.ExpectQuery(`SELECT \* FROM "bills"`).
