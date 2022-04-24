@@ -75,6 +75,28 @@ func (s *BillSuite) TestFindBill() {
 		Name:  "Test Bill",
 		Start: time.Now().Add(-12 * time.Hour),
 		End:   time.Now().Add(24 * time.Hour),
+	}
+	s.mock.ExpectQuery(`SELECT \* FROM "bills"`).
+		WithArgs(id).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name", "start", "end"}).
+				AddRow(
+					id, bill.Name, bill.Start, bill.End,
+				),
+		)
+	b, err := s.store.Find(id)
+	s.Require().NoError(err)
+	s.Equal(bill, b)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *BillSuite) TestFindBillWithFormals() {
+	id := uuid.New()
+	bill := model.Bill{
+		Model: model.Model{ID: id},
+		Name:  "Test Bill",
+		Start: time.Now().Add(-12 * time.Hour),
+		End:   time.Now().Add(24 * time.Hour),
 		Formals: []model.Formal{{
 			Model:  model.Model{ID: uuid.New()},
 			Name:   "Test Formal",
@@ -97,9 +119,34 @@ func (s *BillSuite) TestFindBill() {
 					bill.Formals[0].ID, bill.Formals[0].Name, bill.ID,
 				),
 		)
-	b, err := s.store.Find(id)
+	b, err := s.store.FindWithFormals(id)
 	s.Require().NoError(err)
 	s.Equal(bill, b)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *BillSuite) TestUpdateBill() {
+	id := uuid.New()
+	bill := model.Bill{
+		Model: model.Model{ID: id},
+		Name:  "Test Bill",
+		Start: time.Now().Add(-12 * time.Hour),
+		End:   time.Now().Add(24 * time.Hour),
+		Formals: []model.Formal{{
+			Model:  model.Model{ID: uuid.New()},
+			Name:   "Test Formal",
+			BillID: &id,
+		}},
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "bills"`).
+		WithArgs(
+			sqlmock.AnyArg(), nil,
+			bill.Name, bill.Start, bill.End, id,
+		).WillReturnResult(sqlmock.NewResult(0, 1))
+	s.mock.ExpectCommit()
+	err := s.store.Update(&bill)
+	s.NoError(err)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 

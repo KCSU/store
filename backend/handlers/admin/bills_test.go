@@ -4,15 +4,18 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	. "github.com/kcsu/store/handlers/admin"
+	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 )
 
 type AdminBillSuite struct {
@@ -121,12 +124,113 @@ func (s *AdminBillSuite) TestGetBill() {
 			},
 		},
 	}
-	s.bills.On("Find", id).Return(bill, nil)
+	s.bills.On("FindWithFormals", id).Return(bill, nil)
 	// Run test
 	err := s.h.GetBill(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
+	s.bills.AssertExpectations(s.T())
+}
+
+func (s *AdminBillSuite) TestUpdateBill() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name  string
+		body  string
+		valid bool
+		bill  *model.Bill
+		wants *wants
+	}
+	id := uuid.New()
+	tests := []test{
+		{
+			"Should Update",
+			`{
+				"name": "Bill 1",
+				"start": "2022-01-22",
+				"end": "2022-05-22"
+			}`,
+			true,
+			&model.Bill{
+				Model: model.Model{ID: id},
+				Name:  "Bill 1",
+				Start: time.Date(2022, 1, 22, 0, 0, 0, 0, time.UTC),
+				End:   time.Date(2022, 5, 22, 0, 0, 0, 0, time.UTC),
+			},
+			nil,
+		},
+		{
+			"Not found",
+			`{
+				"name": "Bill 1",
+				"start": "2022-01-22",
+				"end": "2022-05-22"
+			}`,
+			true,
+			nil,
+			&wants{http.StatusNotFound, "Not Found"},
+		},
+		{
+			"Invalid start",
+			`{
+				"name": "Bill 1",
+				"start": "2022-01-22T00:00:00Z",
+				"end": "2022-05-22"
+			}`,
+			false,
+			nil,
+			&wants{
+				http.StatusUnprocessableEntity,
+				"Key: 'BillDto.Start' Error:Field validation for 'Start' failed on the 'datetime' tag",
+			},
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// Init HTTP
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			req := httptest.NewRequest(
+				http.MethodPut,
+				fmt.Sprint("/bills/", id),
+				strings.NewReader(test.body),
+			)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(id.String())
+			// Mock database
+			if test.bill != nil {
+				s.bills.On("Find", id).Return(
+					model.Bill{
+						Model: model.Model{ID: id},
+						Name:  "Test",
+					},
+					nil,
+				).Once()
+				s.bills.On("Update", test.bill).Return(nil).Once()
+			} else if test.valid {
+				s.bills.On("Find", id).Return(model.Bill{}, gorm.ErrRecordNotFound).Once()
+			}
+			// Run test
+			err := s.h.UpdateBill(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusOK, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+		})
+	}
 	s.bills.AssertExpectations(s.T())
 }
 
