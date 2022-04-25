@@ -25,7 +25,7 @@ import {
   Link,
   Button,
 } from "@chakra-ui/react";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useContext } from "react";
 import {
   FaSearch,
   FaAngleDoubleLeft,
@@ -37,16 +37,14 @@ import {
 } from "react-icons/fa";
 import { CellProps, Column, useGlobalFilter, usePagination, useTable } from "react-table";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
-import { Formal } from "../../model/Formal";
+import { Formal, FormalContext } from "../../model/Formal";
 import { ManualTicket } from "../../model/ManualTicket";
 import { CreateManualTicketButton } from "./CreateManualTicketButton";
 import { ManualTicketActions } from "./ManualTicketActions";
 
-interface FormalProps {
-  formal: Formal;
-}
 
-export function FormalManualTicketsList({ formal }: FormalProps) {
+export function FormalManualTicketsList() {
+  const formal = useContext(FormalContext);
   const canWrite = useHasPermission("tickets", "write");
   const canDelete = useHasPermission("tickets", "delete");
   const [query, setQuery] = useState("");

@@ -7,18 +7,15 @@ import {
   Icon,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { FaSave } from "react-icons/fa";
 import { useEditFormalGroups } from "../../hooks/admin/useEditFormalGroups";
 import { useGroups } from "../../hooks/admin/useGroups";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
-import { Formal } from "../../model/Formal";
+import { Formal, FormalContext } from "../../model/Formal";
 
-interface FormalProps {
-  formal: Formal;
-}
-
-export function EditFormalGroupsForm({ formal }: FormalProps) {
+export function EditFormalGroupsForm() {
+  const formal = useContext(FormalContext);
   const { data: available, isError, isLoading } = useGroups();
   const mutation = useEditFormalGroups(formal.id);
   const canWrite = useHasPermission("formals", "write");

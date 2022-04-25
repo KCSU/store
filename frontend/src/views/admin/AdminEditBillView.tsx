@@ -8,19 +8,18 @@ import {
   TabPanel,
   Box,
 } from "@chakra-ui/react";
+import { useContext } from "react";
 import { Navigate, useParams } from "react-router-dom";
+import { BillFormalsList } from "../../components/admin/BillFormalsList";
 import { EditBillForm } from "../../components/admin/EditBillForm";
 import { BackButton } from "../../components/utility/BackButton";
 import { Card } from "../../components/utility/Card";
 import { useBill } from "../../hooks/admin/useBill";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
-import { Bill } from "../../model/Bill";
+import { BillContext } from "../../model/Bill";
 
-interface BillProps {
-  bill: Bill;
-}
-
-function AdminEditBillCard({ bill }: BillProps) {
+function AdminEditBillCard() {
+  const bill = useContext(BillContext);
   const canWrite = useHasPermission("billing", "write");
   const canDelete = useHasPermission("billing", "delete");
   const hasActions = canWrite || canDelete;
@@ -40,7 +39,10 @@ function AdminEditBillCard({ bill }: BillProps) {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <EditBillForm bill={bill} />
+              <EditBillForm />
+            </TabPanel>
+            <TabPanel>
+              <BillFormalsList />
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -62,5 +64,7 @@ export function AdminEditBillView() {
   if (!bill) {
     return <Box></Box>;
   }
-  return <AdminEditBillCard bill={bill}/>;
+  return <BillContext.Provider value={bill}>
+    <AdminEditBillCard/>
+  </BillContext.Provider>;
 }

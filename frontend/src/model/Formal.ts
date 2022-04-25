@@ -1,3 +1,4 @@
+import React from "react";
 import { Group } from "./Group";
 import { ManualTicket } from "./ManualTicket";
 import { AdminTicket } from "./Ticket";
@@ -24,3 +25,5 @@ export interface Formal {
     ticketSales?: AdminTicket[];
     manualTickets?: ManualTicket[];
 }
+
+export const FormalContext = React.createContext<Formal>({} as Formal);

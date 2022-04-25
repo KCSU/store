@@ -1,3 +1,4 @@
+import React from "react";
 import { Formal } from "./Formal";
 
 export interface Bill {
@@ -7,3 +8,5 @@ export interface Bill {
     end: Date;
     formals?: Formal[];
 }
+
+export const BillContext = React.createContext<Bill>({} as Bill);

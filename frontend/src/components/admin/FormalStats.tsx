@@ -21,13 +21,13 @@ import {
   useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useMemo, useRef } from "react";
+import { useContext, useMemo, useRef } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Column, TableInstance, useTable } from "react-table";
 import { useDeleteFormal } from "../../hooks/admin/useDeleteFormal";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
-import { Formal } from "../../model/Formal";
+import { Formal, FormalContext } from "../../model/Formal";
 
 interface Stat {
   type: string;
@@ -92,11 +92,8 @@ function mealStats(formal: Formal): Stat[] {
   }));
 }
 
-interface FormalProps {
-  formal: Formal;
-}
-
-export function FormalStats({ formal }: FormalProps) {
+export function FormalStats() {
+  const formal = useContext(FormalContext);
   const canDelete = useHasPermission("formals", "delete");
   const typeColumns = useMemo<Column<Stat>[]>(
     () => [
@@ -221,6 +218,10 @@ function StatTable<T extends object>({ table }: StatTableProps<T>) {
       </Tfoot>
     </Table>
   );
+}
+
+interface FormalProps {
+  formal: Formal;
 }
 
 function FormalActions({ formal }: FormalProps) {

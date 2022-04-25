@@ -17,10 +17,11 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { Formik, Form, Field, FieldProps } from "formik";
+import { useContext } from "react";
 import { FaSave } from "react-icons/fa";
 import { useEditFormal } from "../../hooks/admin/useEditFormal";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
-import { Formal } from "../../model/Formal";
+import { Formal, FormalContext } from "../../model/Formal";
 import DatePicker from "../utility/DatePicker";
 
 interface FormalDetailsFormProps {
@@ -294,11 +295,8 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
   );
 };
 
-interface FormalProps {
-  formal: Formal;
-}
-
-export function EditFormalForm({ formal }: FormalProps) {
+export function EditFormalForm() {
+  const formal = useContext(FormalContext);
   const mutation = useEditFormal(formal.id);
   const canWrite = useHasPermission("formals", "write");
   return (

@@ -25,7 +25,7 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import _ from "lodash";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
@@ -42,15 +42,13 @@ import {
   useTable,
 } from "react-table";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
-import { Formal } from "../../model/Formal";
+import { Formal, FormalContext } from "../../model/Formal";
 import { AdminTicket } from "../../model/Ticket";
 import { TicketActions } from "./TicketActions";
 
-interface FormalProps {
-  formal: Formal;
-}
 
-export function FormalTicketsList({ formal }: FormalProps) {
+export function FormalTicketsList() {
+  const formal = useContext(FormalContext);
   const canWrite = useHasPermission("tickets", "write");
   const canDelete = useHasPermission("tickets", "delete");
   const [query, setQuery] = useState("");

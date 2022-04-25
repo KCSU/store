@@ -12,19 +12,17 @@ import {
 import { Navigate, useParams } from "react-router-dom";
 import { BackButton } from "../../components/utility/BackButton";
 import { Card } from "../../components/utility/Card";
-import { Formal } from "../../model/Formal";
+import { Formal, FormalContext } from "../../model/Formal";
 import { EditFormalForm } from "../../components/admin/EditFormalForm";
 import { useFormal } from "../../hooks/admin/useFormal";
 import { EditFormalGroupsForm } from "../../components/admin/EditFormalGroupsForm";
 import { FormalStats } from "../../components/admin/FormalStats";
 import { FormalTicketsList } from "../../components/admin/FormalTicketsList";
 import { FormalManualTicketsList } from "../../components/admin/FormalManualTicketsList";
+import { useContext } from "react";
 
-interface FormalProps {
-  formal: Formal;
-}
-
-function AdminEditFormalCard({ formal }: FormalProps) {
+function AdminEditFormalCard() {
+  const formal = useContext(FormalContext);
   return (
     <Container maxW="container.md" p={0}>
       <BackButton to="/admin/formals">Back Home</BackButton>
@@ -42,19 +40,19 @@ function AdminEditFormalCard({ formal }: FormalProps) {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <EditFormalForm formal={formal} />
+              <EditFormalForm />
             </TabPanel>
             <TabPanel>
-              <EditFormalGroupsForm formal={formal} />
+              <EditFormalGroupsForm />
             </TabPanel>
             <TabPanel>
-              <FormalTicketsList formal={formal} />
+              <FormalTicketsList />
             </TabPanel>
             <TabPanel>
-              <FormalManualTicketsList formal={formal} />
+              <FormalManualTicketsList />
             </TabPanel>
             <TabPanel>
-              <FormalStats formal={formal} />
+              <FormalStats />
             </TabPanel>
           </TabPanels>
         </Tabs>
@@ -65,7 +63,7 @@ function AdminEditFormalCard({ formal }: FormalProps) {
 
 export function AdminEditFormalView() {
   const { formalId } = useParams();
-  const { data: formal, isLoading, isError } = useFormal(formalId ?? '');
+  const { data: formal, isLoading, isError } = useFormal(formalId ?? "");
   if (isError) {
     // TODO: return an error!
     return <Navigate to="/admin/formals" />;
@@ -78,5 +76,9 @@ export function AdminEditFormalView() {
     // Hmmm...
     return <Box></Box>;
   }
-  return <AdminEditFormalCard formal={formal} />;
+  return (
+    <FormalContext.Provider value={formal}>
+      <AdminEditFormalCard />
+    </FormalContext.Provider>
+  );
 }
