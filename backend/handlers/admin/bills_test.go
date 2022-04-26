@@ -234,7 +234,7 @@ func (s *AdminBillSuite) TestUpdateBill() {
 	s.bills.AssertExpectations(s.T())
 }
 
-func (s *AdminBillSuite) TestAddFormalToBill() {
+func (s *AdminBillSuite) TestAddBillFormal() {
 	formalId := uuid.New()
 	body := fmt.Sprintf(`{"formalId": "%s"}`, formalId.String())
 	billId := uuid.New()
@@ -258,7 +258,36 @@ func (s *AdminBillSuite) TestAddFormalToBill() {
 	s.bills.On("Find", billId).Return(bill, nil).Once()
 	s.bills.On("AddFormal", &bill, formalId).Return(nil).Once()
 	// Run test
-	err := s.h.AddFormalToBill(c)
+	err := s.h.AddBillFormal(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
+	s.bills.AssertExpectations(s.T())
+}
+
+func (s *AdminBillSuite) TestRemoveBillFormal() {
+	formalId := uuid.New()
+	billId := uuid.New()
+	bill := model.Bill{
+		Model: model.Model{ID: billId},
+		Name:  "Test",
+	}
+	e := echo.New()
+	e.Validator = middleware.NewValidator()
+	req := httptest.NewRequest(
+		http.MethodDelete,
+		fmt.Sprint("/bills/", billId.String(), "/formals/", formalId.String()),
+		nil,
+	)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id", "formalId")
+	c.SetParamValues(billId.String(), formalId.String())
+	// Mock database
+	s.bills.On("Find", billId).Return(bill, nil).Once()
+	s.bills.On("RemoveFormal", &bill, formalId).Return(nil).Once()
+	// Run test
+	err := s.h.RemoveBillFormal(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
 	s.bills.AssertExpectations(s.T())

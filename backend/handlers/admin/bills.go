@@ -77,7 +77,7 @@ func (ah *AdminHandler) UpdateBill(c echo.Context) error {
 }
 
 // Add a formal to a bill
-func (ah *AdminHandler) AddFormalToBill(c echo.Context) error {
+func (ah *AdminHandler) AddBillFormal(c echo.Context) error {
 	// Get the bill ID from query
 	id := c.Param("id")
 	billID, err := uuid.Parse(id)
@@ -103,5 +103,30 @@ func (ah *AdminHandler) AddFormalToBill(c echo.Context) error {
 		return err
 	}
 	// JSON?
+	return c.NoContent(http.StatusOK)
+}
+
+func (ah *AdminHandler) RemoveBillFormal(c echo.Context) error {
+	// Get the bill ID from query
+	id := c.Param("id")
+	billID, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	fid := c.Param("formalId")
+	formalID, err := uuid.Parse(fid)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	bill, err := ah.Bills.Find(billID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.Bills.RemoveFormal(&bill, formalID); err != nil {
+		return err
+	}
 	return c.NoContent(http.StatusOK)
 }

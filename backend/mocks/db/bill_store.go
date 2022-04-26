@@ -95,6 +95,20 @@ func (_m *BillStore) Get() ([]model.Bill, error) {
 	return r0, r1
 }
 
+// RemoveFormal provides a mock function with given fields: bill, formalId
+func (_m *BillStore) RemoveFormal(bill *model.Bill, formalId uuid.UUID) error {
+	ret := _m.Called(bill, formalId)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Bill, uuid.UUID) error); ok {
+		r0 = rf(bill, formalId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Update provides a mock function with given fields: bill
 func (_m *BillStore) Update(bill *model.Bill) error {
 	ret := _m.Called(bill)
