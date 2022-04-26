@@ -23,12 +23,14 @@ import { BillContext } from "../../model/Bill";
 import { Card } from "../utility/Card";
 import { FaArrowRight, FaPlus } from "react-icons/fa";
 import { FormalRadioGroup } from "./FormalRadioGroup";
+import { useAddFormalToBill } from "../../hooks/admin/useAddFormalToBill";
 
 function AddFormalButton() {
   const bill = useContext(BillContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const exclude = useMemo(() => bill.formals?.map((f) => f.id), [bill]);
-  const [id, setId] = useState("");
+  const [formalId, setFormalId] = useState("");
+  const mutation = useAddFormalToBill(bill.id);
   return (
     <>
       <Button
@@ -44,16 +46,26 @@ function AddFormalButton() {
           <ModalHeader>Add Formal</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormalRadioGroup exclude={exclude} value={id} onChange={setId} />
+            <FormalRadioGroup
+              exclude={exclude}
+              value={formalId}
+              onChange={setFormalId}
+            />
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onClose}>
               Cancel
             </Button>
-            <Button colorScheme="brand" onClick={() => {
-              onClose();
-              setId("");
-            }}>
+            <Button
+              colorScheme="brand"
+              isDisabled={formalId === ""}
+              isLoading={mutation.isLoading}
+              onClick={async () => {
+                await mutation.mutateAsync(formalId);
+                onClose();
+                setFormalId("");
+              }}
+            >
               Add
             </Button>
           </ModalFooter>

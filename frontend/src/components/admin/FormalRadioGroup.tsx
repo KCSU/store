@@ -7,6 +7,7 @@ import {
   Alert,
   useRadioGroup,
   VStack,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { useMemo } from "react";
 import { useAllFormals } from "../../hooks/admin/useAllFormals";
@@ -38,6 +39,10 @@ function FormalRadioCard({ formal, ...props }: FormalRadioCardProps) {
       _checked={{
         bg: checkedBg,
         color: checkedFg,
+        shadow: "md",
+      }}
+      _focus={{
+        boxShadow: "outline",
       }}
     >
       <input {...input} />
@@ -69,13 +74,24 @@ export function FormalRadioGroup({
   const group = getRootProps();
   // TODO: Pagination / limits / search
   const formals = useMemo(() => {
-    return data?.filter((f) => !exclude?.includes(f.id)) ?? [];
+    const fs = data?.filter((f) => !exclude?.includes(f.id)) ?? [];
+    return fs.slice(0, 10);
   }, [data, exclude]);
-  return isError ? (
-    <Alert status="error">
-      There was an error loading the formals. Please try again later.
-    </Alert>
-  ) : (
+  if (isError) {
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        There was an error loading the formals. Please try again later.
+      </Alert>
+    );
+  }
+  if (formals.length === 0) {
+    return <Alert status="info">
+      <AlertIcon />
+      No formals found.
+    </Alert>;
+  }
+  return (
     <VStack {...group} gap={2}>
       {formals?.map((formal) => {
         const radio = getRadioProps({ value: formal.id });
