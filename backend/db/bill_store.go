@@ -16,6 +16,8 @@ type BillStore interface {
 	FindWithFormals(id uuid.UUID) (model.Bill, error)
 	// Update a bill
 	Update(bill *model.Bill) error
+	// Add a formal to a bill
+	AddFormal(bill *model.Bill, formalId uuid.UUID) error
 }
 
 // Helper struct for using Bills in the database
@@ -53,4 +55,11 @@ func (b *DBBillStore) Get() ([]model.Bill, error) {
 // Update a bill
 func (b *DBBillStore) Update(bill *model.Bill) error {
 	return b.db.Omit("Formals", "created_at").Save(bill).Error
+}
+
+// Add a formal to a bill
+func (b *DBBillStore) AddFormal(bill *model.Bill, formalId uuid.UUID) error {
+	f := &model.Formal{}
+	f.ID = formalId
+	return b.db.Model(f).Update("bill_id", bill.ID).Error
 }

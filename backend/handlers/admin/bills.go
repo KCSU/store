@@ -46,8 +46,8 @@ func (ah *AdminHandler) UpdateBill(c echo.Context) error {
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	b := dto.BillDto{}
-	if err := c.Bind(&b); err != nil {
+	b := new(dto.BillDto)
+	if err := c.Bind(b); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	if err := c.Validate(b); err != nil {
@@ -70,6 +70,36 @@ func (ah *AdminHandler) UpdateBill(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	if err := ah.Bills.Update(&bill); err != nil {
+		return err
+	}
+	// JSON?
+	return c.NoContent(http.StatusOK)
+}
+
+// Add a formal to a bill
+func (ah *AdminHandler) AddFormalToBill(c echo.Context) error {
+	// Get the bill ID from query
+	id := c.Param("id")
+	billID, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	f := new(dto.AddFormalToBillDto)
+	if err := c.Bind(f); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(f); err != nil {
+		return err
+	}
+	bill, err := ah.Bills.Find(billID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	// TODO: check formal exists?
+	if err := ah.Bills.AddFormal(&bill, f.FormalID); err != nil {
 		return err
 	}
 	// JSON?

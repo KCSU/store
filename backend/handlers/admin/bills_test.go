@@ -234,6 +234,36 @@ func (s *AdminBillSuite) TestUpdateBill() {
 	s.bills.AssertExpectations(s.T())
 }
 
+func (s *AdminBillSuite) TestAddFormalToBill() {
+	formalId := uuid.New()
+	body := fmt.Sprintf(`{"formalId": "%s"}`, formalId.String())
+	billId := uuid.New()
+	bill := model.Bill{
+		Model: model.Model{ID: billId},
+		Name:  "Test",
+	}
+	e := echo.New()
+	e.Validator = middleware.NewValidator()
+	req := httptest.NewRequest(
+		http.MethodPost,
+		fmt.Sprint("/bills/", "/formals"),
+		strings.NewReader(body),
+	)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(billId.String())
+	// Mock database
+	s.bills.On("Find", billId).Return(bill, nil).Once()
+	s.bills.On("AddFormal", &bill, formalId).Return(nil).Once()
+	// Run test
+	err := s.h.AddFormalToBill(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
+	s.bills.AssertExpectations(s.T())
+}
+
 func TestBillSuite(t *testing.T) {
 	suite.Run(t, new(AdminBillSuite))
 }
