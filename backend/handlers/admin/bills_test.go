@@ -234,9 +234,9 @@ func (s *AdminBillSuite) TestUpdateBill() {
 	s.bills.AssertExpectations(s.T())
 }
 
-func (s *AdminBillSuite) TestAddBillFormal() {
-	formalId := uuid.New()
-	body := fmt.Sprintf(`{"formalId": "%s"}`, formalId.String())
+func (s *AdminBillSuite) TestAddBillFormals() {
+	fid1, fid2 := uuid.New(), uuid.New()
+	body := fmt.Sprintf(`{"formalIds": ["%s", "%s"]}`, fid1.String(), fid2.String())
 	billId := uuid.New()
 	bill := model.Bill{
 		Model: model.Model{ID: billId},
@@ -256,9 +256,9 @@ func (s *AdminBillSuite) TestAddBillFormal() {
 	c.SetParamValues(billId.String())
 	// Mock database
 	s.bills.On("Find", billId).Return(bill, nil).Once()
-	s.bills.On("AddFormal", &bill, formalId).Return(nil).Once()
+	s.bills.On("AddFormals", &bill, []uuid.UUID{fid1, fid2}).Return(nil).Once()
 	// Run test
-	err := s.h.AddBillFormal(c)
+	err := s.h.AddBillFormals(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
 	s.bills.AssertExpectations(s.T())

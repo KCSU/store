@@ -28,7 +28,7 @@ import { BillContext } from "../../model/Bill";
 import { Card } from "../utility/Card";
 import { FaArrowRight, FaExternalLinkAlt, FaPlus } from "react-icons/fa";
 import { FormalRadioGroup } from "./FormalRadioGroup";
-import { useAddBillFormal } from "../../hooks/admin/useAddBillFormal";
+import { useAddBillFormals } from "../../hooks/admin/useAddBillFormals";
 import { Formal } from "../../model/Formal";
 import { useRemoveBillFormal } from "../../hooks/admin/useRemoveBillFormal";
 import { useAllFormals } from "../../hooks/admin/useAllFormals";
@@ -38,7 +38,7 @@ function AddFormalButton() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const exclude = useMemo(() => bill.formals?.map((f) => f.id), [bill]);
   const [formalId, setFormalId] = useState("");
-  const mutation = useAddBillFormal(bill.id);
+  const mutation = useAddBillFormals(bill.id);
   return (
     <>
       <Button
@@ -69,7 +69,7 @@ function AddFormalButton() {
               isDisabled={formalId === ""}
               isLoading={mutation.isLoading}
               onClick={async () => {
-                await mutation.mutateAsync(formalId);
+                await mutation.mutateAsync([formalId]);
                 onClose();
                 setFormalId("");
               }}
@@ -93,6 +93,7 @@ function BillFormalsPreview() {
       []
     );
   }, [data, bill]);
+  const mutation = useAddBillFormals(bill.id);
   if (isError) {
     return <Alert status="error">Error loading formals</Alert>;
   }
@@ -126,14 +127,20 @@ function BillFormalsPreview() {
               target="_blank"
             >
               <Heading as="h5" size="sm">
-                {f.name} <Icon as={FaExternalLinkAlt} ml={1} boxSize={3}/>
+                {f.name} <Icon as={FaExternalLinkAlt} ml={1} boxSize={3} />
               </Heading>
             </LinkOverlay>
             <Text fontSize="sm">{dayjs(f.dateTime).calendar()}</Text>
           </LinkBox>
         ))}
       </SimpleGrid>
-      <Button colorScheme="brand" rightIcon={<FaArrowRight />} mt={3}>
+      <Button
+        colorScheme="brand"
+        rightIcon={<FaArrowRight />}
+        isLoading={mutation.isLoading}
+        onClick={() => mutation.mutate(formals.map((f) => f.id))}
+        mt={3}
+      >
         Add formals to bill
       </Button>
     </>

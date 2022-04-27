@@ -17,7 +17,7 @@ type BillStore interface {
 	// Update a bill
 	Update(bill *model.Bill) error
 	// Add a formal to a bill
-	AddFormal(bill *model.Bill, formalId uuid.UUID) error
+	AddFormals(bill *model.Bill, formalIds []uuid.UUID) error
 	// Remove a formal from a bill
 	RemoveFormal(bill *model.Bill, formalId uuid.UUID) error
 }
@@ -60,10 +60,8 @@ func (b *DBBillStore) Update(bill *model.Bill) error {
 }
 
 // Add a formal to a bill
-func (b *DBBillStore) AddFormal(bill *model.Bill, formalId uuid.UUID) error {
-	f := &model.Formal{}
-	f.ID = formalId
-	return b.db.Model(f).Update("bill_id", bill.ID).Error
+func (b *DBBillStore) AddFormals(bill *model.Bill, formalIds []uuid.UUID) error {
+	return b.db.Model(&model.Formal{}).Where("id in ?", formalIds).Update("bill_id", bill.ID).Error
 }
 
 // Remove a formal from a bill

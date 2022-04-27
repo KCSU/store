@@ -150,7 +150,7 @@ func (s *BillSuite) TestUpdateBill() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
-func (s *BillSuite) TestAddFormalToBill() {
+func (s *BillSuite) TestAddFormalsToBill() {
 	id := uuid.New()
 	bill := model.Bill{
 		Model:   model.Model{ID: id},
@@ -159,14 +159,14 @@ func (s *BillSuite) TestAddFormalToBill() {
 		End:     time.Now().Add(24 * time.Hour),
 		Formals: []model.Formal{},
 	}
-	formalId := uuid.New()
+	formalIds := []uuid.UUID{uuid.New(), uuid.New()}
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "formals"`).
 		WithArgs(
-			bill.ID, sqlmock.AnyArg(), formalId,
+			bill.ID, sqlmock.AnyArg(), formalIds[0], formalIds[1],
 		).WillReturnResult(sqlmock.NewResult(0, 1))
 	s.mock.ExpectCommit()
-	err := s.store.AddFormal(&bill, formalId)
+	err := s.store.AddFormals(&bill, formalIds)
 	s.NoError(err)
 	s.NoError(s.mock.ExpectationsWereMet())
 }

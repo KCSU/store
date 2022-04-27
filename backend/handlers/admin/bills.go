@@ -77,7 +77,7 @@ func (ah *AdminHandler) UpdateBill(c echo.Context) error {
 }
 
 // Add a formal to a bill
-func (ah *AdminHandler) AddBillFormal(c echo.Context) error {
+func (ah *AdminHandler) AddBillFormals(c echo.Context) error {
 	// Get the bill ID from query
 	id := c.Param("id")
 	billID, err := uuid.Parse(id)
@@ -99,7 +99,7 @@ func (ah *AdminHandler) AddBillFormal(c echo.Context) error {
 		return err
 	}
 	// TODO: check formal exists?
-	if err := ah.Bills.AddFormal(&bill, f.FormalID); err != nil {
+	if err := ah.Bills.AddFormals(&bill, f.FormalIDs); err != nil {
 		return err
 	}
 	// JSON?
