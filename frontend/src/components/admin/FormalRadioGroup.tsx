@@ -23,22 +23,23 @@ function FormalRadioCard({ formal, ...props }: FormalRadioCardProps) {
   const { getInputProps, getCheckboxProps } = useRadio(props);
   const input = getInputProps();
   const checkbox = getCheckboxProps();
-  const bg = useColorModeValue("gray.100", "gray.600");
-  const checkedBg = useColorModeValue("brand.500", "brand.200");
-  const checkedFg = useColorModeValue("white", "black");
+  // const bg = useColorModeValue("gray.100", "gray.600");
+  const border = useColorModeValue("gray.300", "gray.600");
+  const checkedBorder = useColorModeValue("brand.500", "brand.200");
   const date = useDateTime(formal.dateTime);
   return (
     <Card
       p={3}
-      bg={bg}
+      // bg={bg}
       borderRadius="md"
       as="label"
       {...checkbox}
       cursor="pointer"
       transition="all 0.2s"
+      borderWidth={2}
+      borderColor={border}
       _checked={{
-        bg: checkedBg,
-        color: checkedFg,
+        borderColor: checkedBorder,
         shadow: "md",
       }}
       _focus={{

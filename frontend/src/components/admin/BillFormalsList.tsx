@@ -1,8 +1,13 @@
 import {
+  Alert,
+  AlertIcon,
+  Box,
   Button,
   CloseButton,
   Heading,
   Icon,
+  LinkBox,
+  LinkOverlay,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -21,16 +26,19 @@ import { Link } from "react-router-dom";
 import { useContext, useMemo, useState } from "react";
 import { BillContext } from "../../model/Bill";
 import { Card } from "../utility/Card";
-import { FaArrowRight, FaPlus } from "react-icons/fa";
+import { FaArrowRight, FaExternalLinkAlt, FaPlus } from "react-icons/fa";
 import { FormalRadioGroup } from "./FormalRadioGroup";
-import { useAddFormalToBill } from "../../hooks/admin/useAddFormalToBill";
+import { useAddBillFormal } from "../../hooks/admin/useAddBillFormal";
+import { Formal } from "../../model/Formal";
+import { useRemoveBillFormal } from "../../hooks/admin/useRemoveBillFormal";
+import { useAllFormals } from "../../hooks/admin/useAllFormals";
 
 function AddFormalButton() {
   const bill = useContext(BillContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const exclude = useMemo(() => bill.formals?.map((f) => f.id), [bill]);
   const [formalId, setFormalId] = useState("");
-  const mutation = useAddFormalToBill(bill.id);
+  const mutation = useAddBillFormal(bill.id);
   return (
     <>
       <Button
@@ -75,9 +83,70 @@ function AddFormalButton() {
   );
 }
 
+function BillFormalsPreview() {
+  const bill = useContext(BillContext);
+  const { data, isError } = useAllFormals();
+  const bg = useColorModeValue("gray.100", "gray.600");
+  const formals = useMemo(() => {
+    return (
+      data?.filter((f) => bill.start <= f.dateTime && f.dateTime <= bill.end) ??
+      []
+    );
+  }, [data, bill]);
+  if (isError) {
+    return <Alert status="error">Error loading formals</Alert>;
+  }
+  return (
+    <>
+      <Alert status="info">
+        <AlertIcon />
+        No formals have been added to this bill yet.
+      </Alert>
+      <Heading as="h4" size="md" mt={3}>
+        Selected Formals
+      </Heading>
+      <Text fontStyle="italic">
+        {dayjs(bill.start).format("MMM D, YYYY")}&mdash;
+        {dayjs(bill.end).format("MMM D, YYYY")}
+      </Text>
+      <SimpleGrid columns={[1, 1, 2, 3]} gap={3} mt={2}>
+        {formals.map((f) => (
+          <LinkBox
+            as={Card}
+            bg={bg}
+            p={3}
+            borderRadius="md"
+            key={f.id}
+            _hover={{ shadow: "md" }}
+            transition="box-shadow 0.2s"
+          >
+            <LinkOverlay
+              as={Link}
+              to={`/admin/formals/${f.id}`}
+              target="_blank"
+            >
+              <Heading as="h5" size="sm">
+                {f.name} <Icon as={FaExternalLinkAlt} ml={1} boxSize={3}/>
+              </Heading>
+            </LinkOverlay>
+            <Text fontSize="sm">{dayjs(f.dateTime).calendar()}</Text>
+          </LinkBox>
+        ))}
+      </SimpleGrid>
+      <Button colorScheme="brand" rightIcon={<FaArrowRight />} mt={3}>
+        Add formals to bill
+      </Button>
+    </>
+  );
+}
+
 export function BillFormalsList() {
   const bill = useContext(BillContext);
   const bg = useColorModeValue("gray.100", "gray.600");
+  const mutation = useRemoveBillFormal(bill.id);
+  if (bill.formals?.length === 0) {
+    return <BillFormalsPreview />;
+  }
   return (
     <>
       <AddFormalButton />
@@ -89,6 +158,7 @@ export function BillFormalsList() {
             bg={bg}
             p={3}
             borderRadius="md"
+            key={f.id}
           >
             <VStack align="start">
               <Heading as="h4" size="sm">
@@ -98,6 +168,7 @@ export function BillFormalsList() {
               <Button
                 as={Link}
                 variant="outline"
+                target="_blank"
                 size="xs"
                 to={`/admin/formals/${f.id}`}
                 rightIcon={<Icon as={FaArrowRight} />}
@@ -105,7 +176,11 @@ export function BillFormalsList() {
                 More Info
               </Button>
             </VStack>
-            <CloseButton aria-label="Remove" size="sm" />
+            <CloseButton
+              aria-label="Remove"
+              size="sm"
+              onClick={() => mutation.mutate(f.id)}
+            />
           </Card>
         ))}
       </SimpleGrid>
