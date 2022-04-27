@@ -293,6 +293,99 @@ func (s *AdminBillSuite) TestRemoveBillFormal() {
 	s.bills.AssertExpectations(s.T())
 }
 
+func (s *AdminBillSuite) TestGetBillStats() {
+	bill := model.Bill{
+		Model: model.Model{ID: uuid.New()},
+		Name:  "Test",
+	}
+	fbs := []model.FormalCostBreakdown{
+		{
+			FormalID:       uuid.New(),
+			Name:           "Formal 1",
+			Price:          10,
+			GuestPrice:     20,
+			DateTime:       time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
+			Standard:       11,
+			Guest:          21,
+			StandardManual: 31,
+			GuestManual:    41,
+		},
+		{
+			FormalID:       uuid.New(),
+			Name:           "Formal 2",
+			Price:          21.2,
+			GuestPrice:     31.3,
+			DateTime:       time.Date(2020, time.February, 1, 0, 0, 0, 0, time.UTC),
+			Standard:       12,
+			Guest:          15,
+			StandardManual: 13,
+			GuestManual:    21,
+		},
+	}
+	ubs := []model.UserCostBreakdown{
+		{
+			Email: "abc123@cam.ac.uk",
+			Cost:  14,
+		},
+		{
+			Email: "def456@cam.ac.uk",
+			Cost:  73.4,
+		},
+	}
+	expectedJSON := `{
+		"formals": [
+			{
+				"formalId": "` + fbs[0].FormalID.String() + `",
+				"formalName": "Formal 1",
+				"price": 10,
+				"guestPrice": 20,
+				"dateTime": "2020-01-01T00:00:00Z",
+				"standard": 11,
+				"guest": 21,
+				"standardManual": 31,
+				"guestManual": 41
+			},
+			{
+				"formalId": "` + fbs[1].FormalID.String() + `",
+				"formalName": "Formal 2",
+				"price": 21.2,
+				"guestPrice": 31.3,
+				"dateTime": "2020-02-01T00:00:00Z",
+				"standard": 12,
+				"guest": 15,
+				"standardManual": 13,
+				"guestManual": 21
+			}
+		],
+		"users": [
+			{
+				"userEmail": "abc123@cam.ac.uk",
+				"cost": 14
+			},
+			{
+				"userEmail": "def456@cam.ac.uk",
+				"cost": 73.4
+			}
+		]
+	}`
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/bills/", bill.ID.String(), "/stats"), nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(bill.ID.String())
+	// Mock database
+	s.bills.On("Find", bill.ID).Return(bill, nil).Once()
+	s.bills.On("GetCostBreakdown", &bill).Return(fbs, nil).Once()
+	s.bills.On("GetCostBreakdownByUser", &bill).Return(ubs, nil).Once()
+	// Run test
+	err := s.h.GetBillStats(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
+	s.JSONEq(expectedJSON, rec.Body.String())
+	s.bills.AssertExpectations(s.T())
+}
+
 func TestBillSuite(t *testing.T) {
 	suite.Run(t, new(AdminBillSuite))
 }

@@ -95,6 +95,52 @@ func (_m *BillStore) Get() ([]model.Bill, error) {
 	return r0, r1
 }
 
+// GetCostBreakdown provides a mock function with given fields: bill
+func (_m *BillStore) GetCostBreakdown(bill *model.Bill) ([]model.FormalCostBreakdown, error) {
+	ret := _m.Called(bill)
+
+	var r0 []model.FormalCostBreakdown
+	if rf, ok := ret.Get(0).(func(*model.Bill) []model.FormalCostBreakdown); ok {
+		r0 = rf(bill)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.FormalCostBreakdown)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*model.Bill) error); ok {
+		r1 = rf(bill)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetCostBreakdownByUser provides a mock function with given fields: bill
+func (_m *BillStore) GetCostBreakdownByUser(bill *model.Bill) ([]model.UserCostBreakdown, error) {
+	ret := _m.Called(bill)
+
+	var r0 []model.UserCostBreakdown
+	if rf, ok := ret.Get(0).(func(*model.Bill) []model.UserCostBreakdown); ok {
+		r0 = rf(bill)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.UserCostBreakdown)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*model.Bill) error); ok {
+		r1 = rf(bill)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // RemoveFormal provides a mock function with given fields: bill, formalId
 func (_m *BillStore) RemoveFormal(bill *model.Bill, formalId uuid.UUID) error {
 	ret := _m.Called(bill, formalId)

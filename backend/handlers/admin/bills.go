@@ -130,3 +130,30 @@ func (ah *AdminHandler) RemoveBillFormal(c echo.Context) error {
 	}
 	return c.NoContent(http.StatusOK)
 }
+
+func (ah *AdminHandler) GetBillStats(c echo.Context) error {
+	id := c.Param("id")
+	billID, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	bill, err := ah.Bills.Find(billID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	formalCosts, err := ah.Bills.GetCostBreakdown(&bill)
+	if err != nil {
+		return err
+	}
+	userCosts, err := ah.Bills.GetCostBreakdownByUser(&bill)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, &dto.BillStatsDto{
+		Formals: formalCosts,
+		Users:   userCosts,
+	})
+}

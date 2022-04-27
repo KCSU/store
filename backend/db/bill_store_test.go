@@ -192,6 +192,91 @@ func (s *BillSuite) TestRemoveFormalFromBill() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *BillSuite) TestGetCostBreakdown() {
+	id := uuid.New()
+	bill := model.Bill{
+		Model: model.Model{ID: id},
+		Name:  "Test Bill",
+		Start: time.Now().Add(-12 * time.Hour),
+		End:   time.Now().Add(24 * time.Hour),
+	}
+	fid1, fid2 := uuid.New(), uuid.New()
+	dt := time.Now().Add(7 * 24 * time.Hour)
+	s.mock.ExpectQuery(`SELECT .+ FROM formals`).WithArgs(id).
+		WillReturnRows(
+			sqlmock.NewRows([]string{
+				"formal_id", "name", "price", "guest_price", "date_time",
+				"standard", "guest", "standard_manual", "guest_manual",
+			}).AddRow(
+				fid1, "Test Formal", 10, 12,
+				dt, 12, 11, 3, 7,
+			).AddRow(
+				fid2, "Test Formal 2", 23, 34.5,
+				dt, 36, 81, 42, 17,
+			),
+		)
+	breakdowns := []model.FormalCostBreakdown{
+		{
+			FormalID:       fid1,
+			Name:           "Test Formal",
+			Price:          10,
+			GuestPrice:     12,
+			DateTime:       dt,
+			Standard:       12,
+			Guest:          11,
+			StandardManual: 3,
+			GuestManual:    7,
+		},
+		{
+			FormalID:       fid2,
+			Name:           "Test Formal 2",
+			Price:          23,
+			GuestPrice:     34.5,
+			DateTime:       dt,
+			Standard:       36,
+			Guest:          81,
+			StandardManual: 42,
+			GuestManual:    17,
+		},
+	}
+	bs, err := s.store.GetCostBreakdown(&bill)
+	s.NoError(err)
+	s.Equal(breakdowns, bs)
+}
+
+func (s *BillSuite) TestGetCostBreakdownByUser() {
+	id := uuid.New()
+	bill := model.Bill{
+		Model: model.Model{ID: id},
+		Name:  "Test Bill",
+		Start: time.Now().Add(-12 * time.Hour),
+		End:   time.Now().Add(24 * time.Hour),
+	}
+	breakdowns := []model.UserCostBreakdown{
+		{
+			Email: "abc123@cam.ac.uk",
+			Cost:  11.45,
+		},
+		{
+			Email: "def456@cam.ac.uk",
+			Cost:  12.3,
+		},
+	}
+	s.mock.ExpectQuery(`SELECT .+ FROM formals`).WithArgs(id).
+		WillReturnRows(
+			sqlmock.NewRows([]string{
+				"email", "cost",
+			}).AddRow(
+				"abc123@cam.ac.uk", 11.45,
+			).AddRow(
+				"def456@cam.ac.uk", 12.3,
+			),
+		)
+	bs, err := s.store.GetCostBreakdownByUser(&bill)
+	s.NoError(err)
+	s.Equal(breakdowns, bs)
+}
+
 func TestBillSuite(t *testing.T) {
 	suite.Run(t, new(BillSuite))
 }
