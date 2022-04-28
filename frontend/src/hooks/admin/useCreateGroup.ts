@@ -5,18 +5,20 @@ import { useCustomMutation } from "../mutations/useCustomMutation";
 
 export function useCreateGroup() {
   const queryClient = useQueryClient();
-  return useCustomMutation(async (g: Group) => {
-    const dto = {
+  return useCustomMutation(
+    async (g: Group) => {
+      const dto = {
         name: g.name,
         type: g.type,
-        lookup: g.lookup
-    };
-    return api.post<void>("admin/groups", dto);
-  },
-  {
-    onSuccess() {
-      queryClient.invalidateQueries("admin/groups");
-      queryClient.invalidateQueries("groups");
+        lookup: g.lookup,
+      };
+      return api.post<void>("admin/groups", dto);
+    },
+    {
+      onSuccess() {
+        queryClient.invalidateQueries("admin/groups");
+        queryClient.invalidateQueries("groups");
+      },
     }
-  });
+  );
 }

@@ -20,6 +20,7 @@ import { AdminPermissionsView } from "./views/admin/AdminPermissionsView";
 import { AdminEditRoleView } from "./views/admin/AdminEditRoleView";
 import { AdminBillsListView } from "./views/admin/AdminBillsListView";
 import { AdminEditBillView } from "./views/admin/AdminEditBillView";
+import { AdminCreateBillView } from "./views/admin/AdminCreateBillView";
 
 const MotionBox = motionComponent<BoxProps, 'div'>(Box);
 
@@ -84,6 +85,12 @@ export function Routes() {
       element: <AdminEditBillView/>,
       resource: "billing",
       action: "read"
+    },
+    {
+      path: "/admin/bills/create",
+      element: <AdminCreateBillView/>,
+      resource: "billing",
+      action: "write"
     }
   ];
   const location = useLocation();

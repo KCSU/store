@@ -1,4 +1,5 @@
 import {
+  Button,
   Heading,
   LinkBox,
   LinkOverlay,
@@ -7,9 +8,11 @@ import {
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useMemo } from "react";
+import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Card } from "../../components/utility/Card";
 import { useBills } from "../../hooks/admin/useBills";
+import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Bill } from "../../model/Bill";
 
 interface BillProps {
@@ -40,6 +43,7 @@ function AdminBillCard({ bill }: BillProps) {
 
 export function AdminBillsListView() {
   const { data, isLoading, isError } = useBills();
+  const canWrite = useHasPermission("billing", "write");
   if (!data) {
     return <></>;
   }
@@ -49,6 +53,17 @@ export function AdminBillsListView() {
       <Heading size="xl" mb={5}>
         Manage Bills
       </Heading>
+      {canWrite && (
+        <Button
+          colorScheme="brand"
+          mb={4}
+          as={Link}
+          to="/admin/bills/create"
+          leftIcon={<FaPlus />}
+        >
+          Create Bill
+        </Button>
+      )}
       <SimpleGrid
         templateColumns="repeat(auto-fill, minmax(250px, 1fr))"
         spacing="20px"
