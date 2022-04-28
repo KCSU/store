@@ -17,6 +17,7 @@ import { Card } from "../../components/utility/Card";
 import { useBill } from "../../hooks/admin/useBill";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { BillContext } from "../../model/Bill";
+import { BillStats } from "../../components/formals/BillStats";
 
 function AdminEditBillCard() {
   const bill = useContext(BillContext);
@@ -30,7 +31,7 @@ function AdminEditBillCard() {
         <Heading as="h3" size="lg" mb={4}>
           {bill.name}
         </Heading>
-        <Tabs colorScheme="brand">
+        <Tabs colorScheme="brand" isLazy>
           <TabList flexWrap="wrap">
             <Tab>Bill Details</Tab>
             <Tab>Formals</Tab>
@@ -43,6 +44,9 @@ function AdminEditBillCard() {
             </TabPanel>
             <TabPanel>
               <BillFormalsList />
+            </TabPanel>
+            <TabPanel>
+              <BillStats />
             </TabPanel>
           </TabPanels>
         </Tabs>

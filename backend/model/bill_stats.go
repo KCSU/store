@@ -19,6 +19,7 @@ type FormalCostBreakdown struct {
 }
 
 type UserCostBreakdown struct {
+	// TODO: name?
 	Email string  `json:"userEmail"`
 	Cost  float32 `json:"cost"`
 }
