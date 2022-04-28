@@ -1,11 +1,11 @@
 import {
   Alert,
   AlertIcon,
-  Box,
   Button,
   CloseButton,
   Heading,
   Icon,
+  Link,
   LinkBox,
   LinkOverlay,
   Modal,
@@ -22,14 +22,12 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
-import { Link } from "react-router-dom";
 import { useContext, useMemo, useState } from "react";
 import { BillContext } from "../../model/Bill";
 import { Card } from "../utility/Card";
 import { FaArrowRight, FaExternalLinkAlt, FaPlus } from "react-icons/fa";
 import { FormalRadioGroup } from "./FormalRadioGroup";
 import { useAddBillFormals } from "../../hooks/admin/useAddBillFormals";
-import { Formal } from "../../model/Formal";
 import { useRemoveBillFormal } from "../../hooks/admin/useRemoveBillFormal";
 import { useAllFormals } from "../../hooks/admin/useAllFormals";
 
@@ -89,8 +87,11 @@ function BillFormalsPreview() {
   const bg = useColorModeValue("gray.100", "gray.600");
   const formals = useMemo(() => {
     return (
-      data?.filter((f) => bill.start <= f.dateTime && f.dateTime <= bill.end) ??
-      []
+      data?.filter((f) => (
+        bill.start <= f.dateTime &&
+        f.dateTime <= bill.end &&
+        !f.billId
+      )) ?? []
     );
   }, [data, bill]);
   const mutation = useAddBillFormals(bill.id);
@@ -151,6 +152,7 @@ export function BillFormalsList() {
   const bill = useContext(BillContext);
   const bg = useColorModeValue("gray.100", "gray.600");
   const mutation = useRemoveBillFormal(bill.id);
+  const linkColor = useColorModeValue("teal.600", "teal.300");
   if (bill.formals?.length === 0) {
     return <BillFormalsPreview />;
   }
@@ -172,16 +174,15 @@ export function BillFormalsList() {
                 {f.name}
               </Heading>
               <Text fontSize="sm">{dayjs(f.dateTime).calendar()}</Text>
-              <Button
-                as={Link}
-                variant="outline"
-                target="_blank"
+              <Link isExternal
                 size="xs"
-                to={`/admin/formals/${f.id}`}
-                rightIcon={<Icon as={FaArrowRight} />}
+                href={`/admin/formals/${f.id}`}
+                fontSize="sm"
+                color={linkColor}
               >
                 More Info
-              </Button>
+                <Icon as={FaExternalLinkAlt} boxSize={3} mx={1} />
+              </Link>
             </VStack>
             <CloseButton
               aria-label="Remove"

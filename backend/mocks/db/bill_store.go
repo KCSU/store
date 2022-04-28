@@ -30,6 +30,20 @@ func (_m *BillStore) AddFormals(bill *model.Bill, formalIds []uuid.UUID) error {
 	return r0
 }
 
+// Delete provides a mock function with given fields: bill
+func (_m *BillStore) Delete(bill *model.Bill) error {
+	ret := _m.Called(bill)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Bill) error); ok {
+		r0 = rf(bill)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Find provides a mock function with given fields: id
 func (_m *BillStore) Find(id uuid.UUID) (model.Bill, error) {
 	ret := _m.Called(id)

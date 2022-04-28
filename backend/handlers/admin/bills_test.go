@@ -234,6 +234,29 @@ func (s *AdminBillSuite) TestUpdateBill() {
 	s.bills.AssertExpectations(s.T())
 }
 
+func (s *AdminBillSuite) TestDeleteBill() {
+	e := echo.New()
+	id := uuid.New()
+	bill := model.Bill{
+		Model: model.Model{ID: id},
+		Name:  "Test",
+	}
+	route := fmt.Sprint("/bills/", id)
+	req := httptest.NewRequest(http.MethodDelete, route, nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(id.String())
+	// Mock
+	s.bills.On("Find", id).Return(bill, nil).Once()
+	s.bills.On("Delete", &bill).Return(nil).Once()
+	// Test
+	err := s.h.DeleteBill(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
+	s.bills.AssertExpectations(s.T())
+}
+
 func (s *AdminBillSuite) TestAddBillFormals() {
 	fid1, fid2 := uuid.New(), uuid.New()
 	body := fmt.Sprintf(`{"formalIds": ["%s", "%s"]}`, fid1.String(), fid2.String())

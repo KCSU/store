@@ -16,6 +16,8 @@ type BillStore interface {
 	FindWithFormals(id uuid.UUID) (model.Bill, error)
 	// Update a bill
 	Update(bill *model.Bill) error
+	// Delete a bill
+	Delete(bill *model.Bill) error
 	// Add a formal to a bill
 	AddFormals(bill *model.Bill, formalIds []uuid.UUID) error
 	// Remove a formal from a bill
@@ -61,6 +63,17 @@ func (b *DBBillStore) Get() ([]model.Bill, error) {
 // Update a bill
 func (b *DBBillStore) Update(bill *model.Bill) error {
 	return b.db.Omit("Formals", "created_at").Save(bill).Error
+}
+
+// Delete a bill
+func (b *DBBillStore) Delete(bill *model.Bill) error {
+	return b.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Model(bill).Association("Formals").Clear()
+		if err != nil {
+			return err
+		}
+		return tx.Delete(bill).Error
+	})
 }
 
 // Add a formal to a bill

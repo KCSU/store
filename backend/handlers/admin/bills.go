@@ -80,6 +80,27 @@ func (ah *AdminHandler) UpdateBill(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Delete a bill
+func (ah *AdminHandler) DeleteBill(c echo.Context) error {
+	// Get the bill ID from query
+	id := c.Param("id")
+	billID, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	bill, err := ah.Bills.Find(billID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.Bills.Delete(&bill); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}
+
 // Add a formal to a bill
 func (ah *AdminHandler) AddBillFormals(c echo.Context) error {
 	// Get the bill ID from query

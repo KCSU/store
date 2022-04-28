@@ -150,6 +150,22 @@ func (s *BillSuite) TestUpdateBill() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *BillSuite) TestDeleteBill() {
+	id := uuid.New()
+	bill := model.Bill{}
+	bill.ID = id
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "formals" SET "bill_id"`).
+		WithArgs(nil, id).WillReturnResult(sqlmock.NewResult(0, 10))
+	s.mock.ExpectExec(`UPDATE "bills" SET "deleted_at"`).
+		WithArgs(sqlmock.AnyArg(), id).
+		WillReturnResult(sqlmock.NewResult(0, 1))
+	s.mock.ExpectCommit()
+	err := s.store.Delete(&bill)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *BillSuite) TestAddFormalsToBill() {
 	id := uuid.New()
 	bill := model.Bill{
