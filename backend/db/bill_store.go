@@ -14,6 +14,8 @@ type BillStore interface {
 	Find(id uuid.UUID) (model.Bill, error)
 	// Retrieve a single bill with formals
 	FindWithFormals(id uuid.UUID) (model.Bill, error)
+	// Create a bill
+	Create(bill *model.Bill) error
 	// Update a bill
 	Update(bill *model.Bill) error
 	// Delete a bill
@@ -58,6 +60,11 @@ func (b *DBBillStore) Get() ([]model.Bill, error) {
 	var data []model.Bill
 	err := b.db.Find(&data).Error
 	return data, err
+}
+
+// Create a bill
+func (b *DBBillStore) Create(bill *model.Bill) error {
+	return b.db.Create(bill).Error
 }
 
 // Update a bill

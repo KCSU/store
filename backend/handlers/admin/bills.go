@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -40,6 +41,34 @@ func (ah *AdminHandler) GetBill(c echo.Context) error {
 		return err
 	}
 	return c.JSON(http.StatusOK, &bill)
+}
+
+// Create a bill
+func (ah *AdminHandler) CreateBill(c echo.Context) error {
+	b := new(dto.BillDto)
+	if err := c.Bind(b); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(b); err != nil {
+		return err
+	}
+	bill := model.Bill{
+		Name: b.Name,
+	}
+	var err error
+	bill.Start, err = time.Parse("2006-01-02", b.Start)
+	if err != nil {
+		return err
+	}
+	bill.End, err = time.Parse("2006-01-02", b.End)
+	if err != nil {
+		return err
+	}
+	if err := ah.Bills.Create(&bill); err != nil {
+		return err
+	}
+	// JSON?
+	return c.NoContent(http.StatusCreated)
 }
 
 // Update a bill

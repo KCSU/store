@@ -133,6 +133,76 @@ func (s *AdminBillSuite) TestGetBill() {
 	s.bills.AssertExpectations(s.T())
 }
 
+func (s *AdminBillSuite) TestCreateBill() {
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name  string
+		body  string
+		bill  *model.Bill
+		wants *wants
+	}
+	tests := []test{
+		{
+			"Should Create",
+			`{
+				"name": "Bill 1",
+				"start": "2022-01-22",
+				"end": "2022-05-22"
+			}`,
+			&model.Bill{
+				Name:  "Bill 1",
+				Start: time.Date(2022, 1, 22, 0, 0, 0, 0, time.UTC),
+				End:   time.Date(2022, 5, 22, 0, 0, 0, 0, time.UTC),
+			},
+			nil,
+		},
+		{
+			"Invalid End",
+			`{
+				"name": "Bill 1",
+				"start": "2022-01-22",
+				"end": "09-05-2023"
+			}`,
+			nil,
+			&wants{
+				http.StatusUnprocessableEntity,
+				"Key: 'BillDto.End' Error:Field validation for 'End' failed on the 'datetime' tag",
+			},
+		},
+	}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// Init HTTP
+			e := echo.New()
+			e.Validator = middleware.NewValidator()
+			req := httptest.NewRequest(http.MethodPost, "/bills", strings.NewReader(test.body))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			// Mock database
+			if test.bill != nil {
+				s.bills.On("Create", test.bill).Return(nil)
+			}
+			// Run test
+			err := s.h.CreateBill(c)
+			if test.wants == nil {
+				s.NoError(err)
+				s.Equal(http.StatusCreated, rec.Code)
+			} else {
+				var he *echo.HTTPError
+				if s.ErrorAs(err, &he) {
+					s.Equal(test.wants.code, he.Code)
+					s.Equal(test.wants.message, he.Message)
+				}
+			}
+		})
+	}
+	s.bills.AssertExpectations(s.T())
+}
+
 func (s *AdminBillSuite) TestUpdateBill() {
 	type wants struct {
 		code    int

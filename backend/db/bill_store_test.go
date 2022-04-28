@@ -125,6 +125,29 @@ func (s *BillSuite) TestFindBillWithFormals() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *BillSuite) TestCreateBill() {
+	id := uuid.New()
+	bill := model.Bill{
+		Name:  "Test Bill",
+		Start: time.Now(),
+		End:   time.Now().Add(24 * time.Hour),
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectQuery(`INSERT INTO "bills"`).
+		WithArgs(
+			sqlmock.AnyArg(), sqlmock.AnyArg(), nil,
+			bill.Name, bill.Start, bill.End,
+		).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id"}).AddRow(id),
+		)
+	s.mock.ExpectCommit()
+	err := s.store.Create(&bill)
+	s.NoError(err)
+	s.EqualValues(id, bill.ID)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *BillSuite) TestUpdateBill() {
 	id := uuid.New()
 	bill := model.Bill{
