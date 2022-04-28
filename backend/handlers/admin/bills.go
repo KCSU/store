@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -216,6 +217,56 @@ func (ah *AdminHandler) GetBillFormalStatsCSV(c echo.Context) error {
 	err = writer.Write([]string{
 		"Total", "", strconv.Itoa(standardSum),
 		"", strconv.Itoa(guestSum), "", fmt.Sprintf("%.2f", costSum),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (ah *AdminHandler) GetBillUserStatsCSV(c echo.Context) error {
+	id := c.Param("id")
+	billID, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	bill, err := ah.Bills.Find(billID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	userCosts, err := ah.Bills.GetCostBreakdownByUser(&bill)
+	if err != nil {
+		return err
+	}
+	c.Response().Header().Set(
+		echo.HeaderContentDisposition,
+		fmt.Sprintf("attachment; filename=%q", "user_costs.csv"),
+	)
+	c.Response().WriteHeader(http.StatusOK)
+	writer := csv.NewWriter(c.Response())
+	defer writer.Flush()
+	err = writer.Write([]string{
+		"CRSID", "Total",
+	})
+	if err != nil {
+		return err
+	}
+	var costSum float32 = 0
+	for _, u := range userCosts {
+		crsid := strings.Split(u.Email, "@")[0]
+		err = writer.Write([]string{
+			crsid, fmt.Sprintf("%.2f", u.Cost),
+		})
+		if err != nil {
+			return err
+		}
+		costSum += u.Cost
+	}
+	err = writer.Write([]string{
+		"Total", fmt.Sprintf("%.2f", costSum),
 	})
 	if err != nil {
 		return err

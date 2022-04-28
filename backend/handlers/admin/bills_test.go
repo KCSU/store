@@ -415,10 +415,13 @@ func (s *AdminBillSuite) TestGetBillFormalStatsCSV() {
 			GuestManual:    21,
 		},
 	}
-	expectedBody := strings.ReplaceAll(`Formal,Date,King's Tickets,King's Price,Guest Tickets,Guest Price,Total
+	expectedBody := strings.ReplaceAll(
+		`Formal,Date,King's Tickets,King's Price,Guest Tickets,Guest Price,Total
 		Formal 1,Jan 1 2020,42,10.00,62,20.00,1660.00
 		Formal 2,Feb 1 2020,25,21.20,36,31.30,1656.80
-		Total,,67,,98,,3316.80`, "\t", "")
+		Total,,67,,98,,3316.80`,
+		"\t", "",
+	)
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/bills/", bill.ID.String(), "/stats/csv"), nil)
 	rec := httptest.NewRecorder()
@@ -433,7 +436,47 @@ func (s *AdminBillSuite) TestGetBillFormalStatsCSV() {
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
 	s.Equal(expectedBody, strings.TrimSpace(rec.Body.String()))
-	s.Equal("attachment; filename=\"formal_costs.csv\"", rec.Header().Get("Content-Disposition"))
+	s.Equal(`attachment; filename="formal_costs.csv"`, rec.Header().Get("Content-Disposition"))
+	s.bills.AssertExpectations(s.T())
+}
+
+func (s *AdminBillSuite) TestGetBillUserStatsCSV() {
+	bill := model.Bill{
+		Model: model.Model{ID: uuid.New()},
+		Name:  "Test",
+	}
+	ubs := []model.UserCostBreakdown{
+		{
+			Email: "abc123@cam.ac.uk",
+			Cost:  14,
+		},
+		{
+			Email: "def456@cam.ac.uk",
+			Cost:  73.4,
+		},
+	}
+	expectedBody := strings.ReplaceAll(
+		`CRSID,Total
+		abc123,14.00
+		def456,73.40
+		Total,87.40`,
+		"\t", "",
+	)
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/bills/", bill.ID.String(), "/stats/csv"), nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(bill.ID.String())
+	// Mock database
+	s.bills.On("Find", bill.ID).Return(bill, nil).Once()
+	s.bills.On("GetCostBreakdownByUser", &bill).Return(ubs, nil).Once()
+	// Run test
+	err := s.h.GetBillUserStatsCSV(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
+	s.Equal(expectedBody, strings.TrimSpace(rec.Body.String()))
+	s.Equal(`attachment; filename="user_costs.csv"`, rec.Header().Get("Content-Disposition"))
 	s.bills.AssertExpectations(s.T())
 }
 

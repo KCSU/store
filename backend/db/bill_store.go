@@ -133,7 +133,7 @@ func (b *DBBillStore) GetCostBreakdownByUser(bill *model.Bill) ([]model.UserCost
 					NOT is_queue AND tickets.deleted_at IS NULL
 				UNION ALL
 				SELECT
-					manual_tickets.email AS email,
+					(CASE WHEN type = 'ents' THEN 'ents' ELSE manual_tickets.email END) AS email,
 					manual_tickets.formal_id AS formal_id,
 					manual_tickets.type = 'guest' AS is_guest
 				FROM manual_tickets

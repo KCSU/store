@@ -138,6 +138,7 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	bills.GET("/:id", ah.GetBill, rbac.M("billing", "read"))
 	bills.GET("/:id/stats", ah.GetBillStats, rbac.M("billing", "read"))
 	bills.GET("/:id/stats/formals.csv", ah.GetBillFormalStatsCSV, rbac.M("billing", "read"))
+	bills.GET("/:id/stats/users.csv", ah.GetBillUserStatsCSV, rbac.M("billing", "read"))
 	bills.PUT("/:id", ah.UpdateBill, rbac.M("billing", "write"))
 	bills.POST("/:id/formals", ah.AddBillFormals, rbac.M("billing", "write"))
 	bills.DELETE("/:id/formals/:formalId", ah.RemoveBillFormal, rbac.M("billing", "write"))

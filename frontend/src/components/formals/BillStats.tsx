@@ -1,6 +1,4 @@
 import {
-  Box,
-  Code,
   Flex,
   Heading,
   HStack,
@@ -26,7 +24,6 @@ import {
   useBreakpointValue,
   Button,
 } from "@chakra-ui/react";
-import dayjs from "dayjs";
 import { useContext, useMemo } from "react";
 import {
   FaAngleDoubleLeft,
@@ -44,7 +41,6 @@ import {
   usePagination,
   useTable,
 } from "react-table";
-import { api } from "../../config/api";
 import { useBillStats } from "../../hooks/admin/useBillStats";
 import { BillContext } from "../../model/Bill";
 import { FormalCostBreakdown, UserCostBreakdown } from "../../model/BillStats";
@@ -193,8 +189,9 @@ function BillUserOverview({ stats }: BillUserOverviewProps) {
         accessor: "userEmail",
         Cell: ({ value }) => {
           const crsid = value.split("@")[0];
+          const email = (value === 'ents') ? import.meta.env.VITE_ENTS_EMAIL : value;
           return (
-            <Link href={`mailto:${value}`} isExternal>
+            <Link href={`mailto:${email}`} isExternal>
               {crsid} <Icon boxSize={3} as={FaExternalLinkAlt} />
             </Link>
           );
@@ -414,9 +411,21 @@ export function BillStats() {
         </Button>
       </Flex>
       <BillFormalOverview stats={stats?.formals ?? []} />
-      <Heading as="h4" size="md">
-        By User
-      </Heading>
+      <Flex justifyContent="space-between" alignItems="center" mb={2} mt={4}>
+        <Heading as="h4" size="md">
+          By User
+        </Heading>
+        <Button
+          size="sm"
+          as="a"
+          href={`${base}admin/bills/${bill.id}/stats/users.csv`}
+          colorScheme="green"
+          leftIcon={<Icon as={FaTable} />}
+          rightIcon={<Icon as={FaDownload} />}
+        >
+          Download
+        </Button>
+      </Flex>
       <BillUserOverview stats={stats?.users ?? []} />
     </>
   );
