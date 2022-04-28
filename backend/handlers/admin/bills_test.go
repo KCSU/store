@@ -386,6 +386,57 @@ func (s *AdminBillSuite) TestGetBillStats() {
 	s.bills.AssertExpectations(s.T())
 }
 
+func (s *AdminBillSuite) TestGetBillFormalStatsCSV() {
+	bill := model.Bill{
+		Model: model.Model{ID: uuid.New()},
+		Name:  "Test",
+	}
+	fbs := []model.FormalCostBreakdown{
+		{
+			FormalID:       uuid.New(),
+			Name:           "Formal 1",
+			Price:          10,
+			GuestPrice:     20,
+			DateTime:       time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
+			Standard:       11,
+			Guest:          21,
+			StandardManual: 31,
+			GuestManual:    41,
+		},
+		{
+			FormalID:       uuid.New(),
+			Name:           "Formal 2",
+			Price:          21.2,
+			GuestPrice:     31.3,
+			DateTime:       time.Date(2020, time.February, 1, 0, 0, 0, 0, time.UTC),
+			Standard:       12,
+			Guest:          15,
+			StandardManual: 13,
+			GuestManual:    21,
+		},
+	}
+	expectedBody := strings.ReplaceAll(`Formal,Date,King's Tickets,King's Price,Guest Tickets,Guest Price,Total
+		Formal 1,Jan 1 2020,42,10.00,62,20.00,1660.00
+		Formal 2,Feb 1 2020,25,21.20,36,31.30,1656.80
+		Total,,67,,98,,3316.80`, "\t", "")
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/bills/", bill.ID.String(), "/stats/csv"), nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(bill.ID.String())
+	// Mock database
+	s.bills.On("Find", bill.ID).Return(bill, nil).Once()
+	s.bills.On("GetCostBreakdown", &bill).Return(fbs, nil).Once()
+	// Run test
+	err := s.h.GetBillFormalStatsCSV(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
+	s.Equal(expectedBody, strings.TrimSpace(rec.Body.String()))
+	s.Equal("attachment; filename=\"formal_costs.csv\"", rec.Header().Get("Content-Disposition"))
+	s.bills.AssertExpectations(s.T())
+}
+
 func TestBillSuite(t *testing.T) {
 	suite.Run(t, new(AdminBillSuite))
 }

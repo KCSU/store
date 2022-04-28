@@ -1,8 +1,11 @@
 package admin
 
 import (
+	"encoding/csv"
 	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -156,4 +159,66 @@ func (ah *AdminHandler) GetBillStats(c echo.Context) error {
 		Formals: formalCosts,
 		Users:   userCosts,
 	})
+}
+
+func (ah *AdminHandler) GetBillFormalStatsCSV(c echo.Context) error {
+	id := c.Param("id")
+	billID, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	bill, err := ah.Bills.Find(billID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	formalCosts, err := ah.Bills.GetCostBreakdown(&bill)
+	if err != nil {
+		return err
+	}
+	c.Response().Header().Set(
+		echo.HeaderContentDisposition,
+		fmt.Sprintf("attachment; filename=%q", "formal_costs.csv"),
+	)
+	c.Response().WriteHeader(http.StatusOK)
+	writer := csv.NewWriter(c.Response())
+	defer writer.Flush()
+	err = writer.Write([]string{
+		"Formal", "Date", "King's Tickets",
+		"King's Price", "Guest Tickets", "Guest Price",
+		"Total",
+	})
+	if err != nil {
+		return err
+	}
+	standardSum := 0
+	guestSum := 0
+	var costSum float32 = 0
+	for _, f := range formalCosts {
+		total := float32(f.Standard+f.StandardManual)*f.Price +
+			float32(f.Guest+f.GuestManual)*f.GuestPrice
+		if err := writer.Write([]string{
+			f.Name, f.DateTime.Format("Jan 2 2006"),
+			strconv.Itoa(f.Standard + f.StandardManual),
+			fmt.Sprintf("%.2f", f.Price),
+			strconv.Itoa(f.Guest + f.GuestManual),
+			fmt.Sprintf("%.2f", f.GuestPrice),
+			fmt.Sprintf("%.2f", total),
+		}); err != nil {
+			return err
+		}
+		standardSum += f.Standard + f.StandardManual
+		guestSum += f.Guest + f.GuestManual
+		costSum += total
+	}
+	err = writer.Write([]string{
+		"Total", "", strconv.Itoa(standardSum),
+		"", strconv.Itoa(guestSum), "", fmt.Sprintf("%.2f", costSum),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -24,11 +24,27 @@ import {
   Tr,
   useColorModeValue,
   useBreakpointValue,
+  Button,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useContext, useMemo } from "react";
-import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaExternalLinkAlt } from "react-icons/fa";
-import { CellProps, Column, useGlobalFilter, usePagination, useTable } from "react-table";
+import {
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight,
+  FaAngleLeft,
+  FaAngleRight,
+  FaDownload,
+  FaExternalLinkAlt,
+  FaTable,
+} from "react-icons/fa";
+import {
+  CellProps,
+  Column,
+  useGlobalFilter,
+  usePagination,
+  useTable,
+} from "react-table";
+import { api } from "../../config/api";
 import { useBillStats } from "../../hooks/admin/useBillStats";
 import { BillContext } from "../../model/Bill";
 import { FormalCostBreakdown, UserCostBreakdown } from "../../model/BillStats";
@@ -183,7 +199,7 @@ function BillUserOverview({ stats }: BillUserOverviewProps) {
             </Link>
           );
         },
-        Footer: "Total"
+        Footer: "Total",
       },
       {
         Header: "Cost",
@@ -193,7 +209,7 @@ function BillUserOverview({ stats }: BillUserOverviewProps) {
           return table.rows.reduce((acc, row) => {
             return acc + row.original.cost;
           }, 0);
-        }
+        },
       },
     ],
     []
@@ -372,6 +388,7 @@ function BillUserOverview({ stats }: BillUserOverviewProps) {
 
 export function BillStats() {
   const bill = useContext(BillContext);
+  const base = import.meta.env.VITE_API_BASE_URL;
   const { data: stats, isLoading, isError } = useBillStats(bill.id);
   if (isError) {
     return null; // TODO
@@ -381,9 +398,21 @@ export function BillStats() {
   }
   return (
     <>
-      <Heading as="h4" size="md">
-        By Formal
-      </Heading>
+      <Flex justifyContent="space-between" alignItems="center" mb={2}>
+        <Heading as="h4" size="md">
+          By Formal
+        </Heading>
+        <Button
+          size="sm"
+          as="a"
+          href={`${base}admin/bills/${bill.id}/stats/formals.csv`}
+          colorScheme="green"
+          leftIcon={<Icon as={FaTable} />}
+          rightIcon={<Icon as={FaDownload} />}
+        >
+          Download
+        </Button>
+      </Flex>
       <BillFormalOverview stats={stats?.formals ?? []} />
       <Heading as="h4" size="md">
         By User
