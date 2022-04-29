@@ -45,17 +45,19 @@ func NewRoleStore(db *gorm.DB) RoleStore {
 // Retrieve all roles with permissions
 func (r *DBRoleStore) Get() ([]model.Role, error) {
 	var roles []model.Role
-	err := r.db.Preload("Permissions").Find(&roles).Error
+	err := r.db.Preload("Permissions").Find(&roles).Order("created_at").Error
 	return roles, err
 }
 
 // Retrieve user-role mapping
 func (r *DBRoleStore) GetUserRoles() ([]model.UserRole, error) {
 	var userRoles []model.UserRole
+	// HACK: Order by both columns?
 	err := r.db.Table("user_roles").
 		Joins("User").Joins("Role").
 		Where(`"User"."deleted_at" IS NULL`).
 		Where(`"Role"."deleted_at" IS NULL`).
+		Order(`"User"."email"`).
 		Find(&userRoles).Error
 	return userRoles, err
 }

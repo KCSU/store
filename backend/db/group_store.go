@@ -41,7 +41,7 @@ func NewGroupStore(db *gorm.DB) GroupStore {
 // Retrieve all groups
 func (g *DBGroupStore) Get() ([]model.Group, error) {
 	var data []model.Group
-	err := g.db.Find(&data).Error
+	err := g.db.Order("name").Find(&data).Error
 	return data, err
 }
 

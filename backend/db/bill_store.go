@@ -58,7 +58,7 @@ func (b *DBBillStore) FindWithFormals(id uuid.UUID) (model.Bill, error) {
 // Retrieve all bills
 func (b *DBBillStore) Get() ([]model.Bill, error) {
 	var data []model.Bill
-	err := b.db.Find(&data).Error
+	err := b.db.Order("start DESC").Find(&data).Error
 	return data, err
 }
 
@@ -122,6 +122,7 @@ func (b *DBBillStore) GetCostBreakdown(bill *model.Bill) ([]model.FormalCostBrea
 		Select(`formals.id as formal_id, formals.name, formals.price, formals.guest_price, formals.date_time,
 		SUM(CASE WHEN NOT ticket.is_guest THEN 1 ELSE 0 END) AS standard,
 		SUM(CASE WHEN ticket.is_guest THEN 1 ELSE 0 END) AS guest`).
+		Order("formals.date_time").
 		Scan(&data).Error
 	return data, err
 }
@@ -135,6 +136,7 @@ func (b *DBBillStore) GetCostBreakdownByUser(bill *model.Bill) ([]model.UserCost
 			THEN formals.guest_price
 			ELSE formals.price
 		END) AS cost`).
+		Order("ticket.email").
 		Scan(&data).Error
 	return data, err
 }

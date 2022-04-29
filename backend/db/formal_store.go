@@ -66,7 +66,7 @@ func (f *DBFormalStore) GetWithUserData(userId uuid.UUID) ([]model.Formal, error
 // Retrieve all formals
 func (f *DBFormalStore) All() ([]model.Formal, error) {
 	var data []model.Formal
-	err := f.db.Find(&data).Error
+	err := f.db.Order("date_time DESC").Find(&data).Error
 	return data, err
 }
 

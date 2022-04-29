@@ -198,7 +198,7 @@ function BillUserOverview({ stats }: BillUserOverviewProps) {
         Footer: "Total",
       },
       {
-        Header: "Cost",
+        Header: "Total",
         accessor: "cost",
         isNumeric: true,
         Footer: (table) => {
