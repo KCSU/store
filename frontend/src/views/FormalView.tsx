@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Button,
   Container,
@@ -8,11 +9,11 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { BuyTicketForm } from "../components/tickets/BuyTicketForm";
 import { BackButton } from "../components/utility/BackButton";
 import { Card } from "../components/utility/Card";
-import { useCanBuyTicket } from "../hooks/state/useCanBuyTicket";
+import { useTicketPermissions } from "../hooks/state/useTicketPermissions";
 import { formatMoney } from "../helpers/formatMoney";
 import { getBuyText } from "../helpers/getBuyText";
 import { useBuyTicket } from "../hooks/mutations/useBuyTicket";
@@ -20,6 +21,8 @@ import { useDateTime } from "../hooks/state/useDateTime";
 import { useFormals } from "../hooks/queries/useFormals";
 import { useQueueRequest } from "../hooks/state/useQueueRequest";
 import { Formal } from "../model/Formal";
+import { useMemo } from "react";
+import { FaEdit } from "react-icons/fa";
 
 interface FormalTicketStatsProps {
   prefix?: string;
@@ -58,7 +61,7 @@ interface FormalCardProps {
   formal: Formal;
 }
 
-function FormalCard({formal}: FormalCardProps) {
+function FormalCard({ formal }: FormalCardProps) {
   // Formal Data
   const datetime = useDateTime(formal.dateTime);
   const prefix = formal.guestLimit > 0 ? "King's " : "";
@@ -66,8 +69,8 @@ function FormalCard({formal}: FormalCardProps) {
   const navigate = useNavigate();
   // State management
   const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
-  const canBuy = useCanBuyTicket(formal);
-
+  const { hasTicket, canBuy } = useTicketPermissions(formal);
+  const ft = useMemo(() => formal.myTickets?.find(t => !t.isGuest)?.id ?? "", [formal]);
   return (
     // TODO: guest list, responsive meal option
     <Container maxW="container.md" p={0}>
@@ -121,24 +124,56 @@ function FormalCard({formal}: FormalCardProps) {
               {formal.menu}
             </Text>
           </Box>
-          { canBuy && <VStack align="stretch" borderWidth="1px" borderRadius="md" p={3}>
-            <BuyTicketForm
-              formal={formal}
-              hasShadow={false}
-              value={queueRequest}
-              onChange={dispatchQR}
-            />
-            <Button
-              colorScheme="brand"
-              onClick={async () => {
-                await mutation.mutateAsync(queueRequest);
-                navigate("/tickets");
-              }}
-              isLoading={mutation.isLoading}
-            >
-              {getBuyText(formal)}
-            </Button>
-          </VStack>}
+          {canBuy && (
+            <VStack align="stretch" borderWidth="1px" borderRadius="md" p={3}>
+              <BuyTicketForm
+                formal={formal}
+                hasShadow={false}
+                value={queueRequest}
+                onChange={dispatchQR}
+              />
+              <Button
+                colorScheme="brand"
+                onClick={async () => {
+                  await mutation.mutateAsync(queueRequest);
+                  navigate("/tickets");
+                }}
+                isLoading={mutation.isLoading}
+              >
+                {getBuyText(formal)}
+              </Button>
+            </VStack>
+          )}
+          {hasTicket && (
+            <VStack align="stretch" borderWidth="1px" borderRadius="md" p={3}>
+              <Heading as="h5" size="sm">
+                My Tickets
+              </Heading>
+              {formal.myTickets?.map((t) => (
+                <Text key={t.id}>
+                  {t.isGuest ? "Guest " : "King's "} Ticket ({t.option}) &mdash;{" "}
+                  <Text as="b">
+                    {formatMoney(t.isGuest ? formal.guestPrice : formal.price)}
+                  </Text>
+                  {t.isQueue && (
+                    <Badge ml={2} colorScheme="brand" verticalAlign="text-top">
+                      In Queue
+                    </Badge>
+                  )}
+                </Text>
+              ))}
+              <Button
+                size="sm"
+                alignSelf="start"
+                // variant="outline"
+                // leftIcon={<FaEdit />}}
+                as={Link}
+                to={`/tickets/${ft}`}
+              >
+                View Details
+              </Button>
+            </VStack>
+          )}
         </VStack>
       </Card>
     </Container>
@@ -161,7 +196,7 @@ export function FormalView() {
   }
   if (!formal) {
     // Hmmm...
-    return <Box></Box>
+    return <Box></Box>;
   }
   return <FormalCard formal={formal} />;
 }

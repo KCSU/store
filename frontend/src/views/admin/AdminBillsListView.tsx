@@ -36,7 +36,7 @@ function AdminBillCard({ bill }: BillProps) {
           {bill.name}
         </Heading>
       </LinkOverlay>
-      <Text fontSize="sm">{start} &mdash; {end}</Text>
+      <Text fontSize="sm">{start} &ndash; {end}</Text>
     </LinkBox>
   );
 }

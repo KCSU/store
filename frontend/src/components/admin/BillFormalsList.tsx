@@ -108,7 +108,7 @@ function BillFormalsPreview() {
         Selected Formals
       </Heading>
       <Text fontStyle="italic">
-        {dayjs(bill.start).format("MMM D, YYYY")}&mdash;
+        {dayjs(bill.start).format("MMM D, YYYY")}&ndash;
         {dayjs(bill.end).format("MMM D, YYYY")}
       </Text>
       <SimpleGrid columns={[1, 1, 2, 3]} gap={3} mt={2}>

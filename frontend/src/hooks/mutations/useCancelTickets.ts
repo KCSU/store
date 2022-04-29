@@ -9,6 +9,7 @@ export function useCancelTickets() {
     }, {
         onSuccess() {
             queryClient.invalidateQueries('tickets');
+            queryClient.invalidateQueries('formals');
         }
     })
 }

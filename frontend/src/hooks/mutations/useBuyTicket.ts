@@ -12,8 +12,9 @@ export function useBuyTicket() {
     },
     {
       onSuccess() {
-        // Alternatively, setQueryData?
+        // FIXME: Alternatively, setQueryData?
         queryClient.invalidateQueries("tickets");
+        queryClient.invalidateQueries("formals");
       }
     }
   );

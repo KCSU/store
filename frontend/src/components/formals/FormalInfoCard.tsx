@@ -23,10 +23,13 @@ import {
   ModalHeader,
   ModalOverlay,
   Icon,
+  ButtonProps,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { useCanBuyTicket } from "../../hooks/state/useCanBuyTicket";
+import {
+  useTicketPermissions,
+} from "../../hooks/state/useTicketPermissions";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
 import { useBuyTicket } from "../../hooks/mutations/useBuyTicket";
@@ -35,6 +38,7 @@ import { useQueueRequest } from "../../hooks/state/useQueueRequest";
 import { Formal } from "../../model/Formal";
 import { Card } from "../utility/Card";
 import { BuyTicketForm } from "../tickets/BuyTicketForm";
+import { useMemo } from "react";
 
 export interface FormalProps {
   formal: Formal;
@@ -117,7 +121,7 @@ function FormalStats({ formal }: FormalProps) {
   );
 }
 
-const BuyTicketButton = forwardRef<FormalProps, "button">(
+const BuyTicketButton = forwardRef<FormalProps & ButtonProps, "button">(
   ({ formal, ...props }, ref) => {
     const text = getBuyText(formal);
     // What if ticket already bought??
@@ -146,7 +150,7 @@ function BuyTicketModal({ isOpen, onClose, formal }: BuyTicketModalProps) {
   const modalBg = useColorModeValue("gray.50", "gray.800");
   const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
   const mutation = useBuyTicket();
-  const isDisabled = !useCanBuyTicket(formal);
+  const isDisabled = !useTicketPermissions(formal).canBuy;
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
@@ -193,7 +197,11 @@ export const FormalInfoCard = forwardRef<FormalProps, "div">(
   ({ formal }, ref) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const datetime = useDateTime(formal.dateTime);
-    const canBuy = useCanBuyTicket(formal);
+    const { isInGroup, isSaleEnded, hasTicket } = useTicketPermissions(formal);
+    const tid = useMemo(
+      () => formal.myTickets?.find((t) => !t.isGuest)?.id ?? "",
+      [formal]
+    );
     return (
       <Card ref={ref}>
         <HStack mb="2">
@@ -208,7 +216,24 @@ export const FormalInfoCard = forwardRef<FormalProps, "div">(
           <Button size="sm" as={Link} to={`/formals/${formal.id}`}>
             More Info
           </Button>
-          {canBuy && <BuyTicketButton formal={formal} onClick={onOpen}></BuyTicketButton>}
+          {!isSaleEnded && !hasTicket && (
+            <BuyTicketButton
+              formal={formal}
+              onClick={onOpen}
+              isDisabled={!isInGroup}
+            ></BuyTicketButton>
+          )}
+          {hasTicket && (
+            <Button
+              size="sm"
+              rightIcon={<Icon as={FaArrowRight} />}
+              colorScheme="brand"
+              as={Link}
+              to={`/tickets/${tid}`}
+            >
+              View Tickets
+            </Button>
+          )}
         </HStack>
         <BuyTicketModal formal={formal} onClose={onClose} isOpen={isOpen} />
       </Card>

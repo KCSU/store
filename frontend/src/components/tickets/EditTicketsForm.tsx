@@ -21,7 +21,7 @@ import {
 import { useState } from "react";
 import { FaPlus, FaSave, FaTrashAlt, FaUndo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useCanBuyTicket, useCanEditTicket } from "../../hooks/state/useCanBuyTicket";
+import { useCanEditTicket, useTicketPermissions } from "../../hooks/state/useTicketPermissions";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
 import { useAddTicket } from "../../hooks/mutations/useAddTicket";
@@ -180,7 +180,7 @@ function AddGuestTicketModal({ isOpen, onClose, formal }: AddGuestTicketModalPro
   const mutation = useAddTicket(formal.id);
   const [option, setOption] = useState("Normal");
   const modalBg = useColorModeValue("gray.50", "gray.800");
-  const isDisabled = !useCanBuyTicket(formal);
+  const isDisabled = !useTicketPermissions(formal).canBuy;
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />

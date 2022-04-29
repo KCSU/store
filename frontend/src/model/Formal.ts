@@ -1,7 +1,7 @@
 import React from "react";
 import { Group } from "./Group";
 import { ManualTicket } from "./ManualTicket";
-import { AdminTicket } from "./Ticket";
+import { AdminTicket, Ticket } from "./Ticket";
 
 export interface Formal {
     id: string;
@@ -20,6 +20,7 @@ export interface Formal {
     dateTime: Date;
     // guestList: 
     // hidden?
+    myTickets?: Ticket[];
     billId?: string;
     groups?: Group[];
     ticketSales?: AdminTicket[];
