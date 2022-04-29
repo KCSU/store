@@ -60,12 +60,12 @@ function BillFormalOverview({ stats }: BillFormalOverviewProps) {
       {
         Header: "King's",
         Cell: ({ row: { original } }: CellProps<FormalCostBreakdown>) => {
-          return original.standard + original.standardManual;
+          return original.standard;
         },
         isNumeric: true,
         Footer: (table) => {
           return table.rows.reduce((acc, row) => {
-            return acc + row.original.standard + row.original.standardManual;
+            return acc + row.original.standard;
           }, 0);
         },
       },
@@ -77,12 +77,12 @@ function BillFormalOverview({ stats }: BillFormalOverviewProps) {
       {
         Header: "Guests",
         Cell: ({ row: { original } }: CellProps<FormalCostBreakdown>) => {
-          return original.guest + original.guestManual;
+          return original.guest;
         },
         isNumeric: true,
         Footer: (table) => {
           return table.rows.reduce((acc, row) => {
-            return acc + row.original.guest + row.original.guestManual;
+            return acc + row.original.guest;
           }, 0);
         },
       },
@@ -95,8 +95,8 @@ function BillFormalOverview({ stats }: BillFormalOverviewProps) {
         Header: "Total",
         Cell: ({ row: { original } }: CellProps<FormalCostBreakdown>) => {
           return (
-            (original.standard + original.standardManual) * original.price +
-            (original.guest + original.guestManual) * original.guestPrice
+            original.standard * original.price +
+            original.guest * original.guestPrice
           );
         },
         isNumeric: true,
@@ -104,10 +104,8 @@ function BillFormalOverview({ stats }: BillFormalOverviewProps) {
           return table.rows.reduce((acc, row) => {
             return (
               acc +
-              (row.original.standard + row.original.standardManual) *
-                row.original.price +
-              (row.original.guest + row.original.guestManual) *
-                row.original.guestPrice
+              row.original.standard * row.original.price +
+              row.original.guest * row.original.guestPrice
             );
           }, 0);
         },
@@ -189,7 +187,8 @@ function BillUserOverview({ stats }: BillUserOverviewProps) {
         accessor: "userEmail",
         Cell: ({ value }) => {
           const crsid = value.split("@")[0];
-          const email = (value === 'ents') ? import.meta.env.VITE_ENTS_EMAIL : value;
+          const email =
+            value === "ents" ? import.meta.env.VITE_ENTS_EMAIL : value;
           return (
             <Link href={`mailto:${email}`} isExternal>
               {crsid} <Icon boxSize={3} as={FaExternalLinkAlt} />

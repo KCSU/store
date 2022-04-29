@@ -6,8 +6,6 @@ export interface FormalCostBreakdown {
   dateTime: string;
   standard: number;
   guest: number;
-  standardManual: number;
-  guestManual: number;
 }
 
 export interface UserCostBreakdown {

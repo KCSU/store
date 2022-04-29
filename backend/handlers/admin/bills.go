@@ -248,20 +248,20 @@ func (ah *AdminHandler) GetBillFormalStatsCSV(c echo.Context) error {
 	guestSum := 0
 	var costSum float32 = 0
 	for _, f := range formalCosts {
-		total := float32(f.Standard+f.StandardManual)*f.Price +
-			float32(f.Guest+f.GuestManual)*f.GuestPrice
+		total := float32(f.Standard)*f.Price +
+			float32(f.Guest)*f.GuestPrice
 		if err := writer.Write([]string{
 			f.Name, f.DateTime.Format("Jan 2 2006"),
-			strconv.Itoa(f.Standard + f.StandardManual),
+			strconv.Itoa(f.Standard),
 			fmt.Sprintf("%.2f", f.Price),
-			strconv.Itoa(f.Guest + f.GuestManual),
+			strconv.Itoa(f.Guest),
 			fmt.Sprintf("%.2f", f.GuestPrice),
 			fmt.Sprintf("%.2f", total),
 		}); err != nil {
 			return err
 		}
-		standardSum += f.Standard + f.StandardManual
-		guestSum += f.Guest + f.GuestManual
+		standardSum += f.Standard
+		guestSum += f.Guest
 		costSum += total
 	}
 	err = writer.Write([]string{

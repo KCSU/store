@@ -393,26 +393,22 @@ func (s *AdminBillSuite) TestGetBillStats() {
 	}
 	fbs := []model.FormalCostBreakdown{
 		{
-			FormalID:       uuid.New(),
-			Name:           "Formal 1",
-			Price:          10,
-			GuestPrice:     20,
-			DateTime:       time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
-			Standard:       11,
-			Guest:          21,
-			StandardManual: 31,
-			GuestManual:    41,
+			FormalID:   uuid.New(),
+			Name:       "Formal 1",
+			Price:      10,
+			GuestPrice: 20,
+			DateTime:   time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
+			Standard:   11,
+			Guest:      21,
 		},
 		{
-			FormalID:       uuid.New(),
-			Name:           "Formal 2",
-			Price:          21.2,
-			GuestPrice:     31.3,
-			DateTime:       time.Date(2020, time.February, 1, 0, 0, 0, 0, time.UTC),
-			Standard:       12,
-			Guest:          15,
-			StandardManual: 13,
-			GuestManual:    21,
+			FormalID:   uuid.New(),
+			Name:       "Formal 2",
+			Price:      21.2,
+			GuestPrice: 31.3,
+			DateTime:   time.Date(2020, time.February, 1, 0, 0, 0, 0, time.UTC),
+			Standard:   12,
+			Guest:      15,
 		},
 	}
 	ubs := []model.UserCostBreakdown{
@@ -434,9 +430,7 @@ func (s *AdminBillSuite) TestGetBillStats() {
 				"guestPrice": 20,
 				"dateTime": "2020-01-01T00:00:00Z",
 				"standard": 11,
-				"guest": 21,
-				"standardManual": 31,
-				"guestManual": 41
+				"guest": 21
 			},
 			{
 				"formalId": "` + fbs[1].FormalID.String() + `",
@@ -445,9 +439,7 @@ func (s *AdminBillSuite) TestGetBillStats() {
 				"guestPrice": 31.3,
 				"dateTime": "2020-02-01T00:00:00Z",
 				"standard": 12,
-				"guest": 15,
-				"standardManual": 13,
-				"guestManual": 21
+				"guest": 15
 			}
 		],
 		"users": [
@@ -486,33 +478,29 @@ func (s *AdminBillSuite) TestGetBillFormalStatsCSV() {
 	}
 	fbs := []model.FormalCostBreakdown{
 		{
-			FormalID:       uuid.New(),
-			Name:           "Formal 1",
-			Price:          10,
-			GuestPrice:     20,
-			DateTime:       time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
-			Standard:       11,
-			Guest:          21,
-			StandardManual: 31,
-			GuestManual:    41,
+			FormalID:   uuid.New(),
+			Name:       "Formal 1",
+			Price:      10,
+			GuestPrice: 20,
+			DateTime:   time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
+			Standard:   11,
+			Guest:      21,
 		},
 		{
-			FormalID:       uuid.New(),
-			Name:           "Formal 2",
-			Price:          21.2,
-			GuestPrice:     31.3,
-			DateTime:       time.Date(2020, time.February, 1, 0, 0, 0, 0, time.UTC),
-			Standard:       12,
-			Guest:          15,
-			StandardManual: 13,
-			GuestManual:    21,
+			FormalID:   uuid.New(),
+			Name:       "Formal 2",
+			Price:      21.2,
+			GuestPrice: 31.3,
+			DateTime:   time.Date(2020, time.February, 1, 0, 0, 0, 0, time.UTC),
+			Standard:   12,
+			Guest:      15,
 		},
 	}
 	expectedBody := strings.ReplaceAll(
 		`Formal,Date,King's Tickets,King's Price,Guest Tickets,Guest Price,Total
-		Formal 1,Jan 1 2020,42,10.00,62,20.00,1660.00
-		Formal 2,Feb 1 2020,25,21.20,36,31.30,1656.80
-		Total,,67,,98,,3316.80`,
+		Formal 1,Jan 1 2020,11,10.00,21,20.00,530.00
+		Formal 2,Feb 1 2020,12,21.20,15,31.30,723.90
+		Total,,23,,36,,1253.90`,
 		"\t", "",
 	)
 	e := echo.New()

@@ -241,41 +241,37 @@ func (s *BillSuite) TestGetCostBreakdown() {
 	}
 	fid1, fid2 := uuid.New(), uuid.New()
 	dt := time.Now().Add(7 * 24 * time.Hour)
-	s.mock.ExpectQuery(`SELECT .+ FROM formals`).WithArgs(id).
+	s.mock.ExpectQuery(`SELECT .+ FROM "formals"`).WithArgs(id).
 		WillReturnRows(
 			sqlmock.NewRows([]string{
 				"formal_id", "name", "price", "guest_price", "date_time",
-				"standard", "guest", "standard_manual", "guest_manual",
+				"standard", "guest",
 			}).AddRow(
 				fid1, "Test Formal", 10, 12,
-				dt, 12, 11, 3, 7,
+				dt, 12, 11,
 			).AddRow(
 				fid2, "Test Formal 2", 23, 34.5,
-				dt, 36, 81, 42, 17,
+				dt, 36, 81,
 			),
 		)
 	breakdowns := []model.FormalCostBreakdown{
 		{
-			FormalID:       fid1,
-			Name:           "Test Formal",
-			Price:          10,
-			GuestPrice:     12,
-			DateTime:       dt,
-			Standard:       12,
-			Guest:          11,
-			StandardManual: 3,
-			GuestManual:    7,
+			FormalID:   fid1,
+			Name:       "Test Formal",
+			Price:      10,
+			GuestPrice: 12,
+			DateTime:   dt,
+			Standard:   12,
+			Guest:      11,
 		},
 		{
-			FormalID:       fid2,
-			Name:           "Test Formal 2",
-			Price:          23,
-			GuestPrice:     34.5,
-			DateTime:       dt,
-			Standard:       36,
-			Guest:          81,
-			StandardManual: 42,
-			GuestManual:    17,
+			FormalID:   fid2,
+			Name:       "Test Formal 2",
+			Price:      23,
+			GuestPrice: 34.5,
+			DateTime:   dt,
+			Standard:   36,
+			Guest:      81,
 		},
 	}
 	bs, err := s.store.GetCostBreakdown(&bill)
@@ -301,7 +297,7 @@ func (s *BillSuite) TestGetCostBreakdownByUser() {
 			Cost:  12.3,
 		},
 	}
-	s.mock.ExpectQuery(`SELECT .+ FROM formals`).WithArgs(id).
+	s.mock.ExpectQuery(`SELECT .+ FROM "formals"`).WithArgs(id).
 		WillReturnRows(
 			sqlmock.NewRows([]string{
 				"email", "cost",
