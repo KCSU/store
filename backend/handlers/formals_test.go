@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	. "github.com/kcsu/store/handlers"
+	am "github.com/kcsu/store/mocks/auth"
 	mocks "github.com/kcsu/store/mocks/db"
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
@@ -31,7 +32,18 @@ const expectedJSON = `[
 		"dateTime": "0001-01-01T00:00:00Z",
 		"ticketsRemaining": 24,
 		"guestTicketsRemaining": 56,
-		"groups": []
+		"groups": [],
+		"myTickets": [{
+			"id": "8bc2da87-88ea-4fcf-a69f-22a360b2606a",
+			"createdAt": "0001-01-01T00:00:00Z",
+			"updatedAt": "0001-01-01T00:00:00Z",
+			"deletedAt": null,
+			"isGuest": false,
+			"isQueue": false,
+			"formalId": "215292b8-4911-4d93-81dd-ebafb1aa6489",
+			"userId": "290bc3be-12f6-48a0-b624-32b2eb5e05c9",
+			"option": "Vegan"
+		}]
 	},
 	{
 		"id": "202ca011-4cf8-4bf4-b318-c644be23ba85",
@@ -64,10 +76,13 @@ const expectedJSON = `[
 ]`
 
 func TestGetFormals(t *testing.T) {
+	uid := uuid.MustParse("290bc3be-12f6-48a0-b624-32b2eb5e05c9")
 	// Init handler
 	h := new(Handler)
 	f := new(mocks.FormalStore)
+	a := new(am.Auth)
 	h.Formals = f
+	h.Auth = a
 	// Init HTTP
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -81,6 +96,12 @@ func TestGetFormals(t *testing.T) {
 			Menu:       "A menu",
 			Price:      21.3,
 			GuestPrice: 11.6,
+			TicketSales: []model.Ticket{{
+				Model:      model.Model{ID: uuid.MustParse("8bc2da87-88ea-4fcf-a69f-22a360b2606a")},
+				FormalID:   uuid.MustParse("215292b8-4911-4d93-81dd-ebafb1aa6489"),
+				UserID:     uid,
+				MealOption: "Vegan",
+			}},
 		},
 		{
 			Model:      model.Model{ID: uuid.MustParse("202ca011-4cf8-4bf4-b318-c644be23ba85")},
@@ -101,7 +122,8 @@ func TestGetFormals(t *testing.T) {
 		},
 	}
 	// FIXME: refactor to make it easier to add cases?
-	f.On("GetWithGroups").Return(formals, nil)
+	a.On("GetUserId", c).Return(uid)
+	f.On("GetWithUserData", uid).Return(formals, nil)
 	f.On("TicketsRemaining", &formals[0], true).Return(uint(56))
 	f.On("TicketsRemaining", &formals[0], false).Return(uint(24))
 	f.On("TicketsRemaining", &formals[1], true).Return(uint(31))
@@ -110,6 +132,7 @@ func TestGetFormals(t *testing.T) {
 	// Run test
 	err := h.GetFormals(c)
 	assert.NoError(t, err)
+	a.AssertExpectations(t)
 	f.AssertExpectations(t)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.JSONEq(t, expectedJSON, rec.Body.String())

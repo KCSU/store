@@ -95,6 +95,8 @@ func (b *DBBillStore) RemoveFormal(bill *model.Bill, formalId uuid.UUID) error {
 	return b.db.Model(f).Update("bill_id", nil).Error
 }
 
+// TODO: Refactor the following queries
+
 // Get bill cost breakdown by formal
 func (b *DBBillStore) GetCostBreakdown(bill *model.Bill) ([]model.FormalCostBreakdown, error) {
 	var data []model.FormalCostBreakdown

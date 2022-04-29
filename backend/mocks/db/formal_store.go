@@ -155,13 +155,13 @@ func (_m *FormalStore) GetGroups(ids []uuid.UUID) ([]model.Group, error) {
 	return r0, r1
 }
 
-// GetWithGroups provides a mock function with given fields:
-func (_m *FormalStore) GetWithGroups() ([]model.Formal, error) {
-	ret := _m.Called()
+// GetWithUserData provides a mock function with given fields: userId
+func (_m *FormalStore) GetWithUserData(userId uuid.UUID) ([]model.Formal, error) {
+	ret := _m.Called(userId)
 
 	var r0 []model.Formal
-	if rf, ok := ret.Get(0).(func() []model.Formal); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(uuid.UUID) []model.Formal); ok {
+		r0 = rf(userId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]model.Formal)
@@ -169,8 +169,8 @@ func (_m *FormalStore) GetWithGroups() ([]model.Formal, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(userId)
 	} else {
 		r1 = ret.Error(1)
 	}

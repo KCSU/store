@@ -62,9 +62,10 @@ func (s *FormalSuite) TestGetFormals() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
-func (s *FormalSuite) TestGetFormalsWithGroups() {
+func (s *FormalSuite) TestGetFormalsWithUserData() {
 	fid := uuid.New()
 	gid := uuid.New()
+	uid := uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "formals" WHERE date_time > NOW()`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id"}).AddRow(fid),
@@ -78,12 +79,20 @@ func (s *FormalSuite) TestGetFormalsWithGroups() {
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id"}).AddRow(gid),
 		)
-	fs, err := s.store.GetWithGroups()
+	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
+		WithArgs(fid, uid).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "user_id", "formal_id", "meal_option"}).
+				AddRow(uuid.New(), uid, fid, "Vegan"),
+		)
+	fs, err := s.store.GetWithUserData(uid)
 	s.Require().NoError(err)
 	s.Len(fs, 1)
 	s.EqualValues(fid, fs[0].ID)
 	s.Len(fs[0].Groups, 1)
 	s.EqualValues(gid, fs[0].Groups[0].ID)
+	s.Len(fs[0].TicketSales, 1)
+	s.EqualValues(uid, fs[0].TicketSales[0].UserID)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
