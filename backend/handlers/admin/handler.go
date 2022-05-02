@@ -6,6 +6,7 @@ import (
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/handlers"
 	"github.com/kcsu/store/lookup"
+	"github.com/kcsu/store/middleware"
 	"gorm.io/gorm"
 )
 
@@ -21,6 +22,7 @@ type AdminHandler struct {
 	Bills         db.BillStore
 	Auth          auth.Auth
 	Lookup        lookup.Lookup
+	Access        middleware.Access
 }
 
 // Initialise the handler helper
@@ -29,6 +31,7 @@ func NewHandler(h *handlers.Handler, d *gorm.DB) *AdminHandler {
 	roles := db.NewRoleStore(d)
 	bills := db.NewBillStore(d)
 	lookup := lookup.New(h.Config.LookupApiUrl, groups)
+	access := middleware.NewAccess(d, h.Auth)
 	manualTickets := db.NewManualTicketStore(d)
 	return &AdminHandler{
 		h.Config,
@@ -41,5 +44,6 @@ func NewHandler(h *handlers.Handler, d *gorm.DB) *AdminHandler {
 		bills,
 		h.Auth,
 		lookup,
+		access,
 	}
 }

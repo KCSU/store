@@ -26,6 +26,7 @@ func main() {
 		&model.GroupUser{},
 		&model.Role{},
 		&model.Permission{},
+		&model.AccessLog{},
 	)
 	if err != nil {
 		log.Panic(err)

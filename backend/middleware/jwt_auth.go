@@ -28,7 +28,6 @@ func extractJwt(c echo.Context) ([]string, error) {
 }
 
 // Ensure a valid JWT is present in the Authorization header
-// TODO: when go echo is updated, use the real JWT middleware
 func JWTAuth(c *config.Config) echo.MiddlewareFunc {
 	jwtConfig := middleware.JWTConfig{
 		Claims:           &auth.JwtClaims{},

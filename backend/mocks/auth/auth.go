@@ -3,7 +3,9 @@
 package mocks
 
 import (
+	auth "github.com/kcsu/store/auth"
 	echo "github.com/labstack/echo/v4"
+
 	goth "github.com/markbates/goth"
 
 	mock "github.com/stretchr/testify/mock"
@@ -58,6 +60,22 @@ func (_m *Auth) GetAuthUrl(c echo.Context) (string, error) {
 	}
 
 	return r0, r1
+}
+
+// GetClaims provides a mock function with given fields: c
+func (_m *Auth) GetClaims(c echo.Context) *auth.JwtClaims {
+	ret := _m.Called(c)
+
+	var r0 *auth.JwtClaims
+	if rf, ok := ret.Get(0).(func(echo.Context) *auth.JwtClaims); ok {
+		r0 = rf(c)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*auth.JwtClaims)
+		}
+	}
+
+	return r0
 }
 
 // GetUserId provides a mock function with given fields: c

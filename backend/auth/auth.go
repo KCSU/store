@@ -31,6 +31,7 @@ type Auth interface {
 	GetAuthUrl(c echo.Context) (string, error)
 	CompleteUserAuth(c echo.Context) (goth.User, error)
 	GetUserId(c echo.Context) uuid.UUID
+	GetClaims(c echo.Context) *JwtClaims
 }
 
 // Helper struct for authentication
