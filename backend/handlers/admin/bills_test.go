@@ -26,7 +26,7 @@ type AdminBillSuite struct {
 
 func (s *AdminBillSuite) SetupTest() {
 	s.h = new(AdminHandler)
-	s.bills = new(mocks.BillStore)
+	s.bills = mocks.NewBillStore(s.T())
 	s.h.Bills = s.bills
 }
 
@@ -61,7 +61,6 @@ func (s *AdminBillSuite) TestGetBills() {
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
-	s.bills.AssertExpectations(s.T())
 }
 
 func (s *AdminBillSuite) TestGetBill() {
@@ -130,7 +129,6 @@ func (s *AdminBillSuite) TestGetBill() {
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
-	s.bills.AssertExpectations(s.T())
 }
 
 func (s *AdminBillSuite) TestCreateBill() {
@@ -200,7 +198,6 @@ func (s *AdminBillSuite) TestCreateBill() {
 			}
 		})
 	}
-	s.bills.AssertExpectations(s.T())
 }
 
 func (s *AdminBillSuite) TestUpdateBill() {
@@ -301,7 +298,6 @@ func (s *AdminBillSuite) TestUpdateBill() {
 			}
 		})
 	}
-	s.bills.AssertExpectations(s.T())
 }
 
 func (s *AdminBillSuite) TestDeleteBill() {
@@ -324,7 +320,6 @@ func (s *AdminBillSuite) TestDeleteBill() {
 	err := s.h.DeleteBill(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
-	s.bills.AssertExpectations(s.T())
 }
 
 func (s *AdminBillSuite) TestAddBillFormals() {
@@ -354,7 +349,6 @@ func (s *AdminBillSuite) TestAddBillFormals() {
 	err := s.h.AddBillFormals(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
-	s.bills.AssertExpectations(s.T())
 }
 
 func (s *AdminBillSuite) TestRemoveBillFormal() {
@@ -383,7 +377,6 @@ func (s *AdminBillSuite) TestRemoveBillFormal() {
 	err := s.h.RemoveBillFormal(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
-	s.bills.AssertExpectations(s.T())
 }
 
 func (s *AdminBillSuite) TestGetBillStats() {
@@ -468,7 +461,6 @@ func (s *AdminBillSuite) TestGetBillStats() {
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
-	s.bills.AssertExpectations(s.T())
 }
 
 func (s *AdminBillSuite) TestGetBillFormalStatsCSV() {
@@ -518,7 +510,6 @@ func (s *AdminBillSuite) TestGetBillFormalStatsCSV() {
 	s.Equal(http.StatusOK, rec.Code)
 	s.Equal(expectedBody, strings.TrimSpace(rec.Body.String()))
 	s.Equal(`attachment; filename="formal_costs.csv"`, rec.Header().Get("Content-Disposition"))
-	s.bills.AssertExpectations(s.T())
 }
 
 func (s *AdminBillSuite) TestGetBillUserStatsCSV() {
@@ -558,7 +549,6 @@ func (s *AdminBillSuite) TestGetBillUserStatsCSV() {
 	s.Equal(http.StatusOK, rec.Code)
 	s.Equal(expectedBody, strings.TrimSpace(rec.Body.String()))
 	s.Equal(`attachment; filename="user_costs.csv"`, rec.Header().Get("Content-Disposition"))
-	s.bills.AssertExpectations(s.T())
 }
 
 func TestBillSuite(t *testing.T) {

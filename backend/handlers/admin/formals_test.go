@@ -12,8 +12,10 @@ import (
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
+	mm "github.com/kcsu/store/mocks/middleware"
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 )
@@ -27,8 +29,18 @@ type AdminFormalSuite struct {
 func (s *AdminFormalSuite) SetupTest() {
 	// Init handler
 	s.h = new(AdminHandler)
-	s.formals = new(mocks.FormalStore)
+	s.formals = mocks.NewFormalStore(s.T())
 	s.h.Formals = s.formals
+	// HACK: We currently ignore calls to Access.Log
+	// but this is probably a bad idea.
+	accessMock := mm.NewAccess(s.T())
+	accessMock.On(
+		"Log",
+		mock.Anything,
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Maybe().Return(nil)
+	s.h.Access = accessMock
 }
 
 func (s *AdminFormalSuite) TestGetFormals() {
@@ -123,7 +135,6 @@ func (s *AdminFormalSuite) TestGetFormals() {
 	// Run test
 	err := s.h.GetFormals(c)
 	s.NoError(err)
-	s.formals.AssertExpectations(s.T())
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
 }
@@ -217,7 +228,6 @@ func (s *AdminFormalSuite) TestGetFormal() {
 
 	err := s.h.GetFormal(c)
 	s.NoError(err)
-	s.formals.AssertExpectations(s.T())
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
 }
@@ -375,7 +385,6 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.formals.AssertExpectations(s.T())
 		})
 	}
 }
@@ -461,7 +470,6 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.formals.AssertExpectations(s.T())
 		})
 	}
 }
@@ -533,7 +541,6 @@ func (s *AdminFormalSuite) TestDeleteFormal() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.formals.AssertExpectations(s.T())
 		})
 	}
 }
@@ -640,7 +647,6 @@ func (s *AdminFormalSuite) TestUpdateFormalGroups() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.formals.AssertExpectations(s.T())
 		})
 	}
 }

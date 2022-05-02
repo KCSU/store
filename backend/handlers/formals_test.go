@@ -79,8 +79,8 @@ func TestGetFormals(t *testing.T) {
 	uid := uuid.MustParse("290bc3be-12f6-48a0-b624-32b2eb5e05c9")
 	// Init handler
 	h := new(Handler)
-	f := new(mocks.FormalStore)
-	a := new(am.Auth)
+	f := mocks.NewFormalStore(t)
+	a := am.NewAuth(t)
 	h.Formals = f
 	h.Auth = a
 	// Init HTTP
@@ -132,8 +132,6 @@ func TestGetFormals(t *testing.T) {
 	// Run test
 	err := h.GetFormals(c)
 	assert.NoError(t, err)
-	a.AssertExpectations(t)
-	f.AssertExpectations(t)
 	assert.Equal(t, http.StatusOK, rec.Code)
 	assert.JSONEq(t, expectedJSON, rec.Body.String())
 }

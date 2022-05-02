@@ -33,20 +33,13 @@ type TicketSuite struct {
 	mockUser *model.User
 }
 
-func (t *TicketSuite) AssertExpectations() {
-	t.auth.AssertExpectations(t.T())
-	t.users.AssertExpectations(t.T())
-	t.tickets.AssertExpectations(t.T())
-	t.formals.AssertExpectations(t.T())
-}
-
 var userId = uuid.MustParse("9cb93e84-43ac-456f-972b-71ffce3e6782")
 
 func (t *TicketSuite) SetupTest() {
-	t.auth = new(am.Auth)
-	t.users = new(sm.UserStore)
-	t.tickets = new(sm.TicketStore)
-	t.formals = new(sm.FormalStore)
+	t.auth = am.NewAuth(t.T())
+	t.users = sm.NewUserStore(t.T())
+	t.tickets = sm.NewTicketStore(t.T())
+	t.formals = sm.NewFormalStore(t.T())
 	t.h = &Handler{
 		Auth:    t.auth,
 		Users:   t.users,
@@ -198,7 +191,6 @@ func (t *TicketSuite) TestGetTickets() {
 	t.NoError(err)
 	t.Equal(http.StatusOK, rec.Code)
 	t.JSONEq(wantsJson, rec.Body.String())
-	t.AssertExpectations()
 }
 
 func (t *TicketSuite) TestBuyTicket() {
@@ -364,7 +356,6 @@ func (t *TicketSuite) TestBuyTicket() {
 			}
 		})
 	}
-	t.AssertExpectations()
 }
 
 func (t *TicketSuite) TestCancelTickets() {
@@ -383,7 +374,6 @@ func (t *TicketSuite) TestCancelTickets() {
 	err := t.h.CancelTickets(c)
 	t.NoError(err)
 	t.Equal(http.StatusOK, rec.Code)
-	t.AssertExpectations()
 }
 
 func (t *TicketSuite) TestCancelTicket() {
@@ -457,7 +447,6 @@ func (t *TicketSuite) TestCancelTicket() {
 			}
 		})
 	}
-	t.AssertExpectations()
 }
 
 func (t *TicketSuite) TestEditTicket() {
@@ -539,7 +528,6 @@ func (t *TicketSuite) TestEditTicket() {
 			}
 		})
 	}
-	t.AssertExpectations()
 }
 
 func (t *TicketSuite) TestAddTicket() {
@@ -621,7 +609,6 @@ func (t *TicketSuite) TestAddTicket() {
 			}
 		})
 	}
-	t.AssertExpectations()
 }
 
 func TestTicketSuite(t *testing.T) {

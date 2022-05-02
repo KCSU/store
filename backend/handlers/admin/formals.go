@@ -2,9 +2,11 @@ package admin
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -102,6 +104,7 @@ func (ah *AdminHandler) CreateFormal(c echo.Context) error {
 	if err := ah.Formals.Create(&formal); err != nil {
 		return err
 	}
+	ah.logFormalAccess(c, "created formal %q", &formal)
 	// FIXME: JSON response?
 	return c.NoContent(http.StatusCreated)
 }
@@ -128,6 +131,7 @@ func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 	if err := ah.Formals.Update(&formal); err != nil {
 		return err
 	}
+	ah.logFormalAccess(c, "updated formal %q", &formal)
 	return c.NoContent(http.StatusOK)
 }
 
@@ -149,6 +153,7 @@ func (ah *AdminHandler) DeleteFormal(c echo.Context) error {
 	if err := ah.Formals.Delete(&formal); err != nil {
 		return err
 	}
+	ah.logFormalAccess(c, "deleted formal %q", &formal)
 	return c.NoContent(http.StatusOK)
 }
 
@@ -185,6 +190,13 @@ func (ah *AdminHandler) UpdateFormalGroups(c echo.Context) error {
 	if err := ah.Formals.UpdateGroups(formal, groups); err != nil {
 		return err
 	}
-
+	ah.logFormalAccess(c, "updated groups for formal %q", &formal)
 	return c.NoContent(http.StatusOK)
+}
+
+func (ah *AdminHandler) logFormalAccess(c echo.Context, verbFormat string, formal *model.Formal) {
+	ah.Access.Log(c, fmt.Sprintf(verbFormat, formal.Name), map[string]interface{}{
+		"resource": "formals",
+		"id":       formal.ID,
+	})
 }

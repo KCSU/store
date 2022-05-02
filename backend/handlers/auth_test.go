@@ -32,8 +32,8 @@ type AuthSuite struct {
 }
 
 func (a *AuthSuite) SetupTest() {
-	a.auth = new(am.Auth)
-	a.users = new(um.UserStore)
+	a.auth = am.NewAuth(a.T())
+	a.users = um.NewUserStore(a.T())
 	a.h = &Handler{
 		Auth:  a.auth,
 		Users: a.users,
@@ -92,8 +92,6 @@ func (a *AuthSuite) TestGetUser() {
 	a.NoError(err)
 	a.Equal(http.StatusOK, rec.Code)
 	a.JSONEq(userJson, rec.Body.String())
-	a.auth.AssertExpectations(a.T())
-	a.users.AssertExpectations(a.T())
 }
 
 func (a *AuthSuite) TestAuthCallback() {
@@ -151,8 +149,6 @@ func (a *AuthSuite) TestAuthCallback() {
 	a.Equal(user.ID.String(), claims.Subject)
 	a.Equal(user.Name, claims.Name)
 	a.Equal(user.Email, claims.Email)
-	a.auth.AssertExpectations(a.T())
-	a.users.AssertExpectations(a.T())
 }
 
 func (a *AuthSuite) TestEmailConflict() {
@@ -188,8 +184,6 @@ func (a *AuthSuite) TestEmailConflict() {
 		a.Equal(he.Code, http.StatusConflict)
 		a.Equal(he.Message, "email is taken")
 	}
-	a.auth.AssertExpectations(a.T())
-	a.users.AssertExpectations(a.T())
 }
 
 func (a *AuthSuite) TestLogout() {
