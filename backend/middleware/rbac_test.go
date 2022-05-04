@@ -100,8 +100,8 @@ func TestRBAC(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			// Setup
 			userId := uuid.New()
-			auth := new(am.Auth)
-			users := new(um.UserStore)
+			auth := am.NewAuth(t)
+			users := um.NewUserStore(t)
 			rbac := NewRBAC(RbacConfig{
 				Auth:  auth,
 				Users: users,
@@ -137,8 +137,6 @@ func TestRBAC(t *testing.T) {
 					assert.Equal(t, test.wants.message, he.Message)
 				}
 			}
-			auth.AssertExpectations(t)
-			users.AssertExpectations(t)
 		})
 	}
 }

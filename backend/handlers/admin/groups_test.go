@@ -12,8 +12,10 @@ import (
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
 	lm "github.com/kcsu/store/mocks/lookup"
+	mm "github.com/kcsu/store/mocks/middleware"
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 )
@@ -28,10 +30,20 @@ type AdminGroupSuite struct {
 func (s *AdminGroupSuite) SetupTest() {
 	// Init handler
 	s.h = new(AdminHandler)
-	s.groups = new(mocks.GroupStore)
-	s.lookup = new(lm.Lookup)
+	s.groups = mocks.NewGroupStore(s.T())
+	s.lookup = lm.NewLookup(s.T())
 	s.h.Groups = s.groups
 	s.h.Lookup = s.lookup
+	// HACK: We currently ignore calls to Access.Log
+	// but this is probably a bad idea.
+	accessMock := mm.NewAccess(s.T())
+	accessMock.On(
+		"Log",
+		mock.Anything,
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Maybe().Return(nil)
+	s.h.Access = accessMock
 }
 
 func (s *AdminGroupSuite) TestGetGroups() {
@@ -79,7 +91,6 @@ func (s *AdminGroupSuite) TestGetGroups() {
 	// Run test
 	err := s.h.GetGroups(c)
 	s.NoError(err)
-	s.groups.AssertExpectations(s.T())
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
 }
@@ -140,7 +151,6 @@ func (s *AdminGroupSuite) TestGetGroup() {
 
 	err := s.h.GetGroup(c)
 	s.NoError(err)
-	s.groups.AssertExpectations(s.T())
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
 }
@@ -223,7 +233,6 @@ func (s *AdminGroupSuite) TestCreateGroup() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.groups.AssertExpectations(s.T())
 		})
 	}
 }
@@ -322,7 +331,6 @@ func (s *AdminGroupSuite) TestUpdateGroup() {
 			}
 		})
 	}
-	s.groups.AssertExpectations(s.T())
 }
 
 func (s *AdminGroupSuite) TestDeleteGroup() {
@@ -390,7 +398,6 @@ func (s *AdminGroupSuite) TestDeleteGroup() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.groups.AssertExpectations(s.T())
 		})
 	}
 }
@@ -489,7 +496,6 @@ func (s *AdminGroupSuite) TestAddGroupUser() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.groups.AssertExpectations(s.T())
 		})
 	}
 }
@@ -588,7 +594,6 @@ func (s *AdminGroupSuite) TestRemoveGroupUser() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.groups.AssertExpectations(s.T())
 		})
 	}
 }
@@ -651,8 +656,6 @@ func (s *AdminGroupSuite) TestLookupGroupUsers() {
 					s.Equal(test.wants.message, he.Message)
 				}
 			}
-			s.groups.AssertExpectations(s.T())
-			s.lookup.AssertExpectations(s.T())
 		})
 	}
 }

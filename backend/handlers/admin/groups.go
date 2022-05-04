@@ -2,6 +2,7 @@ package admin
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -55,6 +56,12 @@ func (ah *AdminHandler) CreateGroup(c echo.Context) error {
 	if err := ah.Groups.Create(&group); err != nil {
 		return err
 	}
+	if err := ah.logGroupAccess(c,
+		fmt.Sprintf("created group %q", group.Name),
+		&group,
+	); err != nil {
+		return err
+	}
 	// JSON?
 	return c.NoContent(http.StatusCreated)
 }
@@ -87,6 +94,12 @@ func (ah *AdminHandler) UpdateGroup(c echo.Context) error {
 	if err := ah.Groups.Update(&group); err != nil {
 		return err
 	}
+	if err := ah.logGroupAccess(c,
+		fmt.Sprintf("updated group %q", group.Name),
+		&group,
+	); err != nil {
+		return err
+	}
 	// TODO: JSON?
 	return c.NoContent(http.StatusOK)
 }
@@ -107,6 +120,12 @@ func (ah *AdminHandler) DeleteGroup(c echo.Context) error {
 		return err
 	}
 	if err := ah.Groups.Delete(&group); err != nil {
+		return err
+	}
+	if err := ah.logGroupAccess(c,
+		fmt.Sprintf("deleted group %q", group.Name),
+		&group,
+	); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)
@@ -138,6 +157,12 @@ func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
 	if err := ah.Groups.AddUser(&group, dto.Email); err != nil {
 		return err
 	}
+	if err := ah.logGroupAccess(c,
+		fmt.Sprintf("added user %q to group %q", dto.Email, group.Name),
+		&group,
+	); err != nil {
+		return err
+	}
 	return c.NoContent(http.StatusCreated)
 }
 
@@ -166,6 +191,12 @@ func (ah *AdminHandler) RemoveGroupUser(c echo.Context) error {
 	if err := ah.Groups.RemoveUser(&group, dto.Email); err != nil {
 		return err
 	}
+	if err := ah.logGroupAccess(c,
+		fmt.Sprintf("removed user %q from group %q", dto.Email, group.Name),
+		&group,
+	); err != nil {
+		return err
+	}
 	return c.NoContent(http.StatusNoContent)
 }
 
@@ -189,4 +220,8 @@ func (ah *AdminHandler) LookupGroupUsers(c echo.Context) error {
 		return err
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (ah *AdminHandler) logGroupAccess(c echo.Context, verb string, group *model.Group) error {
+	return ah.Access.Log(c, verb, map[string]string{"groupId": group.ID.String()})
 }

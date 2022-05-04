@@ -11,7 +11,7 @@ import (
 )
 
 type Access interface {
-	Log(c echo.Context, verb string, metadata interface{}) error
+	Log(c echo.Context, verb string, metadata map[string]string) error
 }
 
 type DBAccess struct {
@@ -28,7 +28,7 @@ func NewAccess(db *gorm.DB, auth auth.Auth) Access {
 // Write an action to the access log
 //
 // Requires authentication middleware
-func (d *DBAccess) Log(c echo.Context, verb string, metadata interface{}) error {
+func (d *DBAccess) Log(c echo.Context, verb string, metadata map[string]string) error {
 	claims := d.auth.GetClaims(c)
 	message := fmt.Sprint(claims.Name, " ", verb)
 	metadataJson, err := json.Marshal(metadata)

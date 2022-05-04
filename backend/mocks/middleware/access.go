@@ -16,11 +16,11 @@ type Access struct {
 }
 
 // Log provides a mock function with given fields: c, verb, metadata
-func (_m *Access) Log(c echo.Context, verb string, metadata interface{}) error {
+func (_m *Access) Log(c echo.Context, verb string, metadata map[string]string) error {
 	ret := _m.Called(c, verb, metadata)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(echo.Context, string, interface{}) error); ok {
+	if rf, ok := ret.Get(0).(func(echo.Context, string, map[string]string) error); ok {
 		r0 = rf(c, verb, metadata)
 	} else {
 		r0 = ret.Error(0)

@@ -43,8 +43,7 @@ func (ah *AdminHandler) CancelTicket(c echo.Context) error {
 			map[string]string{
 				"formalId":  ticket.FormalID.String(),
 				"userEmail": ticket.User.Email,
-				"id":        ticket.ID.String(),
-				"resource":  "tickets",
+				"ticketId":  ticket.ID.String(),
 			},
 		); err != nil {
 			return err
@@ -62,8 +61,7 @@ func (ah *AdminHandler) CancelTicket(c echo.Context) error {
 			map[string]string{
 				"formalId":  ticket.FormalID.String(),
 				"userEmail": ticket.User.Email,
-				"id":        ticket.ID.String(),
-				"resource":  "tickets",
+				"ticketId":  ticket.ID.String(),
 			},
 		); err != nil {
 			return err
@@ -95,8 +93,7 @@ func (ah *AdminHandler) EditTicket(c echo.Context) error {
 	}
 	// TODO: fetch named metadata!!
 	if err := ah.Access.Log(c, "updated a ticket", map[string]string{
-		"id":       ticketID.String(),
-		"resource": "tickets",
+		"ticketId": ticketID.String(),
 	}); err != nil {
 		return err
 	}
@@ -139,8 +136,7 @@ func (ah *AdminHandler) CreateManualTicket(c echo.Context) error {
 			"formalId":      ticket.FormalID.String(),
 			"userEmail":     ticket.Email,
 			"justification": ticket.Justification,
-			"id":            ticket.ID.String(),
-			"resource":      "tickets",
+			"ticketId":      ticket.ID.String(),
 		},
 	); err != nil {
 		return err
@@ -171,8 +167,7 @@ func (ah *AdminHandler) CancelManualTicket(c echo.Context) error {
 			ticket.Name, // XXX: Formal name?
 		),
 		map[string]string{
-			"id":        ticketID.String(),
-			"resource":  "tickets",
+			"ticketId":  ticketID.String(),
 			"formalId":  ticket.FormalID.String(),
 			"userEmail": ticket.Email,
 		},
@@ -216,8 +211,7 @@ func (ah *AdminHandler) EditManualTicket(c echo.Context) error {
 			ticket.Name, // XXX: Formal name?
 		),
 		map[string]string{
-			"id":        ticketID.String(),
-			"resource":  "tickets",
+			"ticketId":  ticketID.String(),
 			"formalId":  ticket.FormalID.String(),
 			"userEmail": ticket.Email,
 		},

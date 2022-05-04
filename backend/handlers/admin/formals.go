@@ -204,7 +204,6 @@ func (ah *AdminHandler) UpdateFormalGroups(c echo.Context) error {
 
 func (ah *AdminHandler) logFormalAccess(c echo.Context, verbFormat string, formal *model.Formal) error {
 	return ah.Access.Log(c, fmt.Sprintf(verbFormat, formal.Name), map[string]string{
-		"resource": "formals",
-		"id":       formal.ID.String(),
+		"formalId": formal.ID.String(),
 	})
 }

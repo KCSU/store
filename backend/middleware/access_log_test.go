@@ -50,7 +50,7 @@ func TestAccessLog(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(uuid.New()))
 	mock.ExpectCommit()
 	// Run
-	err = access.Log(c, `created formal "Test"`, map[string]interface{}{
+	err = access.Log(c, `created formal "Test"`, map[string]string{
 		"name": "Test",
 	})
 	assert.NoError(t, err)
