@@ -14,7 +14,7 @@ import (
 type TicketStore interface {
 	// Retrieve all the user's tickets
 	Get(userId uuid.UUID) ([]model.Ticket, error)
-	// Get a ticket by its id
+	// Get a ticket by its id with all relations
 	Find(id uuid.UUID) (model.Ticket, error)
 	// Get a ticket by its id with formal relation
 	FindWithFormal(id uuid.UUID) (model.Ticket, error)
@@ -54,10 +54,10 @@ func (t *DBTicketStore) Get(userId uuid.UUID) ([]model.Ticket, error) {
 	return tickets, err
 }
 
-// Get a ticket by its id
+// Get a ticket by its id with all relations
 func (t *DBTicketStore) Find(id uuid.UUID) (model.Ticket, error) {
 	var ticket model.Ticket
-	err := t.db.First(&ticket, id).Error
+	err := t.db.Preload("User").Preload("Formal").First(&ticket, id).Error
 	return ticket, err
 }
 

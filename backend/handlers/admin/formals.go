@@ -104,7 +104,9 @@ func (ah *AdminHandler) CreateFormal(c echo.Context) error {
 	if err := ah.Formals.Create(&formal); err != nil {
 		return err
 	}
-	ah.logFormalAccess(c, "created formal %q", &formal)
+	if err := ah.logFormalAccess(c, "created formal %q", &formal); err != nil {
+		return err
+	}
 	// FIXME: JSON response?
 	return c.NoContent(http.StatusCreated)
 }
@@ -131,7 +133,9 @@ func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 	if err := ah.Formals.Update(&formal); err != nil {
 		return err
 	}
-	ah.logFormalAccess(c, "updated formal %q", &formal)
+	if err := ah.logFormalAccess(c, "updated formal %q", &formal); err != nil {
+		return err
+	}
 	return c.NoContent(http.StatusOK)
 }
 
@@ -153,7 +157,9 @@ func (ah *AdminHandler) DeleteFormal(c echo.Context) error {
 	if err := ah.Formals.Delete(&formal); err != nil {
 		return err
 	}
-	ah.logFormalAccess(c, "deleted formal %q", &formal)
+	if err := ah.logFormalAccess(c, "deleted formal %q", &formal); err != nil {
+		return err
+	}
 	return c.NoContent(http.StatusOK)
 }
 
@@ -190,13 +196,15 @@ func (ah *AdminHandler) UpdateFormalGroups(c echo.Context) error {
 	if err := ah.Formals.UpdateGroups(formal, groups); err != nil {
 		return err
 	}
-	ah.logFormalAccess(c, "updated groups for formal %q", &formal)
+	if err := ah.logFormalAccess(c, "updated groups for formal %q", &formal); err != nil {
+		return err
+	}
 	return c.NoContent(http.StatusOK)
 }
 
-func (ah *AdminHandler) logFormalAccess(c echo.Context, verbFormat string, formal *model.Formal) {
-	ah.Access.Log(c, fmt.Sprintf(verbFormat, formal.Name), map[string]interface{}{
+func (ah *AdminHandler) logFormalAccess(c echo.Context, verbFormat string, formal *model.Formal) error {
+	return ah.Access.Log(c, fmt.Sprintf(verbFormat, formal.Name), map[string]string{
 		"resource": "formals",
-		"id":       formal.ID,
+		"id":       formal.ID.String(),
 	})
 }

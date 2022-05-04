@@ -81,17 +81,41 @@ func (s *TicketSuite) TestGetByUserId() {
 }
 
 func (s *TicketSuite) TestFindTicket() {
+	fid := uuid.New()
+	uid := uuid.New()
 	ticket := model.Ticket{
-		FormalID: uuid.New(),
+		FormalID: fid,
+		UserID:   uid,
 		IsGuest:  false,
 		IsQueue:  true,
+		Formal: &model.Formal{
+			Model: model.Model{ID: fid},
+			Name:  "Test Formal",
+		},
+		User: &model.User{
+			Model: model.Model{ID: uid},
+			Name:  "Test User",
+			Email: "tus123@cam.ac.uk",
+		},
 	}
 	ticket.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
 		WithArgs(ticket.ID).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "formal_id", "is_guest", "is_queue"}).
-				AddRow(ticket.ID, ticket.FormalID, ticket.IsGuest, ticket.IsQueue),
+			sqlmock.NewRows([]string{"id", "formal_id", "user_id", "is_guest", "is_queue"}).
+				AddRow(ticket.ID, ticket.FormalID, ticket.UserID, ticket.IsGuest, ticket.IsQueue),
+		)
+	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
+		WithArgs(ticket.FormalID).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name"}).
+				AddRow(ticket.Formal.ID, ticket.Formal.Name),
+		)
+	s.mock.ExpectQuery(`SELECT \* FROM "users"`).
+		WithArgs(ticket.UserID).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name", "email"}).
+				AddRow(ticket.User.ID, ticket.User.Name, ticket.User.Email),
 		)
 	t, err := s.store.Find(ticket.ID)
 	s.NoError(err)

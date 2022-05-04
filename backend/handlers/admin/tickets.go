@@ -2,6 +2,7 @@ package admin
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -34,9 +35,37 @@ func (ah *AdminHandler) CancelTicket(c echo.Context) error {
 		if err := ah.Tickets.DeleteByFormal(ticket.FormalID, ticket.UserID); err != nil {
 			return err
 		}
+		if err := ah.Access.Log(c,
+			fmt.Sprintf(
+				"cancelled tickets for user %q, formal %q",
+				ticket.User.Name, ticket.Formal.Name,
+			),
+			map[string]string{
+				"formalId":  ticket.FormalID.String(),
+				"userEmail": ticket.User.Email,
+				"id":        ticket.ID.String(),
+				"resource":  "tickets",
+			},
+		); err != nil {
+			return err
+		}
 	} else {
 		// Delete the ticket
 		if err := ah.Tickets.Delete(ticketID); err != nil {
+			return err
+		}
+		if err := ah.Access.Log(c,
+			fmt.Sprintf(
+				"cancelled a guest ticket for user %q, formal %q",
+				ticket.User.Name, ticket.Formal.Name,
+			),
+			map[string]string{
+				"formalId":  ticket.FormalID.String(),
+				"userEmail": ticket.User.Email,
+				"id":        ticket.ID.String(),
+				"resource":  "tickets",
+			},
+		); err != nil {
 			return err
 		}
 	}
@@ -64,6 +93,13 @@ func (ah *AdminHandler) EditTicket(c echo.Context) error {
 		}
 		return err
 	}
+	// TODO: fetch named metadata!!
+	if err := ah.Access.Log(c, "updated a ticket", map[string]string{
+		"id":       ticketID.String(),
+		"resource": "tickets",
+	}); err != nil {
+		return err
+	}
 	return c.NoContent(http.StatusOK)
 }
 
@@ -84,8 +120,29 @@ func (ah *AdminHandler) CreateManualTicket(c echo.Context) error {
 		Justification: t.Justification,
 		Email:         t.Email,
 	}
-	// TODO: check if the formal exists
-	if err := ah.ManualTickets.Create(&ticket); err != nil {
+	f, err := ah.Formals.Find(ticket.FormalID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound // FIXME: this seems bad
+		}
+		return err
+	}
+	if err = ah.ManualTickets.Create(&ticket); err != nil {
+		return err
+	}
+	if err := ah.Access.Log(c,
+		fmt.Sprintf(
+			"created a manual ticket for user %q, formal %q",
+			ticket.Name, f.Name,
+		),
+		map[string]string{
+			"formalId":      ticket.FormalID.String(),
+			"userEmail":     ticket.Email,
+			"justification": ticket.Justification,
+			"id":            ticket.ID.String(),
+			"resource":      "tickets",
+		},
+	); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusCreated)
@@ -98,13 +155,28 @@ func (ah *AdminHandler) CancelManualTicket(c echo.Context) error {
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	if _, err := ah.ManualTickets.Find(ticketID); err != nil {
+	ticket, err := ah.ManualTickets.Find(ticketID)
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
 		}
 		return err
 	}
 	if err := ah.ManualTickets.Delete(ticketID); err != nil {
+		return err
+	}
+	if err := ah.Access.Log(c,
+		fmt.Sprintf(
+			"cancelled a manual ticket for %q",
+			ticket.Name, // XXX: Formal name?
+		),
+		map[string]string{
+			"id":        ticketID.String(),
+			"resource":  "tickets",
+			"formalId":  ticket.FormalID.String(),
+			"userEmail": ticket.Email,
+		},
+	); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)
@@ -136,6 +208,20 @@ func (ah *AdminHandler) EditManualTicket(c echo.Context) error {
 	ticket.Justification = t.Justification
 	ticket.Email = t.Email
 	if err := ah.ManualTickets.Update(&ticket); err != nil {
+		return err
+	}
+	if err := ah.Access.Log(c,
+		fmt.Sprintf(
+			"updated a manual ticket for %q",
+			ticket.Name, // XXX: Formal name?
+		),
+		map[string]string{
+			"id":        ticketID.String(),
+			"resource":  "tickets",
+			"formalId":  ticket.FormalID.String(),
+			"userEmail": ticket.Email,
+		},
+	); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)

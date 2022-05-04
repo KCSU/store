@@ -11,9 +11,11 @@ import (
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
+	mm "github.com/kcsu/store/mocks/middleware"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 )
@@ -23,14 +25,27 @@ type AdminTicketSuite struct {
 	h             *AdminHandler
 	tickets       *mocks.TicketStore
 	manualTickets *mocks.ManualTicketStore
+	formals       *mocks.FormalStore
 }
 
 func (s *AdminTicketSuite) SetupTest() {
 	s.h = new(AdminHandler)
-	s.tickets = new(mocks.TicketStore)
-	s.manualTickets = new(mocks.ManualTicketStore)
+	s.tickets = mocks.NewTicketStore(s.T())
+	s.manualTickets = mocks.NewManualTicketStore(s.T())
+	s.formals = mocks.NewFormalStore(s.T())
 	s.h.Tickets = s.tickets
 	s.h.ManualTickets = s.manualTickets
+	s.h.Formals = s.formals
+	// FIXME: We currently ignore calls to Access.Log
+	// but this is probably a bad idea, especially here.
+	accessMock := mm.NewAccess(s.T())
+	accessMock.On(
+		"Log",
+		mock.Anything,
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Maybe().Return(nil)
+	s.h.Access = accessMock
 }
 
 func (s *AdminTicketSuite) TestCancelTicket() {
@@ -59,6 +74,8 @@ func (s *AdminTicketSuite) TestCancelTicket() {
 				IsGuest:    true,
 				FormalID:   uuid.New(),
 				UserID:     uuid.New(),
+				Formal:     &model.Formal{},
+				User:       &model.User{},
 				MealOption: "Vegetarian",
 			},
 			nil,
@@ -71,6 +88,8 @@ func (s *AdminTicketSuite) TestCancelTicket() {
 				IsGuest:    false,
 				FormalID:   uuid.New(),
 				UserID:     uuid.New(),
+				Formal:     &model.Formal{},
+				User:       &model.User{},
 				MealOption: "Vegan",
 			},
 			nil,
@@ -110,7 +129,6 @@ func (s *AdminTicketSuite) TestCancelTicket() {
 			}
 		})
 	}
-	s.tickets.AssertExpectations(s.T())
 }
 
 func (s *AdminTicketSuite) TestEditTicket() {
@@ -134,7 +152,6 @@ func (s *AdminTicketSuite) TestEditTicket() {
 	err := s.h.EditTicket(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
-	s.tickets.AssertExpectations(s.T())
 }
 
 func (s *AdminTicketSuite) TestCreateManualTicket() {
@@ -197,6 +214,9 @@ func (s *AdminTicketSuite) TestCreateManualTicket() {
 			c := e.NewContext(req, rec)
 			// Mock
 			if test.ticket != nil {
+				s.formals.On("Find", mock.AnythingOfType("uuid.UUID")).Return(
+					model.Formal{}, nil,
+				).Once()
 				s.manualTickets.On("Create", test.ticket).Return(nil).Once()
 			}
 			// Test
@@ -213,7 +233,6 @@ func (s *AdminTicketSuite) TestCreateManualTicket() {
 			}
 		})
 	}
-	s.manualTickets.AssertExpectations(s.T())
 }
 
 func (s *AdminTicketSuite) TestCancelManualTicket() {
@@ -281,7 +300,6 @@ func (s *AdminTicketSuite) TestCancelManualTicket() {
 			}
 		})
 	}
-	s.manualTickets.AssertExpectations(s.T())
 }
 
 func (s *AdminTicketSuite) TestEditManualTicket() {
@@ -372,7 +390,6 @@ func (s *AdminTicketSuite) TestEditManualTicket() {
 			}
 		})
 	}
-	s.manualTickets.AssertExpectations(s.T())
 }
 
 func TestAdminTicketSuite(t *testing.T) {

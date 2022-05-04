@@ -28,7 +28,7 @@ func TestAccessLog(t *testing.T) {
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	assert.NoError(t, err)
-	a := new(mocks.Auth)
+	a := mocks.NewAuth(t)
 	access := middleware.NewAccess(db, a)
 	// HTTP
 	e := echo.New()
@@ -55,5 +55,4 @@ func TestAccessLog(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	assert.NoError(t, mock.ExpectationsWereMet())
-	a.AssertExpectations(t)
 }
