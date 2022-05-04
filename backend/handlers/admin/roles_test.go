@@ -11,8 +11,10 @@ import (
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
+	mm "github.com/kcsu/store/mocks/middleware"
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 )
@@ -26,10 +28,20 @@ type AdminRoleSuite struct {
 
 func (s *AdminRoleSuite) SetupTest() {
 	s.h = new(AdminHandler)
-	s.roles = new(mocks.RoleStore)
-	s.users = new(mocks.UserStore)
+	s.roles = mocks.NewRoleStore(s.T())
+	s.users = mocks.NewUserStore(s.T())
 	s.h.Roles = s.roles
 	s.h.Users = s.users
+	// HACK: We currently ignore calls to Access.Log
+	// but this is probably a bad idea.
+	accessMock := mm.NewAccess(s.T())
+	accessMock.On(
+		"Log",
+		mock.Anything,
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Maybe().Return(nil)
+	s.h.Access = accessMock
 }
 
 func (s *AdminRoleSuite) TestGetRoles() {
@@ -110,7 +122,6 @@ func (s *AdminRoleSuite) TestGetRoles() {
 	// Run test
 	err := s.h.GetRoles(c)
 	s.NoError(err)
-	s.roles.AssertExpectations(s.T())
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
 }
@@ -150,7 +161,6 @@ func (s *AdminRoleSuite) TestGetUserRoles() {
 	// Run test
 	err := s.h.GetUserRoles(c)
 	s.NoError(err)
-	s.roles.AssertExpectations(s.T())
 	s.Equal(http.StatusOK, rec.Code)
 	s.JSONEq(expectedJSON, rec.Body.String())
 }
@@ -273,7 +283,6 @@ func (s *AdminRoleSuite) TestCreatePermission() {
 			}
 		})
 	}
-	s.roles.AssertExpectations(s.T())
 }
 
 func (s *AdminRoleSuite) TestDeletePermission() {
@@ -288,12 +297,18 @@ func (s *AdminRoleSuite) TestDeletePermission() {
 	c.SetParamNames("id")
 	c.SetParamValues(id.String())
 	// Mock
+	s.roles.On("FindPermission", id).Return(model.Permission{
+		ID:       id,
+		Resource: "formals",
+		Action:   "*",
+		RoleID:   uuid.New(),
+		Role:     &model.Role{},
+	}, nil)
 	s.roles.On("DeletePermission", id).Return(nil).Once()
 	// Test
 	err := s.h.DeletePermission(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
-	s.roles.AssertExpectations(s.T())
 }
 
 func (s *AdminRoleSuite) TestCreateRole() {
@@ -312,7 +327,6 @@ func (s *AdminRoleSuite) TestCreateRole() {
 	err := s.h.CreateRole(c)
 	s.NoError(err)
 	s.Equal(http.StatusCreated, rec.Code)
-	s.roles.AssertExpectations(s.T())
 }
 
 func (s *AdminRoleSuite) TestUpdateRole() {
@@ -383,7 +397,6 @@ func (s *AdminRoleSuite) TestUpdateRole() {
 			}
 		})
 	}
-	s.roles.AssertExpectations(s.T())
 }
 
 func (s *AdminRoleSuite) TestDeleteRole() {
@@ -408,7 +421,6 @@ func (s *AdminRoleSuite) TestDeleteRole() {
 	err := s.h.DeleteRole(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
-	s.roles.AssertExpectations(s.T())
 }
 
 func (s *AdminRoleSuite) TestAddUserRole() {
@@ -522,8 +534,6 @@ func (s *AdminRoleSuite) TestAddUserRole() {
 			}
 		})
 	}
-	s.roles.AssertExpectations(s.T())
-	s.users.AssertExpectations(s.T())
 }
 
 func (s *AdminRoleSuite) TestRemoveUserRole() {
@@ -637,8 +647,6 @@ func (s *AdminRoleSuite) TestRemoveUserRole() {
 			}
 		})
 	}
-	s.roles.AssertExpectations(s.T())
-	s.users.AssertExpectations(s.T())
 }
 
 func TestAdminRoleSuite(t *testing.T) {

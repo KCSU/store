@@ -12,4 +12,5 @@ type Permission struct {
 	Resource  string    `json:"resource"`
 	Action    string    `json:"action"`
 	RoleID    uuid.UUID `json:"-"`
+	Role      *Role     `json:"-"`
 }

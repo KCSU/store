@@ -107,6 +107,27 @@ func (_m *RoleStore) Find(id uuid.UUID) (model.Role, error) {
 	return r0, r1
 }
 
+// FindPermission provides a mock function with given fields: id
+func (_m *RoleStore) FindPermission(id uuid.UUID) (model.Permission, error) {
+	ret := _m.Called(id)
+
+	var r0 model.Permission
+	if rf, ok := ret.Get(0).(func(uuid.UUID) model.Permission); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(model.Permission)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Get provides a mock function with given fields:
 func (_m *RoleStore) Get() ([]model.Role, error) {
 	ret := _m.Called()

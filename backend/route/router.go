@@ -89,7 +89,6 @@ func ApiRoutes(api *echo.Group, h *handlers.Handler, requireAuth echo.Middleware
 }
 
 func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
-	// FIXME: CRUD or R/W/D?
 	rbac := middleware.NewRBAC(middleware.RbacConfig{
 		Auth:  ah.Auth,
 		Users: ah.Users,
@@ -112,7 +111,7 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	tickets.DELETE("/:id", ah.CancelTicket, rbac.M("tickets", "delete"))
 	tickets.PUT("/:id", ah.EditTicket, rbac.M("tickets", "write"))
 
-	// [ ] Logging
+	// [x] Logging
 	groups := a.Group("/groups")
 	groups.GET("", ah.GetGroups, rbac.M("groups", "read"))
 	groups.POST("", ah.CreateGroup, rbac.M("groups", "write"))
@@ -123,7 +122,7 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	groups.DELETE("/:id/users", ah.RemoveGroupUser, rbac.M("groups", "write"))
 	groups.POST("/:id/users/lookup", ah.LookupGroupUsers, rbac.M("groups", "write"))
 
-	// [ ] Logging
+	// [x] Logging
 	roles := a.Group("/roles")
 	roles.GET("", ah.GetRoles, rbac.M("roles", "read"))
 	roles.POST("", ah.CreateRole, rbac.M("roles", "write"))
@@ -133,7 +132,7 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	roles.DELETE("/users", ah.RemoveUserRole, rbac.M("roles", "write"))
 	roles.DELETE("/:id", ah.DeleteRole, rbac.M("roles", "delete"))
 
-	// [ ] Logging
+	// [x] Logging
 	permissions := a.Group("/permissions")
 	permissions.POST("", ah.CreatePermission, rbac.M("permissions", "write"))
 	permissions.DELETE("/:id", ah.DeletePermission, rbac.M("permissions", "delete"))

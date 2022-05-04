@@ -137,6 +137,36 @@ func (s *RoleSuite) TestFindRole() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *RoleSuite) TestFindPermission() {
+	rid := uuid.New()
+	permission := model.Permission{
+		ID:       uuid.New(),
+		Resource: "formals",
+		Action:   "read",
+		RoleID:   rid,
+		Role: &model.Role{
+			Model: model.Model{ID: rid},
+			Name:  "Admin",
+		},
+	}
+	s.mock.ExpectQuery(`SELECT \* FROM "permissions"`).
+		WithArgs(permission.ID).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "role_id", "resource", "action"}).
+				AddRow(permission.ID, permission.RoleID, permission.Resource, permission.Action),
+		)
+	s.mock.ExpectQuery(`SELECT \* FROM "roles"`).
+		WithArgs(permission.RoleID).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name"}).
+				AddRow(permission.RoleID, permission.Role.Name),
+		)
+	p, err := s.store.FindPermission(permission.ID)
+	s.Require().NoError(err)
+	s.Equal(permission, p)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *RoleSuite) TestCreatePermission() {
 	permission := model.Permission{
 		RoleID:   uuid.New(),

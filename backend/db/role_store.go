@@ -14,6 +14,8 @@ type RoleStore interface {
 	GetUserRoles() ([]model.UserRole, error)
 	// Retrieve a single role
 	Find(id uuid.UUID) (model.Role, error)
+	// Retrieve a permission with role
+	FindPermission(id uuid.UUID) (model.Permission, error)
 	// Create a permission
 	CreatePermission(permission *model.Permission) error
 	// Delete a permission
@@ -67,6 +69,13 @@ func (r *DBRoleStore) Find(id uuid.UUID) (model.Role, error) {
 	var role model.Role
 	err := r.db.First(&role, id).Error
 	return role, err
+}
+
+// Find a permission with role
+func (r *DBRoleStore) FindPermission(id uuid.UUID) (model.Permission, error) {
+	var permission model.Permission
+	err := r.db.Preload("Role").First(&permission, id).Error
+	return permission, err
 }
 
 // Create permission
