@@ -12,8 +12,10 @@ import (
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
+	mm "github.com/kcsu/store/mocks/middleware"
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 )
@@ -28,6 +30,16 @@ func (s *AdminBillSuite) SetupTest() {
 	s.h = new(AdminHandler)
 	s.bills = mocks.NewBillStore(s.T())
 	s.h.Bills = s.bills
+	// HACK: We currently ignore calls to Access.Log
+	// but this is probably a bad idea.
+	accessMock := mm.NewAccess(s.T())
+	accessMock.On(
+		"Log",
+		mock.Anything,
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Maybe().Return(nil)
+	s.h.Access = accessMock
 }
 
 func (s *AdminBillSuite) TestGetBills() {

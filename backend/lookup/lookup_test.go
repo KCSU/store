@@ -49,7 +49,7 @@ const twoUserResponse = `<result xmlns="http://www.lookup.cam.ac.uk"
 
 func (s *LookupSuite) SetupTest() {
 	s.numCalls = 0
-	s.store = new(mocks.GroupStore)
+	s.store = mocks.NewGroupStore(s.T())
 	s.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s.numCalls += 1
 		s.Equal(s.expectURL, r.URL.Path)
@@ -160,7 +160,6 @@ func (s *LookupSuite) TestProcessGroup() {
 	}).Return(nil).Once()
 	err := s.lookup.ProcessGroup(group)
 	s.NoError(err)
-	s.store.AssertExpectations(s.T())
 	s.Equal(1, s.numCalls)
 }
 
@@ -183,7 +182,6 @@ func (s *LookupSuite) TestRun() {
 	err := lookup.Run(&c, s.store)
 	s.NoError(err)
 	s.Equal(1, s.numCalls)
-	s.store.AssertExpectations(s.T())
 }
 
 func TestLookupSuite(t *testing.T) {

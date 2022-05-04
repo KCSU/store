@@ -67,6 +67,14 @@ func (ah *AdminHandler) CreateBill(c echo.Context) error {
 	if err := ah.Bills.Create(&bill); err != nil {
 		return err
 	}
+	if err := ah.Access.Log(c,
+		fmt.Sprintf("created bill %s", bill.Name),
+		map[string]string{
+			"billId": bill.ID.String(),
+		},
+	); err != nil {
+		return err
+	}
 	// JSON?
 	return c.NoContent(http.StatusCreated)
 }
@@ -105,6 +113,14 @@ func (ah *AdminHandler) UpdateBill(c echo.Context) error {
 	if err := ah.Bills.Update(&bill); err != nil {
 		return err
 	}
+	if err := ah.Access.Log(c,
+		fmt.Sprintf("updated bill %s", bill.Name),
+		map[string]string{
+			"billId": bill.ID.String(),
+		},
+	); err != nil {
+		return err
+	}
 	// JSON?
 	return c.NoContent(http.StatusOK)
 }
@@ -125,6 +141,14 @@ func (ah *AdminHandler) DeleteBill(c echo.Context) error {
 		return err
 	}
 	if err := ah.Bills.Delete(&bill); err != nil {
+		return err
+	}
+	if err := ah.Access.Log(c,
+		fmt.Sprintf("deleted bill %s", bill.Name),
+		map[string]string{
+			"billId": bill.ID.String(),
+		},
+	); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)
@@ -156,6 +180,20 @@ func (ah *AdminHandler) AddBillFormals(c echo.Context) error {
 	if err := ah.Bills.AddFormals(&bill, f.FormalIDs); err != nil {
 		return err
 	}
+	// HACK: maybe do this with formatting or JSON arrays?
+	formalIdStrings := make([]string, len(f.FormalIDs))
+	for i, id := range f.FormalIDs {
+		formalIdStrings[i] = id.String()
+	}
+	if err := ah.Access.Log(c,
+		fmt.Sprintf("added formal(s) to bill %s", bill.Name),
+		map[string]string{
+			"billId":    bill.ID.String(),
+			"formalIds": strings.Join(formalIdStrings, ","),
+		},
+	); err != nil {
+		return err
+	}
 	// JSON?
 	return c.NoContent(http.StatusOK)
 }
@@ -180,6 +218,16 @@ func (ah *AdminHandler) RemoveBillFormal(c echo.Context) error {
 		return err
 	}
 	if err := ah.Bills.RemoveFormal(&bill, formalID); err != nil {
+		return err
+	}
+	// TODO: formal name?
+	if err := ah.Access.Log(c,
+		fmt.Sprintf("removed formal from bill %s", bill.Name),
+		map[string]string{
+			"billId":   bill.ID.String(),
+			"formalId": fid,
+		},
+	); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusOK)

@@ -94,7 +94,6 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 		Users: ah.Users,
 	})
 
-	// [x] Logging
 	formals := a.Group("/formals")
 	formals.GET("", ah.GetFormals, rbac.M("formals", "read"))
 	formals.POST("", ah.CreateFormal, rbac.M("formals", "write"))
@@ -103,7 +102,6 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	formals.PUT("/:id/groups", ah.UpdateFormalGroups, rbac.M("formals", "write"))
 	formals.DELETE("/:id", ah.DeleteFormal, rbac.M("formals", "delete"))
 
-	// [x] Logging
 	tickets := a.Group("/tickets")
 	tickets.POST("/manual", ah.CreateManualTicket, rbac.M("tickets", "write"))
 	tickets.DELETE("/manual/:id", ah.CancelManualTicket, rbac.M("tickets", "delete"))
@@ -111,7 +109,6 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	tickets.DELETE("/:id", ah.CancelTicket, rbac.M("tickets", "delete"))
 	tickets.PUT("/:id", ah.EditTicket, rbac.M("tickets", "write"))
 
-	// [x] Logging
 	groups := a.Group("/groups")
 	groups.GET("", ah.GetGroups, rbac.M("groups", "read"))
 	groups.POST("", ah.CreateGroup, rbac.M("groups", "write"))
@@ -122,7 +119,6 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	groups.DELETE("/:id/users", ah.RemoveGroupUser, rbac.M("groups", "write"))
 	groups.POST("/:id/users/lookup", ah.LookupGroupUsers, rbac.M("groups", "write"))
 
-	// [x] Logging
 	roles := a.Group("/roles")
 	roles.GET("", ah.GetRoles, rbac.M("roles", "read"))
 	roles.POST("", ah.CreateRole, rbac.M("roles", "write"))
@@ -132,12 +128,10 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	roles.DELETE("/users", ah.RemoveUserRole, rbac.M("roles", "write"))
 	roles.DELETE("/:id", ah.DeleteRole, rbac.M("roles", "delete"))
 
-	// [x] Logging
 	permissions := a.Group("/permissions")
 	permissions.POST("", ah.CreatePermission, rbac.M("permissions", "write"))
 	permissions.DELETE("/:id", ah.DeletePermission, rbac.M("permissions", "delete"))
 
-	// [ ] Logging
 	bills := a.Group("/bills")
 	bills.GET("", ah.GetBills, rbac.M("billing", "read"))
 	bills.POST("", ah.CreateBill, rbac.M("billing", "write"))
