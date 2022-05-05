@@ -11,6 +11,7 @@ import (
 )
 
 type Access interface {
+	Get(page int, size int) ([]model.AccessLog, error)
 	Log(c echo.Context, verb string, metadata map[string]string) error
 }
 
@@ -41,4 +42,12 @@ func (d *DBAccess) Log(c echo.Context, verb string, metadata map[string]string) 
 		Metadata: metadataJson,
 	}
 	return d.db.Create(log).Error
+}
+
+// Get paginated access log
+func (d *DBAccess) Get(page int, size int) ([]model.AccessLog, error) {
+	offset := size * (page - 1)
+	var logs []model.AccessLog
+	err := d.db.Limit(size).Offset(offset).Order("created_at DESC").Find(&logs).Error
+	return logs, err
 }

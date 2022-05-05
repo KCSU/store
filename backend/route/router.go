@@ -54,7 +54,6 @@ func Init() *echo.Echo {
 	api := e.Group("/api")
 	ApiRoutes(api, h, requireAuth)
 
-	// TODO: Protect!
 	adminApi := api.Group("/admin", requireAuth)
 	ah := admin.NewHandler(h, d)
 	AdminRoutes(adminApi, ah)
@@ -93,6 +92,8 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 		Auth:  ah.Auth,
 		Users: ah.Users,
 	})
+
+	a.GET("/access", ah.GetAccess)
 
 	formals := a.Group("/formals")
 	formals.GET("", ah.GetFormals, rbac.M("formals", "read"))
