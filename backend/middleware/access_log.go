@@ -48,6 +48,7 @@ func (d *DBAccess) Log(c echo.Context, verb string, metadata map[string]string) 
 func (d *DBAccess) Get(page int, size int) ([]model.AccessLog, error) {
 	offset := size * (page - 1)
 	var logs []model.AccessLog
-	err := d.db.Limit(size).Offset(offset).Order("created_at DESC").Find(&logs).Error
+	// HACK: we get one more record to know if there are more records
+	err := d.db.Limit(size + 1).Offset(offset).Order("created_at DESC").Find(&logs).Error
 	return logs, err
 }

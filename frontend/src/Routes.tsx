@@ -21,6 +21,7 @@ import { AdminEditRoleView } from "./views/admin/AdminEditRoleView";
 import { AdminBillsListView } from "./views/admin/AdminBillsListView";
 import { AdminEditBillView } from "./views/admin/AdminEditBillView";
 import { AdminCreateBillView } from "./views/admin/AdminCreateBillView";
+import { AccessLogView } from "./views/AccessLogView";
 
 const MotionBox = motionComponent<BoxProps, 'div'>(Box);
 
@@ -120,6 +121,7 @@ export function Routes() {
           <Route element={<RequireAuth/>}>
             <Route path="/" element={<FormalListView />} />
             <Route path="/settings" element={<SettingsView />} />
+            <Route path="/settings/access" element={<AccessLogView />} />
             <Route path="/formals/:formalId" element={<FormalView />} />
             <Route path="/tickets" element={<TicketsView />} />
             <Route path="/tickets/:id" element={<EditFormalTicketsView />}/>
