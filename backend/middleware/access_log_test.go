@@ -88,7 +88,7 @@ func TestGetLogs(t *testing.T) {
 	for _, l := range logs {
 		rows.AddRow(l.ID, l.Email, l.Message)
 	}
-	mock.ExpectQuery(`SELECT \* FROM "access_logs" ORDER BY created_at DESC LIMIT 50 OFFSET 150`).
+	mock.ExpectQuery(`SELECT \* FROM "access_logs" ORDER BY created_at DESC LIMIT 51 OFFSET 150`).
 		WillReturnRows(rows)
 	l, err := access.Get(4, 50)
 	assert.NoError(t, err)
