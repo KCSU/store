@@ -79,8 +79,12 @@ function FormalCard({ formal }: FormalCardProps) {
         <Heading as="h3" size="lg" mb={1}>
           {formal.name}
         </Heading>
-        <Text as="b" mb={4}>
+        <Text fontWeight="bold">
           {datetime}
+        </Text>
+        <Text mt={1} mb={4}>
+          Available to {' '}
+          {formal.groups?.map(g => g.name).join(", ")}
         </Text>
         <VStack alignItems="stretch">
           <Wrap justifyContent="space-between">

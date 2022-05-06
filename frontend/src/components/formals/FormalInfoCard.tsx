@@ -24,12 +24,11 @@ import {
   ModalOverlay,
   Icon,
   ButtonProps,
+  Tooltip,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  useTicketPermissions,
-} from "../../hooks/state/useTicketPermissions";
+import { useTicketPermissions } from "../../hooks/state/useTicketPermissions";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
 import { useBuyTicket } from "../../hooks/mutations/useBuyTicket";
@@ -217,11 +216,18 @@ export const FormalInfoCard = forwardRef<FormalProps, "div">(
             More Info
           </Button>
           {!isSaleEnded && !hasTicket && (
-            <BuyTicketButton
-              formal={formal}
-              onClick={onOpen}
-              isDisabled={!isInGroup}
-            ></BuyTicketButton>
+            <Tooltip
+              shouldWrapChildren
+              isDisabled={isInGroup}
+              label={`You are not a member of the group(s) ${formal.groups?.map(g => g.name).join(', ')}`}
+              hasArrow
+            >
+              <BuyTicketButton
+                formal={formal}
+                onClick={onOpen}
+                isDisabled={!isInGroup}
+              ></BuyTicketButton>
+            </Tooltip>
           )}
           {hasTicket && (
             <Button
