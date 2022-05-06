@@ -87,11 +87,9 @@ function BillFormalsPreview() {
   const bg = useColorModeValue("gray.100", "gray.600");
   const formals = useMemo(() => {
     return (
-      data?.filter((f) => (
-        bill.start <= f.dateTime &&
-        f.dateTime <= bill.end &&
-        !f.billId
-      )) ?? []
+      data?.filter(
+        (f) => bill.start <= f.dateTime && f.dateTime <= bill.end && !f.billId
+      ) ?? []
     );
   }, [data, bill]);
   const mutation = useAddBillFormals(bill.id);
@@ -135,10 +133,17 @@ function BillFormalsPreview() {
           </LinkBox>
         ))}
       </SimpleGrid>
+      {formals.length === 0 && (
+        <Alert status="warning">
+          <AlertIcon />
+          No formals match the bill's date range.
+        </Alert>
+      )}
       <Button
         colorScheme="brand"
         rightIcon={<FaArrowRight />}
         isLoading={mutation.isLoading}
+        isDisabled={formals.length === 0}
         onClick={() => mutation.mutate(formals.map((f) => f.id))}
         mt={3}
       >
@@ -174,7 +179,8 @@ export function BillFormalsList() {
                 {f.name}
               </Heading>
               <Text fontSize="sm">{dayjs(f.dateTime).calendar()}</Text>
-              <Link isExternal
+              <Link
+                isExternal
                 size="xs"
                 href={`/admin/formals/${f.id}`}
                 fontSize="sm"
