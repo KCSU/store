@@ -1,0 +1,27 @@
+version: "3.8"
+
+# XXX: UID and GID must be added to .env file
+# You can find these by running the following commands:
+#   $ id -u
+#   $ id -g
+
+services:
+  frontend:
+    image: node:16-alpine
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    user: ${UID}:${GID}
+    volumes:
+      - ./frontend:/usr/src/app
+    working_dir: /usr/src/app
+    command: ["npm", "run", "dev", "--", "--host"]
+  backend:
+    image: acim/go-reflex
+    volumes:
+      - ./backend:/app
+    environment:
+      - BUILD_ARGS=./services/api/main.go
+    restart: unless-stopped
+    network_mode: host
+  # postgres:

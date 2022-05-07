@@ -97,6 +97,7 @@ func (f *DBFormalStore) FindGuestList(id uuid.UUID) ([]model.FormalGuest, error)
 		Not("is_queue").
 		Joins("LEFT JOIN users ON users.id = tickets.user_id").
 		Group("users.id").
+		Order("users.name").
 		Select(`users.name, users.email,
 			COUNT(*) FILTER (WHERE tickets.is_guest) AS guests`).
 		Scan(&guests).Error
