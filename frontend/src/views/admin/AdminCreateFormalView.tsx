@@ -3,6 +3,7 @@ import {
   Checkbox,
   CheckboxGroup,
   Container,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -17,6 +18,7 @@ import {
   NumberInputStepper,
   SimpleGrid,
   Stack,
+  Switch,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
@@ -271,6 +273,24 @@ const CreateFormalForm: React.FC<CreateFormalForm> = ({
                 )}
               </Field>
             </SimpleGrid>
+            <Field name="hasGuestList">
+              {({ field, form }: FieldProps) => (
+                <FormControl
+                  isInvalid={!!(form.errors.hasGuestList && form.touched.hasGuestList)}
+                  as={Flex}
+                  mt={2}
+                  alignItems="center"
+                >
+                  <FormLabel mb={0}>Public Guest List:</FormLabel>
+                  <Switch
+                    colorScheme="brand"
+                    isChecked={field.value}
+                    id="hasGuestList"
+                    onChange={e => form.setFieldValue(field.name, e.target.checked)}
+                  />
+                </FormControl>
+              )}
+            </Field>
             <Field name="groups">
               {({ field, form }: FieldProps) => (
                 <FormControl
@@ -333,6 +353,7 @@ export function AdminCreateFormalView() {
       saleStart: currentDate,
       saleEnd: currentDate,
       dateTime: currentDate,
+      hasGuestList: true,
       groups: [],
     };
     return f;

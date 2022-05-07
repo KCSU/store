@@ -3,7 +3,9 @@ import {
   Box,
   Button,
   Container,
+  Flex,
   Heading,
+  Icon,
   Text,
   VStack,
   Wrap,
@@ -22,7 +24,8 @@ import { useFormals } from "../hooks/queries/useFormals";
 import { useQueueRequest } from "../hooks/state/useQueueRequest";
 import { Formal } from "../model/Formal";
 import { useMemo } from "react";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaUsers } from "react-icons/fa";
+import { FormalGuestList } from "../components/admin/FormalGuestList";
 
 interface FormalTicketStatsProps {
   prefix?: string;
@@ -70,21 +73,26 @@ function FormalCard({ formal }: FormalCardProps) {
   // State management
   const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
   const { hasTicket, canBuy } = useTicketPermissions(formal);
-  const ft = useMemo(() => formal.myTickets?.find(t => !t.isGuest)?.id ?? "", [formal]);
+  const ft = useMemo(
+    () => formal.myTickets?.find((t) => !t.isGuest)?.id ?? "",
+    [formal]
+  );
   return (
     // TODO: guest list, responsive meal option
     <Container maxW="container.md" p={0}>
       <BackButton>Back Home</BackButton>
       <Card mb={5}>
-        <Heading as="h3" size="lg" mb={1}>
-          {formal.name}
-        </Heading>
-        <Text fontWeight="bold">
-          {datetime}
-        </Text>
+        <Flex justifyContent="space-between" alignItems="center">
+          <Heading as="h3" size="lg" mb={1}>
+            {formal.name}
+          </Heading>
+          {formal.hasGuestList && (
+            <FormalGuestList formal={formal} />
+          )}
+        </Flex>
+        <Text fontWeight="bold">{datetime}</Text>
         <Text mt={1} mb={4}>
-          Available to {' '}
-          {formal.groups?.map(g => g.name).join(", ")}
+          Available to {formal.groups?.map((g) => g.name).join(", ")}
         </Text>
         <VStack alignItems="stretch">
           <Wrap justifyContent="space-between">

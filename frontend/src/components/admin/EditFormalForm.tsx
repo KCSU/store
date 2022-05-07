@@ -1,5 +1,6 @@
 import {
   Button,
+  Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -13,6 +14,7 @@ import {
   NumberInputField,
   NumberInputStepper,
   SimpleGrid,
+  Switch,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
@@ -277,6 +279,24 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                 )}
               </Field>
             </SimpleGrid>
+            <Field name="hasGuestList">
+              {({ field, form }: FieldProps) => (
+                <FormControl
+                  isInvalid={!!(form.errors.hasGuestList && form.touched.hasGuestList)}
+                  as={Flex}
+                  mt={2}
+                  alignItems="center"
+                >
+                  <FormLabel mb={0}>Public Guest List:</FormLabel>
+                  <Switch
+                    colorScheme="brand"
+                    isChecked={field.value}
+                    id="hasGuestList"
+                    onChange={e => form.setFieldValue(field.name, e.target.checked)}
+                  />
+                </FormControl>
+              )}
+            </Field>
             {!isDisabled && (
               <Button
                 colorScheme="brand"
