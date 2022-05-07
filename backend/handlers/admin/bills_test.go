@@ -100,7 +100,8 @@ func (s *AdminBillSuite) TestGetBill() {
 				"saleStart": "2022-04-23T14:00:00+01:00",
 				"saleEnd": "2022-07-21T22:30:00+01:00",
 				"dateTime": "2022-08-17T15:30:00+01:00",
-				"billId": "af63ca4e-7f54-45bf-aab0-2d971f08222a"
+				"billId": "af63ca4e-7f54-45bf-aab0-2d971f08222a",
+				"hasGuestList": false
 			}
 		]
 	}`
@@ -132,6 +133,7 @@ func (s *AdminBillSuite) TestGetBill() {
 				SaleEnd:      time.Date(2022, 7, 21, 22, 30, 0, 0, time.FixedZone("Europe/London", 3600)),
 				DateTime:     time.Date(2022, 8, 17, 15, 30, 0, 0, time.FixedZone("Europe/London", 3600)),
 				BillID:       &id,
+				HasGuestList: false,
 			},
 		},
 	}

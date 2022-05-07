@@ -120,6 +120,7 @@ func (t *TicketSuite) TestGetTickets() {
 				"guestLimit":0,
 				"tickets":0,
 				"guestTickets":0,
+				"hasGuestList":false,
 				"saleStart":"0001-01-01T00:00:00Z",
 				"saleEnd":"0001-01-01T00:00:00Z",
 				"dateTime":"2022-01-17T19:30:00Z"
@@ -162,6 +163,7 @@ func (t *TicketSuite) TestGetTickets() {
 				"guestLimit":0,
 				"tickets":0,
 				"guestTickets":0,
+				"hasGuestList":false,
 				"saleStart":"0001-01-01T00:00:00Z",
 				"saleEnd":"0001-01-01T00:00:00Z",
 				"dateTime":"2022-01-19T19:30:00Z"

@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 // Handler to fetch a list of upcoming formals
@@ -44,7 +46,17 @@ func (h *Handler) GetFormalGuestList(c echo.Context) error {
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	// TODO: check formal has public guest list
+	// FIXME: this query preloads groups
+	formal, err := h.Formals.Find(formalId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if !formal.HasGuestList {
+		return echo.ErrForbidden
+	}
 	guests, err := h.Formals.FindGuestList(formalId)
 	if err != nil {
 		return err

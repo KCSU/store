@@ -32,6 +32,7 @@ func TestGetFormals(t *testing.T) {
 			"saleStart": "0001-01-01T00:00:00Z",
 			"saleEnd": "0001-01-01T00:00:00Z",
 			"dateTime": "0001-01-01T00:00:00Z",
+			"hasGuestList": false,
 			"ticketsRemaining": 24,
 			"guestTicketsRemaining": 56,
 			"groups": [],
@@ -62,6 +63,7 @@ func TestGetFormals(t *testing.T) {
 			"saleStart": "0001-01-01T00:00:00Z",
 			"saleEnd": "0001-01-01T00:00:00Z",
 			"dateTime": "0001-01-01T00:00:00Z",
+			"hasGuestList": true,
 			"ticketsRemaining": 64,
 			"guestTicketsRemaining": 31,
 			"groups": [
@@ -91,11 +93,12 @@ func TestGetFormals(t *testing.T) {
 	// Mock database
 	formals := []model.Formal{
 		{
-			Model:      model.Model{ID: uuid.MustParse("215292b8-4911-4d93-81dd-ebafb1aa6489")},
-			Name:       "Test 1",
-			Menu:       "A menu",
-			Price:      21.3,
-			GuestPrice: 11.6,
+			Model:        model.Model{ID: uuid.MustParse("215292b8-4911-4d93-81dd-ebafb1aa6489")},
+			Name:         "Test 1",
+			Menu:         "A menu",
+			Price:        21.3,
+			GuestPrice:   11.6,
+			HasGuestList: false,
 			TicketSales: []model.Ticket{{
 				Model:      model.Model{ID: uuid.MustParse("8bc2da87-88ea-4fcf-a69f-22a360b2606a")},
 				FormalID:   uuid.MustParse("215292b8-4911-4d93-81dd-ebafb1aa6489"),
@@ -104,11 +107,12 @@ func TestGetFormals(t *testing.T) {
 			}},
 		},
 		{
-			Model:      model.Model{ID: uuid.MustParse("202ca011-4cf8-4bf4-b318-c644be23ba85")},
-			Name:       "Test 2",
-			Menu:       "Another menu",
-			Price:      15.6,
-			GuestPrice: 27.2,
+			Model:        model.Model{ID: uuid.MustParse("202ca011-4cf8-4bf4-b318-c644be23ba85")},
+			Name:         "Test 2",
+			Menu:         "Another menu",
+			Price:        15.6,
+			GuestPrice:   27.2,
+			HasGuestList: true,
 			Groups: []model.Group{
 				{
 					Model: model.Model{ID: uuid.MustParse("ce22bfb1-b932-4073-a6a9-01e4787deecb")},
@@ -137,6 +141,7 @@ func TestGetFormals(t *testing.T) {
 }
 
 func TestGetFormalGuestList(t *testing.T) {
+	// TODO: what about when formal has no guest list?
 	expectedJSON := `[
 		{
 			"name": "Test 1",
@@ -178,6 +183,10 @@ func TestGetFormalGuestList(t *testing.T) {
 			Guests: 1,
 		},
 	}
+	f.On("Find", id).Return(model.Formal{
+		Model:        model.Model{ID: id},
+		HasGuestList: true,
+	}, nil)
 	f.On("FindGuestList", id).Return(guests, nil)
 	// Run test
 	err := h.GetFormalGuestList(c)

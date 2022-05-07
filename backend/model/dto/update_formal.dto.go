@@ -17,6 +17,7 @@ type UpdateFormalDto struct {
 	SaleStart    time.Time `json:"saleStart" validate:"required"`
 	SaleEnd      time.Time `json:"saleEnd" validate:"required"`  // TODO: gt SaleStart?
 	DateTime     time.Time `json:"dateTime" validate:"required"` // TODO: gt SaleEnd?
+	HasGuestList bool      `json:"hasGuestList"`
 }
 
 func (f *UpdateFormalDto) Formal() model.Formal {
@@ -31,5 +32,6 @@ func (f *UpdateFormalDto) Formal() model.Formal {
 		SaleStart:    f.SaleStart,
 		SaleEnd:      f.SaleEnd,
 		DateTime:     f.DateTime,
+		HasGuestList: f.HasGuestList,
 	}
 }
