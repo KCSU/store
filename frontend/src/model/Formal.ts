@@ -19,6 +19,7 @@ export interface Formal {
     saleEnd: Date;
     dateTime: Date;
     hasGuestList: boolean;
+    isVisible: boolean;
     // guestList: 
     // hidden?
     myTickets?: Ticket[];

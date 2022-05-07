@@ -273,6 +273,24 @@ const CreateFormalForm: React.FC<CreateFormalForm> = ({
                 )}
               </Field>
             </SimpleGrid>
+            <Field name="isVisible">
+              {({ field, form }: FieldProps) => (
+                <FormControl
+                  isInvalid={!!(form.errors.isVisible && form.touched.isVisible)}
+                  as={Flex}
+                  mt={2}
+                  alignItems="center"
+                >
+                  <FormLabel mb={0}>Visible:</FormLabel>
+                  <Switch
+                    colorScheme="brand"
+                    isChecked={field.value}
+                    id="isVisible"
+                    onChange={e => form.setFieldValue(field.name, e.target.checked)}
+                  />
+                </FormControl>
+              )}
+            </Field>
             <Field name="hasGuestList">
               {({ field, form }: FieldProps) => (
                 <FormControl
@@ -354,6 +372,7 @@ export function AdminCreateFormalView() {
       saleEnd: currentDate,
       dateTime: currentDate,
       hasGuestList: true,
+      isVisible: false,
       groups: [],
     };
     return f;

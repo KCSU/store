@@ -22,7 +22,9 @@ interface FormalProps {
 }
 
 function FormalStatusTag({ formal }: FormalProps) {
-  if (formal.saleEnd < new Date()) {
+  if (!formal.isVisible) {
+    return <Badge colorScheme="orange">Draft</Badge>;
+  } else if (formal.saleEnd < new Date()) {
     return <Badge>Closed</Badge>;
   } else if (formal.saleStart > new Date()) {
     return <Badge colorScheme="teal">Queueing</Badge>;
