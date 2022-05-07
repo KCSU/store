@@ -76,6 +76,7 @@ func ApiRoutes(api *echo.Group, h *handlers.Handler, requireAuth echo.Middleware
 	formals := api.Group("/formals", requireAuth)
 	// Formal routes
 	formals.GET("", h.GetFormals)
+	formals.GET("/:id/guests", h.GetFormalGuestList)
 	formals.POST("/:id/tickets", h.AddTicket)
 	formals.DELETE("/:id/tickets", h.CancelTickets)
 

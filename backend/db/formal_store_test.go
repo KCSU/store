@@ -199,6 +199,33 @@ func (s *FormalSuite) TestFindWithTickets() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestFindGuestList() {
+	formalID := uuid.New()
+	guests := []model.FormalGuest{
+		{
+			Name:   "James Holden",
+			Email:  "jh123@cam.ac.uk",
+			Guests: 2,
+		},
+		{
+			Name:   "Bobby Draper",
+			Email:  "bd456@cam.ac.uk",
+			Guests: 1,
+		},
+	}
+	rows := sqlmock.NewRows([]string{"name", "email", "guests"})
+	for _, g := range guests {
+		rows.AddRow(g.Name, g.Email, g.Guests)
+	}
+	s.mock.ExpectQuery(`SELECT .+ FROM "tickets"`).
+		WithArgs(formalID).
+		WillReturnRows(rows)
+	f, err := s.store.FindGuestList(formalID)
+	s.Require().NoError(err)
+	s.Equal(guests, f)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *FormalSuite) TestTicketsRemaining() {
 	f := model.Formal{}
 	f.ID = uuid.New()

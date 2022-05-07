@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
 )
@@ -34,4 +35,19 @@ func (h *Handler) GetFormals(c echo.Context) error {
 		formalData[i].Groups = groups
 	}
 	return c.JSON(http.StatusOK, &formalData)
+}
+
+// Handler to fetch a guest list for a formal
+func (h *Handler) GetFormalGuestList(c echo.Context) error {
+	id := c.Param("id")
+	formalId, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	// TODO: check formal has public guest list
+	guests, err := h.Formals.FindGuestList(formalId)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, &guests)
 }
