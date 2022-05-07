@@ -19,6 +19,7 @@ type Formal struct {
 	SaleEnd       time.Time      `json:"saleEnd"`
 	DateTime      time.Time      `json:"dateTime"`
 	HasGuestList  bool           `json:"hasGuestList"`
+	IsVisible     bool           `json:"isVisible"`
 	BillID        *uuid.UUID     `json:"billId,omitempty"`
 	TicketSales   []Ticket       `json:"-"`
 	ManualTickets []ManualTicket `json:"-"`

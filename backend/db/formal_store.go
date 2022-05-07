@@ -12,7 +12,7 @@ import (
 type FormalStore interface {
 	// Retrieve all upcoming formals
 	Get() ([]model.Formal, error)
-	// Retrieve all upcoming formals with groups
+	// Retrieve all upcoming visible formals with groups
 	GetWithUserData(userId uuid.UUID) ([]model.Formal, error)
 	// Retrieve all formals
 	All() ([]model.Formal, error)
@@ -55,10 +55,12 @@ func (f *DBFormalStore) Get() ([]model.Formal, error) {
 	return data, err
 }
 
-// Retrieve all upcoming formals with groups
+// Retrieve all upcoming visible formals with groups
 func (f *DBFormalStore) GetWithUserData(userId uuid.UUID) ([]model.Formal, error) {
 	var data []model.Formal
-	err := f.db.Where("date_time > NOW()").Order("date_time").
+	err := f.db.Where("date_time > NOW()").
+		Where("is_visible").
+		Order("date_time").
 		Preload("Groups").
 		Preload("TicketSales", "user_id = ?", userId).
 		Find(&data).Error

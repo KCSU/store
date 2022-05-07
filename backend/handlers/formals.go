@@ -54,7 +54,7 @@ func (h *Handler) GetFormalGuestList(c echo.Context) error {
 		}
 		return err
 	}
-	if !formal.HasGuestList {
+	if !formal.HasGuestList || !formal.IsVisible {
 		return echo.ErrForbidden
 	}
 	guests, err := h.Formals.FindGuestList(formalId)

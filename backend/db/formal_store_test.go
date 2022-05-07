@@ -305,13 +305,14 @@ func (s *FormalSuite) TestUpdateFormal() {
 		SaleEnd:      time.Date(2021, 5, 7, 11, 0, 0, 0, time.UTC),
 		DateTime:     time.Date(2021, 6, 1, 17, 0, 0, 0, time.UTC),
 		HasGuestList: true,
+		IsVisible:    true,
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "formals"`).WithArgs(
 		sqlmock.AnyArg(), nil,
 		f.Name, f.Menu, f.Price,
 		f.GuestPrice, f.GuestLimit, f.Tickets, f.GuestTickets,
-		f.SaleStart, f.SaleEnd, f.DateTime, f.HasGuestList, nil, f.ID,
+		f.SaleStart, f.SaleEnd, f.DateTime, f.HasGuestList, f.IsVisible, nil, f.ID,
 	).WillReturnResult(
 		sqlmock.NewResult(0, 1),
 	)

@@ -65,15 +65,17 @@ func (t *TicketSuite) SetupTest() {
 
 func (t *TicketSuite) TestGetTickets() {
 	formals := []model.Formal{{
-		Name:  "Test Formal",
-		Model: model.Model{ID: uuid.MustParse("d439376d-abd1-44c1-831c-e8d4565cac5a")},
+		Name:      "Test Formal",
+		Model:     model.Model{ID: uuid.MustParse("d439376d-abd1-44c1-831c-e8d4565cac5a")},
+		IsVisible: true,
 		DateTime: time.Date(
 			2022, time.January, 17,
 			19, 30, 0, 0, time.UTC,
 		),
 	}, {
-		Name:  "Another Formal",
-		Model: model.Model{ID: uuid.MustParse("7d35e4c8-0603-4723-8b9c-756814d1c545")},
+		Name:      "Another Formal",
+		Model:     model.Model{ID: uuid.MustParse("7d35e4c8-0603-4723-8b9c-756814d1c545")},
+		IsVisible: true,
 		DateTime: time.Date(
 			2022, time.January, 19,
 			19, 30, 0, 0, time.UTC,
@@ -121,6 +123,7 @@ func (t *TicketSuite) TestGetTickets() {
 				"tickets":0,
 				"guestTickets":0,
 				"hasGuestList":false,
+				"isVisible":true,
 				"saleStart":"0001-01-01T00:00:00Z",
 				"saleEnd":"0001-01-01T00:00:00Z",
 				"dateTime":"2022-01-17T19:30:00Z"
@@ -164,6 +167,7 @@ func (t *TicketSuite) TestGetTickets() {
 				"tickets":0,
 				"guestTickets":0,
 				"hasGuestList":false,
+				"isVisible":true,
 				"saleStart":"0001-01-01T00:00:00Z",
 				"saleEnd":"0001-01-01T00:00:00Z",
 				"dateTime":"2022-01-19T19:30:00Z"

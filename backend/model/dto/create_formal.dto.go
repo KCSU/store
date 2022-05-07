@@ -19,6 +19,7 @@ type CreateFormalDto struct {
 	SaleEnd      time.Time   `json:"saleEnd" validate:"required"`  // TODO: gt SaleStart?
 	DateTime     time.Time   `json:"dateTime" validate:"required"` // TODO: gt SaleEnd?
 	HasGuestList bool        `json:"hasGuestList"`
+	IsVisible    bool        `json:"isVisible"`
 	Groups       []uuid.UUID `json:"groups"`
 }
 
@@ -35,5 +36,6 @@ func (f *CreateFormalDto) Formal() model.Formal {
 		SaleEnd:      f.SaleEnd,
 		DateTime:     f.DateTime,
 		HasGuestList: f.HasGuestList,
+		IsVisible:    f.IsVisible,
 	}
 }

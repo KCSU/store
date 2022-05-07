@@ -58,6 +58,7 @@ func (s *AdminFormalSuite) TestGetFormals() {
 			"tickets": 0,
 			"guestTickets": 0,
 			"hasGuestList": true,
+			"isVisible": false,
 			"saleStart": "0001-01-01T00:00:00Z",
 			"saleEnd": "0001-01-01T00:00:00Z",
 			"dateTime": "0001-01-01T00:00:00Z",
@@ -78,6 +79,7 @@ func (s *AdminFormalSuite) TestGetFormals() {
 			"tickets": 0,
 			"guestTickets": 0,
 			"hasGuestList": false,
+			"isVisible": true,
 			"saleStart": "0001-01-01T00:00:00Z",
 			"saleEnd": "0001-01-01T00:00:00Z",
 			"dateTime": "0001-01-01T00:00:00Z",
@@ -109,6 +111,7 @@ func (s *AdminFormalSuite) TestGetFormals() {
 			Price:        21.3,
 			GuestPrice:   11.6,
 			HasGuestList: true,
+			IsVisible:    false,
 		},
 		{
 			Model:        model.Model{ID: uuid.MustParse("9acf368c-0c7b-4ef2-85e4-d34bfae8dd2e")},
@@ -117,6 +120,7 @@ func (s *AdminFormalSuite) TestGetFormals() {
 			Price:        15.6,
 			GuestPrice:   27.2,
 			HasGuestList: false,
+			IsVisible:    true,
 			Groups: []model.Group{
 				{
 					Model: model.Model{ID: uuid.MustParse("56b7ebef-23a9-47d5-88f3-aacc9898807d")},
@@ -157,6 +161,7 @@ func (s *AdminFormalSuite) TestGetFormal() {
 		"tickets": 120,
 		"guestTickets": 0,
 		"hasGuestList": true,
+		"isVisible": true,
 		"saleStart": "0001-01-01T00:00:00Z",
 		"saleEnd": "0001-01-01T00:00:00Z",
 		"dateTime": "0001-01-01T00:00:00Z",
@@ -204,6 +209,7 @@ func (s *AdminFormalSuite) TestGetFormal() {
 		GuestPrice:   12.7,
 		GuestLimit:   3,
 		HasGuestList: true,
+		IsVisible:    true,
 		Groups: []model.Group{{
 			Model: model.Model{ID: uuid.MustParse("97e9db3b-077a-4150-bc20-66b5a8490083")},
 			Name:  "Group",
@@ -265,6 +271,7 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 				"saleEnd": "2022-03-01T17:45:00Z",
 				"dateTime": "2022-03-05T20:30:00Z",
 				"hasGuestList": true,
+				"isVisible": false,
 				"groups": [
 					"d9577854-0f8b-4350-ae42-4a5572913444",
 					"609f4ef2-d516-4281-abb1-98fc687fd991"
@@ -283,6 +290,7 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 				Tickets:      50,
 				GuestTickets: 20,
 				HasGuestList: true,
+				IsVisible:    false,
 				SaleStart: time.Date(
 					2022, 02, 10, 11, 30,
 					0, 0, time.UTC,
@@ -313,6 +321,7 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 				"tickets": 50,
 				"guestTickets": 20,
 				"hasGuestList": true,
+				"isVisible": true,
 				"saleStart": "2022-02-10T11:30:00Z",
 				"saleEnd": "2022-03-01T17:45:00Z",
 				"dateTime": "2022-03-05T20:30:00Z",
@@ -334,6 +343,7 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 				Tickets:      50,
 				GuestTickets: 20,
 				HasGuestList: true,
+				IsVisible:    true,
 				SaleStart: time.Date(
 					2022, 02, 10, 11, 30,
 					0, 0, time.UTC,
@@ -422,6 +432,7 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 				"tickets": 55,
 				"guestTickets": 25,
 				"hasGuestList": true,
+				"isVisible": false,
 				"saleStart": "2022-02-10T11:30:00Z",
 				"saleEnd": "2022-03-01T17:45:00Z",
 				"dateTime": "2022-03-05T20:30:00Z"
@@ -436,6 +447,7 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 				Tickets:      55,
 				GuestTickets: 25,
 				HasGuestList: true,
+				IsVisible:    false,
 				SaleStart: time.Date(
 					2022, 02, 10, 11, 30,
 					0, 0, time.UTC,

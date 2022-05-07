@@ -33,6 +33,7 @@ func TestGetFormals(t *testing.T) {
 			"saleEnd": "0001-01-01T00:00:00Z",
 			"dateTime": "0001-01-01T00:00:00Z",
 			"hasGuestList": false,
+			"isVisible": true,
 			"ticketsRemaining": 24,
 			"guestTicketsRemaining": 56,
 			"groups": [],
@@ -64,6 +65,7 @@ func TestGetFormals(t *testing.T) {
 			"saleEnd": "0001-01-01T00:00:00Z",
 			"dateTime": "0001-01-01T00:00:00Z",
 			"hasGuestList": true,
+			"isVisible": true,
 			"ticketsRemaining": 64,
 			"guestTicketsRemaining": 31,
 			"groups": [
@@ -99,6 +101,7 @@ func TestGetFormals(t *testing.T) {
 			Price:        21.3,
 			GuestPrice:   11.6,
 			HasGuestList: false,
+			IsVisible:    true,
 			TicketSales: []model.Ticket{{
 				Model:      model.Model{ID: uuid.MustParse("8bc2da87-88ea-4fcf-a69f-22a360b2606a")},
 				FormalID:   uuid.MustParse("215292b8-4911-4d93-81dd-ebafb1aa6489"),
@@ -113,6 +116,7 @@ func TestGetFormals(t *testing.T) {
 			Price:        15.6,
 			GuestPrice:   27.2,
 			HasGuestList: true,
+			IsVisible:    true,
 			Groups: []model.Group{
 				{
 					Model: model.Model{ID: uuid.MustParse("ce22bfb1-b932-4073-a6a9-01e4787deecb")},
@@ -141,7 +145,7 @@ func TestGetFormals(t *testing.T) {
 }
 
 func TestGetFormalGuestList(t *testing.T) {
-	// TODO: what about when formal has no guest list?
+	// TODO: what about when formal has no guest list or is not visible?
 	expectedJSON := `[
 		{
 			"name": "Test 1",
@@ -186,6 +190,7 @@ func TestGetFormalGuestList(t *testing.T) {
 	f.On("Find", id).Return(model.Formal{
 		Model:        model.Model{ID: id},
 		HasGuestList: true,
+		IsVisible:    true,
 	}, nil)
 	f.On("FindGuestList", id).Return(guests, nil)
 	// Run test
