@@ -80,7 +80,7 @@ func (r *DBRoleStore) FindPermission(id uuid.UUID) (model.Permission, error) {
 
 // Create permission
 //
-// FIXME: should this be in its own store?
+// HACK: should this be in its own store?
 func (r *DBRoleStore) CreatePermission(permission *model.Permission) error {
 	err := r.db.Create(permission).Error
 	return err

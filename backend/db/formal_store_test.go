@@ -114,6 +114,24 @@ func (s *FormalSuite) TestFindFormal() {
 		Model: model.Model{
 			ID: uuid.New(),
 		},
+		Name: "Test",
+	}
+	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name"}).
+				AddRow(formal.ID, formal.Name),
+		)
+	f, err := s.store.Find(formal.ID)
+	s.Require().NoError(err)
+	s.Equal(formal, f)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *FormalSuite) TestFindFormalWithGroups() {
+	formal := model.Formal{
+		Model: model.Model{
+			ID: uuid.New(),
+		},
 		Name:   "Test",
 		Groups: []model.Group{},
 	}
@@ -127,7 +145,7 @@ func (s *FormalSuite) TestFindFormal() {
 		WillReturnRows(
 			sqlmock.NewRows([]string{"group_id"}),
 		)
-	f, err := s.store.Find(formal.ID)
+	f, err := s.store.FindWithGroups(formal.ID)
 	s.Require().NoError(err)
 	s.Equal(formal, f)
 	s.NoError(s.mock.ExpectationsWereMet())

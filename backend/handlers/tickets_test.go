@@ -338,7 +338,7 @@ func (t *TicketSuite) TestBuyTicket() {
 			rec := httptest.NewRecorder()
 			c := t.e.NewContext(req, rec)
 			// Mock
-			t.formals.On("Find", test.formal.ID).Return(test.formal, nil).Once()
+			t.formals.On("FindWithGroups", test.formal.ID).Return(test.formal, nil).Once()
 			t.users.On("Groups", t.mockUser).Return(userGroups, nil)
 			t.tickets.On(
 				"ExistsByFormal", test.formal.ID, userId,

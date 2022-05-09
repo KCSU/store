@@ -9,7 +9,7 @@ type Role struct {
 	Users       []User       `json:"-" gorm:"many2many:user_roles;"`
 }
 
-// FIXME: should this be registered as an official join table?
+// HACK: should this be registered as an official join table?
 type UserRole struct {
 	UserID uuid.UUID
 	User   User

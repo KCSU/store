@@ -75,7 +75,7 @@ func (h *Handler) BuyTicket(c echo.Context) error {
 		return err
 	}
 
-	formal, err := h.Formals.Find(t.FormalId)
+	formal, err := h.Formals.FindWithGroups(t.FormalId)
 	if err != nil {
 		// Check whether error is formal existence?
 		return err

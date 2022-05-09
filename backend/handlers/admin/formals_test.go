@@ -479,6 +479,7 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 			c.SetParamValues(test.formal.ID.String())
 			// Mock
 			if test.wants == nil {
+				s.formals.On("Find", test.formal.ID).Once().Return(model.Formal{}, nil)
 				s.formals.On("Update", &test.formal).Return(nil).Once()
 			}
 
@@ -650,7 +651,7 @@ func (s *AdminFormalSuite) TestUpdateFormalGroups() {
 			c.SetParamNames("id")
 			c.SetParamValues(test.formal.ID.String())
 
-			s.formals.On("Find", test.formal.ID).Return(test.formal, nil).Once()
+			s.formals.On("FindWithGroups", test.formal.ID).Return(test.formal, nil).Once()
 			s.formals.On("GetGroups", test.ids).Return(test.groups, nil).Once()
 			// Mock
 			if test.wants == nil {

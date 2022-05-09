@@ -46,7 +46,6 @@ func (h *Handler) GetFormalGuestList(c echo.Context) error {
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	// FIXME: this query preloads groups
 	formal, err := h.Formals.Find(formalId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

@@ -111,6 +111,27 @@ func (_m *FormalStore) FindGuestList(id uuid.UUID) ([]model.FormalGuest, error) 
 	return r0, r1
 }
 
+// FindWithGroups provides a mock function with given fields: id
+func (_m *FormalStore) FindWithGroups(id uuid.UUID) (model.Formal, error) {
+	ret := _m.Called(id)
+
+	var r0 model.Formal
+	if rf, ok := ret.Get(0).(func(uuid.UUID) model.Formal); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(model.Formal)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FindWithTickets provides a mock function with given fields: id
 func (_m *FormalStore) FindWithTickets(id uuid.UUID) (model.Formal, error) {
 	ret := _m.Called(id)

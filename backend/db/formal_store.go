@@ -18,6 +18,8 @@ type FormalStore interface {
 	All() ([]model.Formal, error)
 	// Get a formal by id
 	Find(id uuid.UUID) (model.Formal, error)
+	// Get a formal by id with groups
+	FindWithGroups(id uuid.UUID) (model.Formal, error)
 	// Get a formal by id with tickets
 	FindWithTickets(id uuid.UUID) (model.Formal, error)
 	// Get the guest list for a formal
@@ -77,6 +79,13 @@ func (f *DBFormalStore) All() ([]model.Formal, error) {
 // Get a formal by id
 func (f *DBFormalStore) Find(id uuid.UUID) (model.Formal, error) {
 	var formal model.Formal
+	err := f.db.First(&formal, id).Error
+	return formal, err
+}
+
+// Get a formal by id with groups
+func (f *DBFormalStore) FindWithGroups(id uuid.UUID) (model.Formal, error) {
+	var formal model.Formal
 	err := f.db.Preload("Groups").First(&formal, id).Error
 	return formal, err
 }
@@ -124,6 +133,7 @@ func (f *DBFormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uin
 }
 
 // Find all groups with specified ids
+// FIXME: this should be in group store!
 func (f *DBFormalStore) GetGroups(ids []uuid.UUID) ([]model.Group, error) {
 	if len(ids) == 0 {
 		return []model.Group{}, nil

@@ -127,7 +127,14 @@ func (ah *AdminHandler) UpdateFormal(c echo.Context) error {
 	if err := c.Validate(f); err != nil {
 		return err
 	}
-	// FIXME: CHECK THE FORMAL EXISTS
+
+	// Check the formal exists
+	if _, err := ah.Formals.Find(formalID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
 	formal := f.Formal()
 	formal.ID = formalID
 	if err := ah.Formals.Update(&formal); err != nil {
@@ -176,7 +183,7 @@ func (ah *AdminHandler) UpdateFormalGroups(c echo.Context) error {
 	if err := c.Bind(&ids); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	formal, err := ah.Formals.Find(formalID)
+	formal, err := ah.Formals.FindWithGroups(formalID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
