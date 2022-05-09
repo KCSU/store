@@ -22,7 +22,7 @@ export function useProcessedTickets(tickets: FormalTicket[]): Tickets {
       // Is the ticket overall in queue?
       if (ticket.ticket.isQueue && !isFormalClosed) {
         result.queue.push(ticket);
-      } else {
+      } else if (!ticket.ticket.isQueue) {
         // Find non-queue guest tickets
         let nonQueue: Ticket[] = [];
         for (let guest of ticket.guestTickets) {

@@ -34,6 +34,37 @@ func GetSuccesses(tickets []model.Ticket, maxTickets int) []uuid.UUID {
 	return successes
 }
 
+func GetGuestSuccesses(tickets []model.Ticket, maxTickets int) []uuid.UUID {
+	guestAttempts := make(map[uuid.UUID][]model.Ticket, len(tickets))
+	for _, guestTicket := range tickets {
+		guestAttempts[guestTicket.UserID] = append(guestAttempts[guestTicket.UserID], guestTicket)
+	}
+	userIds := make([]uuid.UUID, 0, len(guestAttempts))
+	for userId := range guestAttempts {
+		userIds = append(userIds, userId)
+	}
+	// Shuffle the list
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(userIds), func(i, j int) {
+		userIds[i], userIds[j] = userIds[j], userIds[i]
+	})
+	// Get the IDs of tickets which have been successfully bought
+	successes := make([]uuid.UUID, 0, maxTickets)
+	for _, userId := range userIds {
+		attempts := guestAttempts[userId]
+		ticketSuccess := min(maxTickets, len(attempts))
+		attempts = attempts[0:ticketSuccess]
+		for _, t := range attempts {
+			successes = append(successes, t.ID)
+		}
+		maxTickets -= ticketSuccess
+		if maxTickets == 0 {
+			break
+		}
+	}
+	return successes
+}
+
 func UpdateSuccesses(tickets []uuid.UUID, d *gorm.DB) error {
 	// Change these tickets from queue tickets to successful purchases
 	return d.Model(&model.Ticket{}).Where("id IN ?", tickets).Update("is_queue", false).Error
@@ -86,13 +117,12 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 			return err
 		}
 
-		// TODO: make this fair to people who only want one!
 		guestTickets, err := GetGuestQueueByUsers(&formal, successfulUsers, d)
 		if err != nil {
 			return err
 		}
 
-		guestSuccesses := GetSuccesses(guestTickets, int(guestTicketsRemaining))
+		guestSuccesses := GetGuestSuccesses(guestTickets, int(guestTicketsRemaining))
 		if err := UpdateSuccesses(guestSuccesses, d); err != nil {
 			return err
 		}

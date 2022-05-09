@@ -4,6 +4,8 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Heading,
@@ -131,6 +133,12 @@ function TicketsContent({ data }: TicketsContentProps) {
           <ModalHeader>Previous Bills</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
+            {bills.length === 0 && (
+              <Alert status="info">
+                <AlertIcon />
+                No previous bills found.
+              </Alert>
+            )}
             <Accordion allowMultiple mb={5}>
               {bills.map(({ bill, tickets }) => (
                 <AccordionItem key={bill.id}>
