@@ -24,6 +24,8 @@ interface FormalProps {
 function FormalStatusTag({ formal }: FormalProps) {
   if (!formal.isVisible) {
     return <Badge colorScheme="orange">Draft</Badge>;
+  } else if (formal.billId) {
+    return <Badge colorScheme="blue">Billed</Badge>;
   } else if (formal.saleEnd < new Date()) {
     return <Badge>Closed</Badge>;
   } else if (formal.saleStart > new Date()) {

@@ -74,6 +74,7 @@ func (s *TicketSuite) TestGetByUserId() {
 			sqlmock.NewRows([]string{"id", "name", "tickets"}).
 				AddRow(formal.ID, formal.Name, formal.Tickets),
 		)
+	// TODO: Test getting bill?
 	t, err := s.store.Get(userId)
 	s.NoError(err)
 	s.Equal([]model.Ticket{ticket}, t)

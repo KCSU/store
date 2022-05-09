@@ -50,7 +50,10 @@ func NewTicketStore(db *gorm.DB) TicketStore {
 func (t *DBTicketStore) Get(userId uuid.UUID) ([]model.Ticket, error) {
 	var tickets []model.Ticket
 	// XXX: does this need an order by?
-	err := t.db.Preload("Formal").Where("user_id = ?", userId).Find(&tickets).Error
+	err := t.db.Preload("Formal").
+		Preload("Formal.Bill").
+		Where("user_id = ?", userId).
+		Find(&tickets).Error
 	return tickets, err
 }
 

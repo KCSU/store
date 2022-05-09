@@ -21,6 +21,7 @@ type Formal struct {
 	HasGuestList  bool           `json:"hasGuestList"`
 	IsVisible     bool           `json:"isVisible"`
 	BillID        *uuid.UUID     `json:"billId,omitempty"`
+	Bill          *Bill          `json:"bill,omitempty"`
 	TicketSales   []Ticket       `json:"-"`
 	ManualTickets []ManualTicket `json:"-"`
 	Groups        []Group        `json:"groups,omitempty" gorm:"many2many:formal_groups;"`

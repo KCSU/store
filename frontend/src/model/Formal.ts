@@ -1,4 +1,5 @@
 import React from "react";
+import { BillDto } from "../helpers/parseBill";
 import { Group } from "./Group";
 import { ManualTicket } from "./ManualTicket";
 import { AdminTicket, Ticket } from "./Ticket";
@@ -24,6 +25,7 @@ export interface Formal {
     // hidden?
     myTickets?: Ticket[];
     billId?: string;
+    bill?: BillDto;
     groups?: Group[];
     ticketSales?: AdminTicket[];
     manualTickets?: ManualTicket[];

@@ -14,8 +14,6 @@ import (
 )
 
 // TODO: implement 404 checks everywhere they are needed
-// TODO: Formal sale start/end times
-// TODO: GUEST LIMIT
 
 // Get a list of the user's tickets, grouped by formal
 func (h *Handler) GetTickets(c echo.Context) error {
