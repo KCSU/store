@@ -62,6 +62,19 @@ func (s *FormalSuite) TestGetFormals() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestGetActiveFormals() {
+	id := uuid.New()
+	s.mock.ExpectQuery(`SELECT \* FROM "formals" WHERE sale_start < NOW\(\) AND sale_end > NOW\(\)`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id"}).AddRow(id),
+		)
+	fs, err := s.store.GetActive()
+	s.Require().NoError(err)
+	s.Len(fs, 1)
+	s.EqualValues(id, fs[0].ID)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *FormalSuite) TestGetFormalsWithUserData() {
 	fid := uuid.New()
 	gid := uuid.New()

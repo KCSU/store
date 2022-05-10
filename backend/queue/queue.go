@@ -91,8 +91,7 @@ func GetSuccessfulUserIDs(formal *model.Formal, d *gorm.DB) ([]uuid.UUID, error)
 
 func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 	// Query formals
-	// TODO: only get those whose sales have started
-	formals, err := f.Get()
+	formals, err := f.GetActive()
 	if err != nil {
 		return err
 	}

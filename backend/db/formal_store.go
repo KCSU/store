@@ -12,6 +12,8 @@ import (
 type FormalStore interface {
 	// Retrieve all upcoming formals
 	Get() ([]model.Formal, error)
+	// Retrieve all upcoming formals whose sales have started
+	GetActive() ([]model.Formal, error)
 	// Retrieve all upcoming visible formals with groups
 	GetWithUserData(userId uuid.UUID) ([]model.Formal, error)
 	// Retrieve all formals
@@ -54,6 +56,16 @@ func NewFormalStore(db *gorm.DB) FormalStore {
 func (f *DBFormalStore) Get() ([]model.Formal, error) {
 	var data []model.Formal
 	err := f.db.Where("date_time > NOW()").Order("date_time").Find(&data).Error
+	return data, err
+}
+
+// Retrieve all upcoming formals whose sales have started
+func (f *DBFormalStore) GetActive() ([]model.Formal, error) {
+	var data []model.Formal
+	err := f.db.Where("sale_start < NOW()").
+		Where("sale_end > NOW()").
+		Order("date_time").
+		Find(&data).Error
 	return data, err
 }
 
