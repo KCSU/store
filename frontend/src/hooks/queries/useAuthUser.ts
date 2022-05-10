@@ -1,9 +1,12 @@
 import axios from "axios";
+import dayjs from "dayjs";
 import { useQuery } from "react-query";
 import { api } from "../../config/api";
 import { User } from "../../model/User";
+import { useLoginStatus } from "../state/useLoginStatus";
 
 export function useAuthUser() {
+    const [lastLogin, setLastLogin] = useLoginStatus();
     return useQuery<User | undefined>('authUser', async () => {
         try {
             const r = await api.get<User>("oauth/user");
@@ -15,7 +18,15 @@ export function useAuthUser() {
             throw err;
         }
     }, {
-        staleTime: Infinity
         // this should be manually invalidated in certain cases
+        staleTime: Infinity,
+        onSuccess(u) {
+            if (u === undefined) {
+                return;
+            }
+            if (!lastLogin || lastLogin < dayjs().subtract(1, "day").toDate()) {
+                setLastLogin(new Date());
+            }
+        }
     })
 }
