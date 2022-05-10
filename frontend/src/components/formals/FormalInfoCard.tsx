@@ -196,7 +196,8 @@ export const FormalInfoCard = forwardRef<FormalProps, "div">(
   ({ formal }, ref) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const datetime = useDateTime(formal.dateTime);
-    const { isInGroup, isSaleEnded, hasTicket } = useTicketPermissions(formal);
+    const saleStart = useDateTime(formal.saleStart);
+    const { isInGroup, isSaleEnded, isSaleStarted, hasTicket } = useTicketPermissions(formal);
     const tid = useMemo(
       () => formal.myTickets?.find((t) => !t.isGuest)?.id ?? "",
       [formal]
@@ -208,6 +209,7 @@ export const FormalInfoCard = forwardRef<FormalProps, "div">(
           <FormalStatusTag formal={formal} />
         </HStack>
         <Text as="b">{datetime}</Text>
+        {(isSaleStarted && !isSaleEnded) && <Text fontSize="sm">Tickets on sale from {saleStart}</Text>}
         <Divider my={2} />
         <FormalStats formal={formal} />
         {/* <Divider my={2} /> */}

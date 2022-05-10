@@ -67,12 +67,13 @@ interface FormalCardProps {
 function FormalCard({ formal }: FormalCardProps) {
   // Formal Data
   const datetime = useDateTime(formal.dateTime);
+  const saleStart = useDateTime(formal.saleStart);
   const prefix = formal.guestLimit > 0 ? "King's " : "";
   const mutation = useBuyTicket();
   const navigate = useNavigate();
   // State management
   const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
-  const { hasTicket, canBuy } = useTicketPermissions(formal);
+  const { hasTicket, canBuy, isSaleEnded, isSaleStarted } = useTicketPermissions(formal);
   const ft = useMemo(
     () => formal.myTickets?.find((t) => !t.isGuest)?.id ?? "",
     [formal]
@@ -91,6 +92,7 @@ function FormalCard({ formal }: FormalCardProps) {
           )}
         </Flex>
         <Text fontWeight="bold">{datetime}</Text>
+        {(isSaleStarted && !isSaleEnded) && <Text fontSize="sm">Tickets on sale from {saleStart}</Text>}
         <Text mt={1} mb={4}>
           Available to {formal.groups?.map((g) => g.name).join(", ")}
         </Text>

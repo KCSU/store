@@ -6,6 +6,7 @@ import { UserContext } from "../../model/User";
 export interface TicketPermissions {
     canBuy: boolean;
     isSaleEnded: boolean;
+    isSaleStarted: boolean;
     isInGroup: boolean;
     hasTicket: boolean;
 }
@@ -17,11 +18,13 @@ export function useTicketPermissions(formal: Formal): TicketPermissions {
             return {
                 canBuy: false,
                 isSaleEnded: false,
+                isSaleStarted: false,
                 isInGroup: false,
                 hasTicket: false
             };
         }
         const isSaleEnded = !dayjs(formal.saleEnd).isAfter(Date.now());
+        const isSaleStarted = dayjs(formal.saleStart).isAfter(Date.now());
         // TODO: always get groups!!
         const isInGroup = formal.groups?.some(
             g => user.groups.some(h => h.id === g.id)
@@ -30,6 +33,7 @@ export function useTicketPermissions(formal: Formal): TicketPermissions {
         return {
             canBuy: isInGroup && !isSaleEnded && !hasTicket,
             isSaleEnded,
+            isSaleStarted,
             isInGroup,
             hasTicket
         }
