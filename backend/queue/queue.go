@@ -97,15 +97,22 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 	}
 
 	for _, formal := range formals {
-		ticketsRemaining := f.TicketsRemaining(&formal, false)
-		guestTicketsRemaining := f.TicketsRemaining(&formal, true)
+		ticketsAvailable := f.TicketsRemaining(&formal, false)
+		guestTicketsAvailable := f.TicketsRemaining(&formal, true)
+
+		if time.Now().Before(formal.SecondSaleStart) {
+			// Second sale hasn't started yet
+			ticketsAvailable -= formal.SecondSaleTickets
+			guestTicketsAvailable -= formal.SecondSaleGuestTickets
+		}
+
 		// Get all queued tickets
 		tickets, err := GetNonGuestQueue(&formal, d)
 		if err != nil {
 			return err
 		}
 
-		successes := GetSuccesses(tickets, int(ticketsRemaining))
+		successes := GetSuccesses(tickets, int(ticketsAvailable))
 		if err := UpdateSuccesses(successes, d); err != nil {
 			return err
 		}
@@ -121,7 +128,7 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 			return err
 		}
 
-		guestSuccesses := GetGuestSuccesses(guestTickets, int(guestTicketsRemaining))
+		guestSuccesses := GetGuestSuccesses(guestTickets, int(guestTicketsAvailable))
 		if err := UpdateSuccesses(guestSuccesses, d); err != nil {
 			return err
 		}

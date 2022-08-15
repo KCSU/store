@@ -50,8 +50,8 @@ func (s *TicketSuite) TearDownTest() {
 
 func (s *TicketSuite) TestGetByUserId() {
 	formal := model.Formal{
-		Name:    "Test Formal",
-		Tickets: 55,
+		Name:             "Test Formal",
+		FirstSaleTickets: 55,
 	}
 	formal.ID = uuid.New()
 	ticket := model.Ticket{
@@ -71,8 +71,8 @@ func (s *TicketSuite) TestGetByUserId() {
 	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
 		WithArgs(formal.ID).
 		WillReturnRows(
-			sqlmock.NewRows([]string{"id", "name", "tickets"}).
-				AddRow(formal.ID, formal.Name, formal.Tickets),
+			sqlmock.NewRows([]string{"id", "name", "first_sale_tickets"}).
+				AddRow(formal.ID, formal.Name, formal.FirstSaleTickets),
 		)
 	// TODO: Test getting bill?
 	t, err := s.store.Get(userId)

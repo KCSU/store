@@ -25,7 +25,7 @@ type Config struct {
 // Load configuration from environment variables or
 // a .env file
 func Init() *Config {
-	godotenv.Load() // Handle err?
+	_ = godotenv.Load() // TODO: Handle err (log no .env file)?
 	c := &Config{}
 	if err := envconfig.Process("", c); err != nil {
 		log.Panic(err) // TODO: use JSON log?

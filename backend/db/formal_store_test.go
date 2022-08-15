@@ -64,7 +64,7 @@ func (s *FormalSuite) TestGetFormals() {
 
 func (s *FormalSuite) TestGetActiveFormals() {
 	id := uuid.New()
-	s.mock.ExpectQuery(`SELECT \* FROM "formals" WHERE sale_start < NOW\(\) AND sale_end > NOW\(\)`).
+	s.mock.ExpectQuery(`SELECT \* FROM "formals" WHERE first_sale_start < NOW\(\) AND sale_end > NOW\(\)`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id"}).AddRow(id),
 		)
@@ -260,21 +260,23 @@ func (s *FormalSuite) TestFindGuestList() {
 func (s *FormalSuite) TestTicketsRemaining() {
 	f := model.Formal{}
 	f.ID = uuid.New()
-	f.Tickets = 23
-	f.GuestTickets = 27
+	f.FirstSaleTickets = 11
+	f.SecondSaleTickets = 12
+	f.FirstSaleGuestTickets = 24
+	f.SecondSaleGuestTickets = 3
 	mockCount := 10
 	s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"count(*)"}).AddRow(mockCount),
 		)
 	tr := s.store.TicketsRemaining(&f, false)
-	s.Equal(f.Tickets-uint(mockCount), tr)
+	s.Equal(f.FirstSaleTickets+f.SecondSaleTickets-uint(mockCount), tr)
 	s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"count(*)"}).AddRow(mockCount),
 		)
 	tr = s.store.TicketsRemaining(&f, true)
-	s.Equal(f.GuestTickets-uint(mockCount), tr)
+	s.Equal(f.FirstSaleGuestTickets+f.SecondSaleGuestTickets-uint(mockCount), tr)
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
@@ -325,25 +327,29 @@ func (s *FormalSuite) TestUpdateFormal() {
 		Model: model.Model{
 			ID: uuid.New(),
 		},
-		Name:         "Test",
-		Menu:         "A Menu",
-		Price:        13,
-		GuestPrice:   0,
-		GuestLimit:   0,
-		Tickets:      150,
-		GuestTickets: 50,
-		SaleStart:    time.Date(2021, 5, 6, 10, 0, 0, 0, time.UTC),
-		SaleEnd:      time.Date(2021, 5, 7, 11, 0, 0, 0, time.UTC),
-		DateTime:     time.Date(2021, 6, 1, 17, 0, 0, 0, time.UTC),
-		HasGuestList: true,
-		IsVisible:    true,
+		Name:                   "Test",
+		Menu:                   "A Menu",
+		Price:                  13,
+		GuestPrice:             0,
+		GuestLimit:             0,
+		FirstSaleTickets:       150,
+		SecondSaleTickets:      10,
+		FirstSaleGuestTickets:  50,
+		SecondSaleGuestTickets: 30,
+		FirstSaleStart:         time.Date(2021, 5, 6, 10, 0, 0, 0, time.UTC),
+		SecondSaleStart:        time.Date(2021, 5, 7, 10, 0, 0, 0, time.UTC),
+		SaleEnd:                time.Date(2021, 5, 7, 11, 0, 0, 0, time.UTC),
+		DateTime:               time.Date(2021, 6, 1, 17, 0, 0, 0, time.UTC),
+		HasGuestList:           true,
+		IsVisible:              true,
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "formals"`).WithArgs(
 		sqlmock.AnyArg(), nil,
 		f.Name, f.Menu, f.Price,
-		f.GuestPrice, f.GuestLimit, f.Tickets, f.GuestTickets,
-		f.SaleStart, f.SaleEnd, f.DateTime, f.HasGuestList, f.IsVisible, nil, f.ID,
+		f.GuestPrice, f.GuestLimit, f.FirstSaleTickets, f.FirstSaleGuestTickets, f.FirstSaleStart,
+		f.SecondSaleTickets, f.SecondSaleGuestTickets, f.SecondSaleStart,
+		f.SaleEnd, f.DateTime, f.HasGuestList, f.IsVisible, nil, f.ID,
 	).WillReturnResult(
 		sqlmock.NewResult(0, 1),
 	)
@@ -358,16 +364,16 @@ func (s *FormalSuite) TestDeleteFormal() {
 		Model: model.Model{
 			ID: uuid.New(),
 		},
-		Name:         "Test",
-		Menu:         "A Menu",
-		Price:        13,
-		GuestPrice:   0,
-		GuestLimit:   0,
-		Tickets:      150,
-		GuestTickets: 50,
-		SaleStart:    time.Date(2021, 5, 6, 10, 0, 0, 0, time.UTC),
-		SaleEnd:      time.Date(2021, 5, 7, 11, 0, 0, 0, time.UTC),
-		DateTime:     time.Date(2021, 6, 1, 17, 0, 0, 0, time.UTC),
+		Name:                  "Test",
+		Menu:                  "A Menu",
+		Price:                 13,
+		GuestPrice:            0,
+		GuestLimit:            0,
+		FirstSaleTickets:      150,
+		FirstSaleGuestTickets: 50,
+		FirstSaleStart:        time.Date(2021, 5, 6, 10, 0, 0, 0, time.UTC),
+		SaleEnd:               time.Date(2021, 5, 7, 11, 0, 0, 0, time.UTC),
+		DateTime:              time.Date(2021, 6, 1, 17, 0, 0, 0, time.UTC),
 	}
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "formals" SET "deleted_at"`).WithArgs(

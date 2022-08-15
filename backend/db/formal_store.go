@@ -62,7 +62,7 @@ func (f *DBFormalStore) Get() ([]model.Formal, error) {
 // Retrieve all upcoming formals whose sales have started
 func (f *DBFormalStore) GetActive() ([]model.Formal, error) {
 	var data []model.Formal
-	err := f.db.Where("sale_start < NOW()").
+	err := f.db.Where("first_sale_start < NOW()").
 		Where("sale_end > NOW()").
 		Order("date_time").
 		Find(&data).Error
@@ -132,10 +132,10 @@ func (f *DBFormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uin
 	var query string
 	var baseTickets uint
 	if isGuest {
-		baseTickets = formal.GuestTickets
+		baseTickets = formal.FirstSaleGuestTickets + formal.SecondSaleGuestTickets
 		query = "is_guest AND NOT is_queue"
 	} else {
-		baseTickets = formal.Tickets
+		baseTickets = formal.FirstSaleTickets + formal.SecondSaleTickets
 		query = "NOT is_guest AND NOT is_queue"
 	}
 
