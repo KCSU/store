@@ -277,6 +277,7 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 				"firstSaleTickets": 50,
 				"firstSaleGuestTickets": 20,
 				"firstSaleStart": "2022-02-10T11:30:00Z",
+				"secondSaleStart": "2022-02-10T11:30:00Z",
 				"saleEnd": "2022-03-01T17:45:00Z",
 				"dateTime": "2022-03-05T20:30:00Z",
 				"hasGuestList": true,

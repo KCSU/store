@@ -18,6 +18,7 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
+import dayjs from "dayjs";
 import { Formik, Form, Field, FieldProps } from "formik";
 import { useContext } from "react";
 import { FaSave } from "react-icons/fa";
@@ -72,54 +73,6 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
               )}
             </Field>
             <SimpleGrid columns={[1, null, 2]} alignSelf="stretch" gap={3}>
-              <Field name="tickets">
-                {({ field, form }: FieldProps) => (
-                  <FormControl
-                    isDisabled={isDisabled}
-                    isInvalid={!!(form.errors.tickets && form.touched.tickets)}
-                  >
-                    <FormLabel htmlFor="tickets">King's Tickets</FormLabel>
-                    <NumberInput
-                      {...field}
-                      id="tickets"
-                      onChange={(_, val) => form.setFieldValue(field.name, val)}
-                    >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                    <FormErrorMessage>{form.errors.tickets}</FormErrorMessage>
-                  </FormControl>
-                )}
-              </Field>
-              <Field name="guestTickets">
-                {({ field, form }: FieldProps) => (
-                  <FormControl
-                    isDisabled={isDisabled}
-                    isInvalid={
-                      !!(form.errors.guestTickets && form.touched.guestTickets)
-                    }
-                  >
-                    <FormLabel htmlFor="guestTickets">Guest Tickets</FormLabel>
-                    <NumberInput
-                      {...field}
-                      id="guestTickets"
-                      onChange={(_, val) => form.setFieldValue(field.name, val)}
-                    >
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                    <FormErrorMessage>
-                      {form.errors.guestTickets}
-                    </FormErrorMessage>
-                  </FormControl>
-                )}
-              </Field>
               <Field name="price">
                 {({ field, form }: FieldProps) => (
                   <FormControl
@@ -232,57 +185,253 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                   </FormControl>
                 )}
               </Field>
-              <Field name="saleStart">
+              <Field name="firstSaleTickets">
                 {({ field, form }: FieldProps) => (
                   <FormControl
                     isDisabled={isDisabled}
                     isInvalid={
-                      !!(form.errors.saleStart && form.touched.saleStart)
+                      !!(
+                        form.errors.firstSaleTickets &&
+                        form.touched.firstSaleTickets
+                      )
                     }
                   >
-                    <FormLabel htmlFor="saleStart">Sale Start Time</FormLabel>
-                    <DatePicker
+                    <FormLabel htmlFor="firstSaleTickets">
+                      King's Tickets (First Sale)
+                    </FormLabel>
+                    <NumberInput
                       {...field}
-                      disabled={isDisabled}
-                      selectedDate={field.value}
-                      id="saleStart"
-                      onChange={(val) => form.setFieldValue(field.name, val)}
-                      showPopperArrow
-                      showTimeSelect
-                      dateFormat="MMMM d, yyyy HH:mm"
-                      timeFormat="HH:mm"
-                    />
-                    <FormErrorMessage>{form.errors.saleStart}</FormErrorMessage>
+                      id="firstSaleTickets"
+                      onChange={(_, val) => form.setFieldValue(field.name, val)}
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                    <FormErrorMessage>
+                      {form.errors.firstSaleTickets}
+                    </FormErrorMessage>
                   </FormControl>
                 )}
               </Field>
-              <Field name="saleEnd">
+              <Field name="firstSaleGuestTickets">
                 {({ field, form }: FieldProps) => (
                   <FormControl
                     isDisabled={isDisabled}
-                    isInvalid={!!(form.errors.saleEnd && form.touched.saleEnd)}
+                    isInvalid={
+                      !!(
+                        form.errors.firstSaleGuestTickets &&
+                        form.touched.firstSaleGuestTickets
+                      )
+                    }
                   >
-                    <FormLabel htmlFor="saleEnd">Sale End Time</FormLabel>
+                    <FormLabel htmlFor="firstSaleGuestTickets">
+                      Guest Tickets (First Sale)
+                    </FormLabel>
+                    <NumberInput
+                      {...field}
+                      id="firstSaleGuestTickets"
+                      onChange={(_, val) => form.setFieldValue(field.name, val)}
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                    <FormErrorMessage>
+                      {form.errors.firstSaleGuestTickets}
+                    </FormErrorMessage>
+                  </FormControl>
+                )}
+              </Field>
+              <Field name="firstSaleStart">
+                {({ field, form }: FieldProps) => (
+                  <FormControl
+                    isDisabled={isDisabled}
+                    isInvalid={
+                      !!(
+                        form.errors.firstSaleStart &&
+                        form.touched.firstSaleStart
+                      )
+                    }
+                  >
+                    <FormLabel htmlFor="firstSaleStart">
+                      Sale Start Time
+                    </FormLabel>
                     <DatePicker
                       {...field}
                       disabled={isDisabled}
                       selectedDate={field.value}
-                      id="saleEnd"
+                      id="firstSaleStart"
                       onChange={(val) => form.setFieldValue(field.name, val)}
                       showPopperArrow
                       showTimeSelect
                       dateFormat="MMMM d, yyyy HH:mm"
                       timeFormat="HH:mm"
                     />
-                    <FormErrorMessage>{form.errors.saleEnd}</FormErrorMessage>
+                    <FormErrorMessage>
+                      {form.errors.firstSaleStart}
+                    </FormErrorMessage>
                   </FormControl>
                 )}
               </Field>
             </SimpleGrid>
+            <FormControl as={Flex} mt={2} alignItems="center">
+              <FormLabel mb={0}>Second Ticket Sale: </FormLabel>
+              <Switch
+                colorScheme="brand"
+                isDisabled={isDisabled}
+                isChecked={
+                  props.values.secondSaleTickets !== 0 ||
+                  props.values.secondSaleGuestTickets !== 0
+                }
+                id="isVisible"
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    props.setFieldValue("secondSaleTickets", 1);
+                    props.setFieldValue("secondSaleGuestTickets", 1);
+                    props.setFieldValue("secondSaleStart", dayjs().startOf("day").toDate());
+                  } else {
+                    props.setFieldValue("secondSaleTickets", 0);
+                    props.setFieldValue("secondSaleGuestTickets", 0);
+                    props.setFieldValue("secondSaleStart", new Date(0));
+                  }
+                }}
+              />
+            </FormControl>
+            {(props.values.secondSaleTickets !== 0 ||
+              props.values.secondSaleGuestTickets !== 0) && (
+              <SimpleGrid columns={[1, null, 2]} alignSelf="stretch" gap={3}>
+                <Field name="secondSaleTickets">
+                  {({ field, form }: FieldProps) => (
+                    <FormControl
+                      isDisabled={isDisabled}
+                      isInvalid={
+                        !!(
+                          form.errors.secondSaleTickets &&
+                          form.touched.secondSaleTickets
+                        )
+                      }
+                    >
+                      <FormLabel htmlFor="secondSaleTickets">
+                        King's Tickets (Second Sale)
+                      </FormLabel>
+                      <NumberInput
+                        {...field}
+                        id="secondSaleTickets"
+                        onChange={(_, val) =>
+                          form.setFieldValue(field.name, val)
+                        }
+                      >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                      <FormErrorMessage>
+                        {form.errors.secondSaleTickets}
+                      </FormErrorMessage>
+                    </FormControl>
+                  )}
+                </Field>
+                <Field name="secondSaleGuestTickets">
+                  {({ field, form }: FieldProps) => (
+                    <FormControl
+                      isDisabled={isDisabled}
+                      isInvalid={
+                        !!(
+                          form.errors.secondSaleGuestTickets &&
+                          form.touched.secondSaleGuestTickets
+                        )
+                      }
+                    >
+                      <FormLabel htmlFor="secondSaleGuestTickets">
+                        Guest Tickets (Second Sale)
+                      </FormLabel>
+                      <NumberInput
+                        {...field}
+                        id="secondSaleGuestTickets"
+                        onChange={(_, val) =>
+                          form.setFieldValue(field.name, val)
+                        }
+                      >
+                        <NumberInputField />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                      <FormErrorMessage>
+                        {form.errors.secondSaleGuestTickets}
+                      </FormErrorMessage>
+                    </FormControl>
+                  )}
+                </Field>
+                <Field name="secondSaleStart">
+                  {({ field, form }: FieldProps) => (
+                    <FormControl
+                      isDisabled={isDisabled}
+                      isInvalid={
+                        !!(
+                          form.errors.secondSaleStart &&
+                          form.touched.secondSaleStart
+                        )
+                      }
+                    >
+                      <FormLabel htmlFor="secondSaleStart">
+                        Second Sale Start Time
+                      </FormLabel>
+                      <DatePicker
+                        {...field}
+                        disabled={isDisabled}
+                        selectedDate={field.value}
+                        id="secondSaleStart"
+                        onChange={(val) => form.setFieldValue(field.name, val)}
+                        showPopperArrow
+                        showTimeSelect
+                        dateFormat="MMMM d, yyyy HH:mm"
+                        timeFormat="HH:mm"
+                      />
+                      <FormErrorMessage>
+                        {form.errors.secondSaleStart}
+                      </FormErrorMessage>
+                    </FormControl>
+                  )}
+                </Field>
+              </SimpleGrid>
+            )}
+            <Field name="saleEnd">
+              {({ field, form }: FieldProps) => (
+                <FormControl
+                  isDisabled={isDisabled}
+                  isInvalid={!!(form.errors.saleEnd && form.touched.saleEnd)}
+                >
+                  <FormLabel htmlFor="saleEnd">Sale End Time</FormLabel>
+                  <DatePicker
+                    {...field}
+                    disabled={isDisabled}
+                    selectedDate={field.value}
+                    id="saleEnd"
+                    onChange={(val) => form.setFieldValue(field.name, val)}
+                    showPopperArrow
+                    showTimeSelect
+                    dateFormat="MMMM d, yyyy HH:mm"
+                    timeFormat="HH:mm"
+                  />
+                  <FormErrorMessage>{form.errors.saleEnd}</FormErrorMessage>
+                </FormControl>
+              )}
+            </Field>
             <Field name="isVisible">
               {({ field, form }: FieldProps) => (
                 <FormControl
-                  isInvalid={!!(form.errors.isVisible && form.touched.isVisible)}
+                  isInvalid={
+                    !!(form.errors.isVisible && form.touched.isVisible)
+                  }
                   as={Flex}
                   mt={2}
                   alignItems="center"
@@ -292,7 +441,9 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                     colorScheme="brand"
                     isChecked={field.value}
                     id="isVisible"
-                    onChange={e => form.setFieldValue(field.name, e.target.checked)}
+                    onChange={(e) =>
+                      form.setFieldValue(field.name, e.target.checked)
+                    }
                   />
                 </FormControl>
               )}
@@ -300,7 +451,9 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
             <Field name="hasGuestList">
               {({ field, form }: FieldProps) => (
                 <FormControl
-                  isInvalid={!!(form.errors.hasGuestList && form.touched.hasGuestList)}
+                  isInvalid={
+                    !!(form.errors.hasGuestList && form.touched.hasGuestList)
+                  }
                   as={Flex}
                   mt={2}
                   alignItems="center"
@@ -310,7 +463,9 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                     colorScheme="brand"
                     isChecked={field.value}
                     id="hasGuestList"
-                    onChange={e => form.setFieldValue(field.name, e.target.checked)}
+                    onChange={(e) =>
+                      form.setFieldValue(field.name, e.target.checked)
+                    }
                   />
                 </FormControl>
               )}

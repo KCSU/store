@@ -22,121 +22,127 @@ import { AdminBillsListView } from "./views/admin/AdminBillsListView";
 import { AdminEditBillView } from "./views/admin/AdminEditBillView";
 import { AdminCreateBillView } from "./views/admin/AdminCreateBillView";
 import { AccessLogView } from "./views/AccessLogView";
+import { ErrorBoundary } from "./ErrorBoundary";
 
-const MotionBox = motionComponent<BoxProps, 'div'>(Box);
+const MotionBox = motionComponent<BoxProps, "div">(Box);
 
 export function Routes() {
   const adminRoutes = [
     {
       path: "/admin/formals",
-      element: <AdminFormalListView/>,
+      element: <AdminFormalListView />,
       resource: "formals",
-      action: "read"
+      action: "read",
     },
     {
       path: "/admin/formals/create",
-      element: <AdminCreateFormalView/>,
+      element: <AdminCreateFormalView />,
       resource: "formals",
-      action: "write"
+      action: "write",
     },
     {
       path: "/admin/formals/:formalId",
-      element: <AdminEditFormalView/>,
+      element: <AdminEditFormalView />,
       resource: "formals",
-      action: "read"
+      action: "read",
     },
     {
       path: "/admin/groups",
-      element: <AdminGroupListView/>,
+      element: <AdminGroupListView />,
       resource: "groups",
-      action: "read" // Should this be "write"?
+      action: "read", // Should this be "write"?
     },
     {
       path: "/admin/groups/create",
-      element: <AdminCreateGroupView/>,
+      element: <AdminCreateGroupView />,
       resource: "groups",
-      action: "write"
+      action: "write",
     },
     {
       path: "/admin/groups/:groupId",
-      element: <AdminEditGroupView/>,
+      element: <AdminEditGroupView />,
       resource: "groups",
-      action: "read"
+      action: "read",
     },
     {
       path: "/admin/roles",
-      element: <AdminPermissionsView/>,
+      element: <AdminPermissionsView />,
       resource: "roles",
-      action: "read"
+      action: "read",
     },
     {
       path: "/admin/roles/:id",
-      element: <AdminEditRoleView/>,
+      element: <AdminEditRoleView />,
       resource: "roles",
-      action: "read"
+      action: "read",
     },
     {
       path: "/admin/bills",
-      element: <AdminBillsListView/>,
+      element: <AdminBillsListView />,
       resource: "billing",
-      action: "read"
+      action: "read",
     },
     {
       path: "/admin/bills/:id",
-      element: <AdminEditBillView/>,
+      element: <AdminEditBillView />,
       resource: "billing",
-      action: "read"
+      action: "read",
     },
     {
       path: "/admin/bills/create",
-      element: <AdminCreateBillView/>,
+      element: <AdminCreateBillView />,
       resource: "billing",
-      action: "write"
-    }
+      action: "write",
+    },
   ];
   const location = useLocation();
   return (
     <AnimatePresence exitBeforeEnter initial={false}>
-      <MotionBox mr={{md: 4}}
+      <MotionBox
+        mr={{ md: 4 }}
         key={location.pathname}
         initial={{
           opacity: 0,
-          y: 10
+          y: 10,
         }}
         animate={{
           opacity: 1,
-          y: 0
+          y: 0,
         }}
         exit={{
           opacity: 0,
-          y: 10
+          y: 10,
         }}
         transition={{
           duration: 0.15,
-          ease: 'linear'
+          ease: "linear",
         }}
       >
-        <ReactRoutes location={location}>
-          <Route path="/login" element={<LoginView/>} />
-          <Route element={<RequireAuth/>}>
-            <Route path="/" element={<FormalListView />} />
-            <Route path="/settings" element={<SettingsView />} />
-            <Route path="/settings/access" element={<AccessLogView />} />
-            <Route path="/formals/:formalId" element={<FormalView />} />
-            <Route path="/tickets" element={<TicketsView />} />
-            <Route path="/tickets/:id" element={<EditFormalTicketsView />}/>
-            {
-              adminRoutes.map(({path, element, resource, action}) => (
-                <Route key={path} path={path} element={
-                  <RequireAdmin resource={resource} action={action}>
-                    {element}
-                  </RequireAdmin>
-                }/>
-              ))
-            }
-          </Route>
-        </ReactRoutes>
+        <ErrorBoundary>
+          <ReactRoutes location={location}>
+            <Route path="/login" element={<LoginView />} />
+            <Route element={<RequireAuth />}>
+              <Route path="/" element={<FormalListView />} />
+              <Route path="/settings" element={<SettingsView />} />
+              <Route path="/settings/access" element={<AccessLogView />} />
+              <Route path="/formals/:formalId" element={<FormalView />} />
+              <Route path="/tickets" element={<TicketsView />} />
+              <Route path="/tickets/:id" element={<EditFormalTicketsView />} />
+              {adminRoutes.map(({ path, element, resource, action }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <RequireAdmin resource={resource} action={action}>
+                      {element}
+                    </RequireAdmin>
+                  }
+                />
+              ))}
+            </Route>
+          </ReactRoutes>
+        </ErrorBoundary>
       </MotionBox>
     </AnimatePresence>
   );
-};
+}

@@ -18,7 +18,7 @@ type CreateFormalDto struct {
 	FirstSaleStart         time.Time   `json:"firstSaleStart" validate:"required"`
 	SecondSaleTickets      uint        `json:"secondSaleTickets"`
 	SecondSaleGuestTickets uint        `json:"secondSaleGuestTickets"`
-	SecondSaleStart        time.Time   `json:"secondSaleStart"`
+	SecondSaleStart        time.Time   `json:"secondSaleStart" validate:"required"`
 	SaleEnd                time.Time   `json:"saleEnd" validate:"required"`  // TODO: gt SaleStart?
 	DateTime               time.Time   `json:"dateTime" validate:"required"` // TODO: gt SaleEnd?
 	HasGuestList           bool        `json:"hasGuestList"`

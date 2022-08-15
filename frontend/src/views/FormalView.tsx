@@ -106,6 +106,9 @@ function FormalCard({ formal }: FormalCardProps) {
         {!isFirstSaleStarted && !isSaleEnded && (
           <Text fontSize="sm">Tickets on sale from {firstSaleStart}</Text>
         )}
+        {isFirstSaleStarted && !isSecondSaleStarted && !isSaleEnded && (
+          <Text fontSize="sm">More tickets {secondSaleStart}</Text>
+        )}
         <Text mt={1} mb={4}>
           Available to {formal.groups?.map((g) => g.name).join(", ")}
         </Text>
