@@ -25,6 +25,7 @@ import {
   Icon,
   ButtonProps,
   Tooltip,
+  VStack,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
@@ -46,7 +47,12 @@ export interface FormalProps {
 function FormalStatusTag({ formal }: FormalProps) {
   if (formal.saleEnd < new Date()) {
     return <Badge>Closed</Badge>;
-  } else if (formal.saleStart > new Date()) {
+  } else if (formal.firstSaleStart > new Date()) {
+    return <Badge colorScheme="teal">Queue Now</Badge>;
+  } else if (
+    formal.secondSaleStart > new Date() &&
+    formal.ticketsRemaining <= formal.secondSaleTickets
+  ) {
     return <Badge colorScheme="teal">Queue Now</Badge>;
   } else if (
     formal.guestTicketsRemaining === 0 &&
@@ -63,6 +69,7 @@ interface TicketStatsProps {
   price: number;
   tickets: number;
   ticketsRemaining: number;
+  hint?: string;
 }
 
 function TicketStats(props: TicketStatsProps) {
@@ -83,6 +90,11 @@ function TicketStats(props: TicketStatsProps) {
         <StatNumber>{props.ticketsRemaining}</StatNumber>
         <StatHelpText>out of {props.tickets}</StatHelpText>
       </Stat>
+      {props.hint && (
+        <Text fontStyle="italic" fontSize="sm" color="gray.300">
+          {props.hint}
+        </Text>
+      )}
     </Box>
   );
 }
@@ -91,23 +103,55 @@ function FormalStats({ formal }: FormalProps) {
   const prefix = formal.guestLimit > 0 ? "King's " : "";
   const noGuestBg = useColorModeValue("gray.100", "gray.600");
   const noGuestFg = useColorModeValue("gray.600", "gray.300");
+  const isBeforeSecondSale = useMemo(
+    () =>
+      formal.firstSaleStart < new Date() && formal.secondSaleStart > new Date(),
+    [formal]
+  );
   return (
     <Flex justifyContent="space-evenly">
-      <TicketStats
-        prefix={prefix}
-        price={formal.price}
-        tickets={formal.tickets}
-        ticketsRemaining={formal.ticketsRemaining}
-      />
+      {isBeforeSecondSale ? (
+          <TicketStats
+            prefix={prefix}
+            price={formal.price}
+            tickets={formal.firstSaleTickets}
+            ticketsRemaining={
+              formal.ticketsRemaining - formal.secondSaleTickets
+            }
+            hint={`${formal.secondSaleTickets} unreleased tickets`}
+          />
+      ) : (
+        <TicketStats
+          prefix={prefix}
+          price={formal.price}
+          tickets={formal.firstSaleTickets + formal.secondSaleTickets}
+          ticketsRemaining={formal.ticketsRemaining}
+        />
+      )}
+
       {formal.guestLimit > 0 ? (
         <>
           <Divider orientation="vertical" mx={2} />
-          <TicketStats
-            prefix="Guest "
-            price={formal.guestPrice}
-            tickets={formal.guestTickets}
-            ticketsRemaining={formal.guestTicketsRemaining}
-          />
+          {isBeforeSecondSale ? (
+              <TicketStats
+                prefix="Guest "
+                price={formal.guestPrice}
+                tickets={formal.firstSaleGuestTickets}
+                ticketsRemaining={
+                  formal.guestTicketsRemaining - formal.secondSaleGuestTickets
+                }
+                hint={`${formal.secondSaleGuestTickets} unreleased tickets`}
+              />
+          ) : (
+            <TicketStats
+              prefix="Guest "
+              price={formal.guestPrice}
+              tickets={
+                formal.firstSaleGuestTickets + formal.secondSaleGuestTickets
+              }
+              ticketsRemaining={formal.guestTicketsRemaining}
+            />
+          )}
         </>
       ) : (
         <Center flex="1" bg={noGuestBg} borderRadius={5} p={4}>
@@ -196,8 +240,10 @@ export const FormalInfoCard = forwardRef<FormalProps, "div">(
   ({ formal }, ref) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const datetime = useDateTime(formal.dateTime);
-    const saleStart = useDateTime(formal.saleStart);
-    const { isInGroup, isSaleEnded, isSaleStarted, hasTicket } = useTicketPermissions(formal);
+    const firstSaleStart = useDateTime(formal.firstSaleStart);
+    const secondSaleStart = useDateTime(formal.secondSaleStart);
+    const { isInGroup, isSaleEnded, isFirstSaleStarted, isSecondSaleStarted, hasTicket } =
+      useTicketPermissions(formal);
     const tid = useMemo(
       () => formal.myTickets?.find((t) => !t.isGuest)?.id ?? "",
       [formal]
@@ -209,7 +255,12 @@ export const FormalInfoCard = forwardRef<FormalProps, "div">(
           <FormalStatusTag formal={formal} />
         </HStack>
         <Text as="b">{datetime}</Text>
-        {(isSaleStarted && !isSaleEnded) && <Text fontSize="sm">Tickets on sale from {saleStart}</Text>}
+        {!isFirstSaleStarted && !isSaleEnded && (
+          <Text fontSize="sm">Tickets on sale from {firstSaleStart}</Text>
+        )}
+        {isFirstSaleStarted && !isSecondSaleStarted && !isSaleEnded && (
+          <Text fontSize="sm">More tickets {secondSaleStart}</Text>
+        )}
         <Divider my={2} />
         <FormalStats formal={formal} />
         {/* <Divider my={2} /> */}
@@ -221,7 +272,9 @@ export const FormalInfoCard = forwardRef<FormalProps, "div">(
             <Tooltip
               shouldWrapChildren
               isDisabled={isInGroup}
-              label={`You are not a member of the group(s) ${formal.groups?.map(g => g.name).join(', ')}`}
+              label={`You are not a member of the group(s) ${formal.groups
+                ?.map((g) => g.name)
+                .join(", ")}`}
               hasArrow
             >
               <BuyTicketButton

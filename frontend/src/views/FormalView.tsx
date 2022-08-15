@@ -32,6 +32,7 @@ interface FormalTicketStatsProps {
   price: number;
   tickets: number;
   ticketsRemaining: number;
+  hint?: string;
 }
 
 const FormalTicketStats: React.FC<FormalTicketStatsProps> = (props) => {
@@ -56,6 +57,11 @@ const FormalTicketStats: React.FC<FormalTicketStatsProps> = (props) => {
         &nbsp;
         {props.children}
       </Text>
+      {props.hint && (
+        <Text fontStyle="italic" fontSize="sm" color="gray.300">
+          {props.hint}
+        </Text>
+      )}
     </WrapItem>
   );
 };
@@ -67,13 +73,20 @@ interface FormalCardProps {
 function FormalCard({ formal }: FormalCardProps) {
   // Formal Data
   const datetime = useDateTime(formal.dateTime);
-  const saleStart = useDateTime(formal.saleStart);
+  const firstSaleStart = useDateTime(formal.firstSaleStart);
+  const secondSaleStart = useDateTime(formal.secondSaleStart);
   const prefix = formal.guestLimit > 0 ? "King's " : "";
   const mutation = useBuyTicket();
   const navigate = useNavigate();
   // State management
   const [queueRequest, dispatchQR] = useQueueRequest(formal.id);
-  const { hasTicket, canBuy, isSaleEnded, isSaleStarted } = useTicketPermissions(formal);
+  const {
+    hasTicket,
+    canBuy,
+    isSaleEnded,
+    isFirstSaleStarted,
+    isSecondSaleStarted,
+  } = useTicketPermissions(formal);
   const ft = useMemo(
     () => formal.myTickets?.find((t) => !t.isGuest)?.id ?? "",
     [formal]
@@ -87,29 +100,53 @@ function FormalCard({ formal }: FormalCardProps) {
           <Heading as="h3" size="lg" mb={1}>
             {formal.name}
           </Heading>
-          {formal.hasGuestList && (
-            <FormalGuestList formal={formal} />
-          )}
+          {formal.hasGuestList && <FormalGuestList formal={formal} />}
         </Flex>
         <Text fontWeight="bold">{datetime}</Text>
-        {(isSaleStarted && !isSaleEnded) && <Text fontSize="sm">Tickets on sale from {saleStart}</Text>}
+        {!isFirstSaleStarted && !isSaleEnded && (
+          <Text fontSize="sm">Tickets on sale from {firstSaleStart}</Text>
+        )}
         <Text mt={1} mb={4}>
           Available to {formal.groups?.map((g) => g.name).join(", ")}
         </Text>
         <VStack alignItems="stretch">
           <Wrap justifyContent="space-between">
-            <FormalTicketStats
-              price={formal.price}
-              tickets={formal.tickets}
-              ticketsRemaining={formal.ticketsRemaining}
-              prefix={prefix}
-            ></FormalTicketStats>
+            {isSecondSaleStarted ? (
+              <FormalTicketStats
+                price={formal.price}
+                tickets={formal.firstSaleTickets + formal.secondSaleTickets}
+                ticketsRemaining={formal.ticketsRemaining}
+                prefix={prefix}
+              ></FormalTicketStats>
+            ) : (
+              <FormalTicketStats
+                price={formal.price}
+                tickets={formal.firstSaleTickets}
+                ticketsRemaining={
+                  formal.ticketsRemaining - formal.secondSaleTickets
+                }
+                prefix={prefix}
+                hint={`${formal.secondSaleTickets} unreleased tickets`}
+              ></FormalTicketStats>
+            )}
+
             {formal.guestLimit > 0 ? (
               <FormalTicketStats
                 price={formal.guestPrice}
-                tickets={formal.guestTickets}
-                ticketsRemaining={formal.guestTicketsRemaining}
+                tickets={
+                  isSecondSaleStarted
+                    ? formal.firstSaleGuestTickets +
+                      formal.secondSaleGuestTickets
+                    : formal.firstSaleGuestTickets
+                }
+                ticketsRemaining={
+                  isSecondSaleStarted
+                    ? formal.guestTicketsRemaining
+                    : formal.guestTicketsRemaining -
+                      formal.secondSaleGuestTickets
+                }
                 prefix="Guest "
+                hint={isSecondSaleStarted ? undefined : `${formal.secondSaleGuestTickets} unreleased tickets`}
               >
                 <br />
                 <Text as="i">

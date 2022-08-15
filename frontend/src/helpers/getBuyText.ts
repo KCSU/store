@@ -1,7 +1,12 @@
 import { Formal } from "../model/Formal";
 
 export function getBuyText(formal: Formal): string {
-  if (formal.saleStart > new Date()) {
+  if (formal.firstSaleStart > new Date()) {
+    return "Join Queue";
+  } else if (
+    formal.secondSaleStart > new Date() &&
+    formal.ticketsRemaining <= formal.secondSaleTickets
+  ) {
     return "Join Queue";
   } else if (
     formal.guestTicketsRemaining === 0 &&

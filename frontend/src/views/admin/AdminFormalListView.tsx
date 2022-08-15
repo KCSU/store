@@ -28,7 +28,7 @@ function FormalStatusTag({ formal }: FormalProps) {
     return <Badge colorScheme="blue">Billed</Badge>;
   } else if (formal.saleEnd < new Date()) {
     return <Badge>Closed</Badge>;
-  } else if (formal.saleStart > new Date()) {
+  } else if (formal.firstSaleStart > new Date()) {
     return <Badge colorScheme="teal">Queueing</Badge>;
   } else if (
     formal.guestTicketsRemaining === 0 &&

@@ -7,16 +7,18 @@ import { AdminTicket, Ticket } from "./Ticket";
 export interface Formal {
     id: string;
     name: string;
-    menu: string; // TODO:
+    menu: string;
     price: number;
     guestPrice: number;
-    // options: string[]; // TODO:
-    guestLimit: number; // TODO:
-    tickets: number;
+    guestLimit: number;
+    firstSaleTickets: number;
     ticketsRemaining: number;
-    guestTickets: number;
+    firstSaleGuestTickets: number;
     guestTicketsRemaining: number;
-    saleStart: Date; // TODO:
+    firstSaleStart: Date;
+    secondSaleStart: Date;
+    secondSaleTickets: number;
+    secondSaleGuestTickets: number;
     saleEnd: Date;
     dateTime: Date;
     hasGuestList: boolean;
