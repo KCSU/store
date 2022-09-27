@@ -173,7 +173,7 @@ function FormalCard({ formal }: FormalCardProps) {
             <Heading as="h5" size="sm">
               Menu
             </Heading>
-            <Text>
+            <Text whiteSpace="pre-line">
               {/* TODO: rich text */}
               {formal.menu}
             </Text>
