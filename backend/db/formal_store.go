@@ -175,5 +175,5 @@ func (f *DBFormalStore) UpdateGroups(formal model.Formal, groups []model.Group) 
 
 // Delete a formal
 func (f *DBFormalStore) Delete(formal *model.Formal) error {
-	return f.db.Delete(formal).Error
+	return f.db.Select("TicketSales", "ManualTickets").Delete(formal).Error
 }

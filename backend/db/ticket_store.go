@@ -50,6 +50,8 @@ func NewTicketStore(db *gorm.DB) TicketStore {
 func (t *DBTicketStore) Get(userId uuid.UUID) ([]model.Ticket, error) {
 	var tickets []model.Ticket
 	// XXX: does this need an order by?
+	// FIXME: what if the formal is deleted but the tickets are not?
+	// This should be fine but doublecheck
 	err := t.db.Preload("Formal").
 		Preload("Formal.Bill").
 		Where("user_id = ?", userId).
