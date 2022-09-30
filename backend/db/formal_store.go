@@ -26,6 +26,8 @@ type FormalStore interface {
 	FindWithTickets(id uuid.UUID) (model.Formal, error)
 	// Get the guest list for a formal
 	FindGuestList(id uuid.UUID) ([]model.FormalGuest, error)
+	// Get the length of the queue for a formal
+	GetQueueLength(id uuid.UUID) (int, error)
 	// Get the number of tickets remaining for a specified formal
 	TicketsRemaining(formal *model.Formal, isGuest bool) uint
 	// Create a formal
@@ -125,6 +127,17 @@ func (f *DBFormalStore) FindGuestList(id uuid.UUID) ([]model.FormalGuest, error)
 			COUNT(*) FILTER (WHERE tickets.is_guest) AS guests`).
 		Scan(&guests).Error
 	return guests, err
+}
+
+// Get the length of the queue for a formal
+func (f *DBFormalStore) GetQueueLength(id uuid.UUID) (int, error) {
+	var count int64
+	err := f.db.Model(&model.Ticket{}).
+		Not("is_guest").
+		Where("formal_id = ?", id).
+		Where("is_queue").
+		Count(&count).Error
+	return int(count), err
 }
 
 // Get the number of tickets remaining for a specified formal

@@ -7,4 +7,5 @@ type AdminFormalDto struct {
 	Groups        []GroupDto           `json:"groups"`
 	TicketSales   []AdminTicketDto     `json:"ticketSales"`
 	ManualTickets []model.ManualTicket `json:"manualTickets"`
+	QueueLength   int                  `json:"queueLength"`
 }

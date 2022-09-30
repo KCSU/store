@@ -55,12 +55,13 @@ func (ah *AdminHandler) GetFormal(c echo.Context) error {
 		}
 		return err
 	}
-	if err != nil {
-		return err
-	}
 	formalDto := dto.AdminFormalDto{
 		Formal:        formal,
 		ManualTickets: formal.ManualTickets,
+	}
+	formalDto.QueueLength, err = ah.Formals.GetQueueLength(formalID)
+	if err != nil {
+		return err
 	}
 	tickets := make([]dto.AdminTicketDto, len(formal.TicketSales))
 	for i, t := range formal.TicketSales {

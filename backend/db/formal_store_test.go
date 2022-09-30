@@ -257,6 +257,20 @@ func (s *FormalSuite) TestFindGuestList() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestGetQueueLength() {
+	formalID := uuid.New()
+	s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
+		WithArgs(formalID).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"count"}).
+				AddRow(2),
+		)
+	l, err := s.store.GetQueueLength(formalID)
+	s.Require().NoError(err)
+	s.EqualValues(2, l)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *FormalSuite) TestTicketsRemaining() {
 	f := model.Formal{}
 	f.ID = uuid.New()

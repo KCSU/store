@@ -31,6 +31,7 @@ export interface Formal {
     groups?: Group[];
     ticketSales?: AdminTicket[];
     manualTickets?: ManualTicket[];
+    queueLength?: number;
 }
 
 export const FormalContext = React.createContext<Formal>({} as Formal);

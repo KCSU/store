@@ -1,4 +1,5 @@
 import {
+  Badge,
   Box,
   Container,
   Heading,
@@ -23,12 +24,18 @@ import { useContext } from "react";
 
 function AdminEditFormalCard() {
   const formal = useContext(FormalContext);
+  const isQueueOpen = formal.isVisible && formal.saleEnd > new Date();
   return (
     <Container maxW="container.md" p={0}>
       <BackButton to="/admin/formals">Back Home</BackButton>
       <Card mb={5}>
         <Heading as="h3" size="lg" mb={4}>
           {formal.name}
+          {!!formal.queueLength && isQueueOpen && (
+            <Badge colorScheme="brand" ml={4} fontSize="sm">
+              {formal.queueLength} in queue
+            </Badge>
+          )}
         </Heading>
         <Tabs colorScheme="brand">
           <TabList flexWrap="wrap">

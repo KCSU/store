@@ -174,6 +174,7 @@ func (s *AdminFormalSuite) TestGetFormal() {
 		"isVisible": true,
 		"saleEnd": "0001-01-01T00:00:00Z",
 		"dateTime": "0001-01-01T00:00:00Z",
+		"queueLength": 11,
 		"groups": [{
 			"id": "97e9db3b-077a-4150-bc20-66b5a8490083",
 			"name": "Group"
@@ -246,7 +247,7 @@ func (s *AdminFormalSuite) TestGetFormal() {
 		FirstSaleTickets: 120,
 	}
 	s.formals.On("FindWithTickets", formal.ID).Return(formal, nil)
-
+	s.formals.On("GetQueueLength", formal.ID).Return(11, nil)
 	err := s.h.GetFormal(c)
 	s.NoError(err)
 	s.Equal(http.StatusOK, rec.Code)
