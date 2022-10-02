@@ -149,7 +149,11 @@ function FormalCard({ formal }: FormalCardProps) {
                       formal.secondSaleGuestTickets
                 }
                 prefix="Guest "
-                hint={isSecondSaleStarted ? undefined : `${formal.secondSaleGuestTickets} unreleased tickets`}
+                hint={
+                  isSecondSaleStarted
+                    ? undefined
+                    : `${formal.secondSaleGuestTickets} unreleased tickets`
+                }
               >
                 <br />
                 <Text as="i">
@@ -209,11 +213,13 @@ function FormalCard({ formal }: FormalCardProps) {
                   <Text as="b">
                     {formatMoney(t.isGuest ? formal.guestPrice : formal.price)}
                   </Text>
-                  {t.isQueue && (
-                    <Badge ml={2} colorScheme="brand" verticalAlign="text-top">
-                      In Queue
-                    </Badge>
-                  )}
+                  <Badge
+                    ml={2}
+                    colorScheme={t.isQueue ? "brand" : "green"}
+                    verticalAlign="text-top"
+                  >
+                    {t.isQueue ? "In Queue" : "Confirmed"}
+                  </Badge>
                 </Text>
               ))}
               <Button

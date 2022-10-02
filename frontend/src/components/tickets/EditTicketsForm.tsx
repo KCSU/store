@@ -21,7 +21,10 @@ import {
 import { useState } from "react";
 import { FaPlus, FaSave, FaTrashAlt, FaUndo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { useCanEditTicket, useTicketPermissions } from "../../hooks/state/useTicketPermissions";
+import {
+  useCanEditTicket,
+  useTicketPermissions,
+} from "../../hooks/state/useTicketPermissions";
 import { formatMoney } from "../../helpers/formatMoney";
 import { getBuyText } from "../../helpers/getBuyText";
 import { useAddTicket } from "../../hooks/mutations/useAddTicket";
@@ -47,7 +50,12 @@ export function EditTicketsForm({
   const canEdit = useCanEditTicket(formal);
   return (
     <VStack spacing={3}>
-      <EditSingleTicketForm formal={formal} ticket={ticket} hasShadow={hasShadow} isDisabled={!canEdit} />
+      <EditSingleTicketForm
+        formal={formal}
+        ticket={ticket}
+        hasShadow={hasShadow}
+        isDisabled={!canEdit}
+      />
       {guestTickets.map((t, i) => (
         <EditSingleTicketForm
           isDisabled={!canEdit}
@@ -93,7 +101,7 @@ function EditSingleTicketForm({
   formal,
   ticket,
   hasShadow,
-  isDisabled = false
+  isDisabled = false,
 }: EditSingleTicketFormProps) {
   const mutation = useEditTicket(ticket.id);
   const [option, setOption] = useState(ticket.option);
@@ -136,7 +144,11 @@ function EditSingleTicketForm({
             <Heading as="h4" size="sm">
               Guest Ticket: {formatMoney(formal.guestPrice)}
             </Heading>
-            {ticket.isQueue && <Badge colorScheme="brand">In Queue</Badge>}
+            {ticket.isQueue ? (
+              <Badge colorScheme="brand">In Queue</Badge>
+            ) : (
+              <Badge colorScheme="green">Confirmed</Badge>
+            )}
             <Box flex="1"></Box>
             <Tooltip label="Cancel Ticket">
               <IconButton
@@ -162,7 +174,11 @@ function EditSingleTicketForm({
             <Heading as="h4" size="sm" mb={2}>
               King's Ticket: {formatMoney(formal.price)}
             </Heading>
-            {ticket.isQueue && <Badge colorScheme="brand">In Queue</Badge>}
+            {ticket.isQueue ? (
+              <Badge colorScheme="brand">In Queue</Badge>
+            ) : (
+              <Badge colorScheme="green">Confirmed</Badge>
+            )}
           </>
         )}
       </HStack>
@@ -176,7 +192,11 @@ interface AddGuestTicketModalProps {
   formal: Formal;
 }
 
-function AddGuestTicketModal({ isOpen, onClose, formal }: AddGuestTicketModalProps) {
+function AddGuestTicketModal({
+  isOpen,
+  onClose,
+  formal,
+}: AddGuestTicketModalProps) {
   const mutation = useAddTicket(formal.id);
   const [option, setOption] = useState("Normal");
   const modalBg = useColorModeValue("gray.50", "gray.800");

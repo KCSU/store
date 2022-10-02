@@ -86,7 +86,7 @@ function TicketsContent({ data }: TicketsContentProps) {
       {tickets.length > 0 && (
         <>
           <Heading size="md" as="h3" mb={4}>
-            Upcoming Formals
+            Confirmed Tickets
           </Heading>
           <SimpleGrid gap={2} templateColumns={templateColumns}>
             {tickets.map((t, i) => {

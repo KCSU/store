@@ -45,7 +45,11 @@ export function TicketInfoCard({ ticket, queue = false }: TicketInfoCardProps) {
         <Heading size="md" as="h4">
           {ticket.formal.name}
         </Heading>
-        {queue && <Badge colorScheme="brand">In Queue</Badge>}
+        {queue ? (
+          <Badge colorScheme="brand">In Queue</Badge>
+        ) : (
+          <Badge colorScheme="green">Confirmed</Badge>
+        )}
       </HStack>
       <Text as="b">{datetime}</Text>
       <Box overflowX="auto" whiteSpace="nowrap">
@@ -108,20 +112,23 @@ export function TicketInfoCard({ ticket, queue = false }: TicketInfoCardProps) {
           </Tfoot>
         </Table>
       </Box>
-      { canEdit && <HStack justifyContent="flex-end">
-        <Button
-          size="sm"
-          variant="outline"
-          leftIcon={<FaEdit />}
-          as={Link}
-          to={`/tickets/${ticket.ticket.id}`}
-        >
-          Edit
-        </Button>
-        <CancelTicketButton formalId={ticket.formal.id} confirmText={
-          `Cancel ${queue ? " Request" : " Ticket"}`
-        }/>
-      </HStack>}
+      {canEdit && (
+        <HStack justifyContent="flex-end">
+          <Button
+            size="sm"
+            variant="outline"
+            leftIcon={<FaEdit />}
+            as={Link}
+            to={`/tickets/${ticket.ticket.id}`}
+          >
+            Edit
+          </Button>
+          <CancelTicketButton
+            formalId={ticket.formal.id}
+            confirmText={`Cancel ${queue ? " Request" : " Ticket"}`}
+          />
+        </HStack>
+      )}
       {/* {queue && (
         <Progress
           colorScheme="brand"
