@@ -17,6 +17,10 @@ export function TicketOptionsSelect({
     <CreatableSelect
       // TODO: fix long answers
       isClearable
+      isValidNewOption={() => true}
+      formatCreateLabel={(input) => (
+        input.length > 0 ? `Custom: "${input}"` : "Add a custom option..."
+      )}
       selectedOptionColor="brand"
       value={{
         label: value,
