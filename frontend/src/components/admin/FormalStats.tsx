@@ -22,7 +22,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useContext, useMemo, useRef } from "react";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaDownload, FaTable, FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { Column, TableInstance, useTable } from "react-table";
 import { useDeleteFormal } from "../../hooks/admin/useDeleteFormal";
@@ -143,9 +143,21 @@ export function FormalStats() {
     columns: mealColumns,
     data: mealData,
   });
+  const base = import.meta.env.VITE_API_BASE_URL;
   return (
     <>
-      <Heading as="h4" size="md" mb={1}>Ticket Types</Heading>
+      <Heading as="h4" size="md" mb={2}>Ticket Spreadsheet</Heading>
+      <Button
+        size="sm"
+        as="a"
+        href={`${base}admin/formals/${formal.id}/tickets.csv`}
+        colorScheme="green"
+        leftIcon={<Icon as={FaTable} />}
+        rightIcon={<Icon as={FaDownload} />}
+      >
+        Download
+      </Button>
+      <Heading as="h4" size="md" mt={4} mb={1}>Ticket Types</Heading>
       <StatTable table={typeTable} />
       <Heading as="h4" size="md" mt={4} mb={1}>Meal Options</Heading>
       <StatTable table={mealTable} />

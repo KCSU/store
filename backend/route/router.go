@@ -101,6 +101,7 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	formals.POST("", ah.CreateFormal, rbac.M("formals", "write"))
 	formals.GET("/:id", ah.GetFormal, rbac.M("formals", "read"))
 	formals.PUT("/:id", ah.UpdateFormal, rbac.M("formals", "write"))
+	formals.GET("/:id/tickets.csv", ah.GetFormalTicketStatsCSV, rbac.M("tickets", "read"))
 	formals.PUT("/:id/groups", ah.UpdateFormalGroups, rbac.M("formals", "write"))
 	formals.DELETE("/:id", ah.DeleteFormal, rbac.M("formals", "delete"))
 

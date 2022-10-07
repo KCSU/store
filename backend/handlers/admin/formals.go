@@ -1,14 +1,18 @@
 package admin
 
 import (
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/kcsu/store/model"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
@@ -169,6 +173,62 @@ func (ah *AdminHandler) DeleteFormal(c echo.Context) error {
 		return err
 	}
 	return c.NoContent(http.StatusOK)
+}
+
+func (ah *AdminHandler) GetFormalTicketStatsCSV(c echo.Context) error {
+	// Get the formal ID from query
+	id := c.Param("id")
+	formalID, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	stats, err := ah.Formals.GetTicketStats(formalID)
+	if err != nil {
+		return err
+	}
+	c.Response().Header().Set(
+		echo.HeaderContentDisposition,
+		fmt.Sprintf("attachment; filename=%q", "tickets.csv"),
+	)
+	c.Response().WriteHeader(http.StatusOK)
+	writer := csv.NewWriter(c.Response())
+	defer writer.Flush()
+	err = writer.Write([]string{
+		"Name", "crsid", "Meal", "Special", "Pidge", "Type",
+	})
+	if err != nil {
+		return err
+	}
+	var defaultMeals = []string{
+		"Normal", "Vegetarian", "Vegan", "Pescetarian",
+	}
+	for _, s := range stats {
+		crsid := strings.Split(s.Email, "@")[0]
+		var meal string
+		var specialMeal string
+		if slices.Contains(defaultMeals, s.MealOption) {
+			meal = s.MealOption + " Meal"
+			specialMeal = "Nil"
+		} else {
+			meal = "Special Meal"
+			specialMeal = s.MealOption
+		}
+		pidge := "Unknown"
+		if s.Pidge != nil {
+			pidge = strconv.Itoa(*s.Pidge)
+		}
+		ticketType := "Standard"
+		if s.IsGuest {
+			ticketType = "Guest"
+		}
+		err = writer.Write([]string{
+			s.Name, crsid, meal, specialMeal, pidge, ticketType,
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Update the list of groups who can buy tickets for the formal

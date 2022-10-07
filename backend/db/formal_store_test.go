@@ -294,6 +294,10 @@ func (s *FormalSuite) TestTicketsRemaining() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestGetTicketStats() {
+	s.Fail("Not implemented")
+}
+
 func (s *FormalSuite) TestGetGroups() {
 	ids := []uuid.UUID{uuid.New(), uuid.New(), uuid.New()}
 	targetGroups := []model.Group{

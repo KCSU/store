@@ -599,6 +599,10 @@ func (s *AdminFormalSuite) TestDeleteFormal() {
 	}
 }
 
+func (s *AdminFormalSuite) TestGetFormalTicketStatsCSV() {
+	s.Fail("Not implemented")
+}
+
 func (s *AdminFormalSuite) TestUpdateFormalGroups() {
 	type wants struct {
 		code    int

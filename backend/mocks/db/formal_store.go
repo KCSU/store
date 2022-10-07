@@ -241,6 +241,29 @@ func (_m *FormalStore) GetQueueLength(id uuid.UUID) (int, error) {
 	return r0, r1
 }
 
+// GetTicketStats provides a mock function with given fields: id
+func (_m *FormalStore) GetTicketStats(id uuid.UUID) ([]model.TicketStat, error) {
+	ret := _m.Called(id)
+
+	var r0 []model.TicketStat
+	if rf, ok := ret.Get(0).(func(uuid.UUID) []model.TicketStat); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.TicketStat)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetWithUserData provides a mock function with given fields: userId
 func (_m *FormalStore) GetWithUserData(userId uuid.UUID) ([]model.Formal, error) {
 	ret := _m.Called(userId)
