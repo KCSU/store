@@ -169,7 +169,10 @@ func (f *DBFormalStore) GetTicketStats(id uuid.UUID) ([]model.TicketStat, error)
 		Select("email, name, formal_id, meal_option, manual_tickets.type = 'guest' AS is_guest")
 	allTickets := f.db.Raw(`(?) UNION ALL (?)`, tickets, manualTickets)
 	var data []model.TicketStat
-	err := allTickets.Where("formal_id = ?", id).Order("name").Scan(&data).Error
+	err := f.db.Table("(?) AS t", allTickets).
+		Where("formal_id = ?", id).
+		Order("name").
+		Scan(&data).Error
 	return data, err
 }
 

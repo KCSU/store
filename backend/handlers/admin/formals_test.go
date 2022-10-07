@@ -600,7 +600,43 @@ func (s *AdminFormalSuite) TestDeleteFormal() {
 }
 
 func (s *AdminFormalSuite) TestGetFormalTicketStatsCSV() {
-	s.Fail("Not implemented")
+	id := uuid.New()
+	pidge := 513
+	tickets := []model.TicketStat{
+		{
+			Name:       "James Holden",
+			Email:      "jh123@cam.ac.uk",
+			MealOption: "Halal",
+			Pidge:      &pidge,
+			IsGuest:    false,
+		},
+		{
+			Name:       "Bobbie Draper",
+			Email:      "bd456@cam.ac.uk",
+			MealOption: "Vegetarian",
+			IsGuest:    true,
+		},
+	}
+	expectedBody := strings.ReplaceAll(
+		`Name,crsid,Meal,Special,Pidge,Type
+		James Holden,jh123,Special Meal,Halal,513,Standard
+		Bobbie Draper,bd456,Vegetarian Meal,Nil,Unknown,Guest`,
+		"\t", "",
+	)
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/formals/", id.String(), "/tickets.csv"), nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(id.String())
+	// Mock
+	s.formals.On("GetTicketStats", id).Return(tickets, nil).Once()
+	// Test
+	err := s.h.GetFormalTicketStatsCSV(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
+	s.Equal(expectedBody, strings.TrimSpace(rec.Body.String()))
+	s.Equal(`attachment; filename="tickets.csv"`, rec.Header().Get("Content-Disposition"))
 }
 
 func (s *AdminFormalSuite) TestUpdateFormalGroups() {

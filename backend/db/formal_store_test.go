@@ -295,7 +295,37 @@ func (s *FormalSuite) TestTicketsRemaining() {
 }
 
 func (s *FormalSuite) TestGetTicketStats() {
-	s.Fail("Not implemented")
+	id := uuid.New()
+	tickets := []model.TicketStat{
+		{
+			Name:       "James Holden",
+			Email:      "jh123@cam.ac.uk",
+			IsGuest:    false,
+			MealOption: "Vegan",
+		},
+		{
+			Name:       "Bobby Draper",
+			Email:      "bd456@cam.ac.uk",
+			IsGuest:    true,
+			MealOption: "Vegetarian",
+		},
+	}
+	s.mock.ExpectQuery(
+		`SELECT \* FROM \(\(SELECT .+ FROM "tickets" .+\) UNION ALL \(SELECT .+ FROM "manual_tickets" .+\)\)`,
+	).WillReturnRows(
+		sqlmock.NewRows([]string{
+			"name", "email", "is_guest", "meal_option",
+		}).AddRow(
+			tickets[0].Name, tickets[0].Email,
+			tickets[0].IsGuest, tickets[0].MealOption,
+		).AddRow(
+			tickets[1].Name, tickets[1].Email,
+			tickets[1].IsGuest, tickets[1].MealOption,
+		),
+	)
+	result, err := s.store.GetTicketStats(id)
+	s.NoError(err)
+	s.Equal(tickets, result)
 }
 
 func (s *FormalSuite) TestGetGroups() {
