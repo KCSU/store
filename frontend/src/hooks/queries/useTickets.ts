@@ -31,7 +31,7 @@ export function useProcessedTickets(tickets: FormalTicket[]): Tickets {
               formal: ticket.formal,
               ticket: guest
             });
-          } else if (!isFormalClosed) {
+          } else if (!guest.isQueue) {
             nonQueue.push(guest);
           }
         }
