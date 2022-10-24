@@ -85,7 +85,7 @@ func GetGuestQueueByUsers(formal *model.Formal, users []uuid.UUID, d *gorm.DB) (
 
 func GetSuccessfulUserIDs(formal *model.Formal, d *gorm.DB) ([]uuid.UUID, error) {
 	var successfulUsers []uuid.UUID
-	err := d.Model(&model.Ticket{}).Not("is_guest OR is_queue").Distinct("user_id").Pluck("user_id", &successfulUsers).Error
+	err := d.Model(&model.Ticket{}).Not("is_guest").Not("is_queue").Distinct("user_id").Pluck("user_id", &successfulUsers).Error
 	return successfulUsers, err
 }
 
