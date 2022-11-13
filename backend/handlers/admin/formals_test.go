@@ -624,13 +624,13 @@ func (s *AdminFormalSuite) TestGetFormalTicketStatsCSV() {
 		"\t", "",
 	)
 	e := echo.New()
-	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/formals/", id.String(), "/tickets.csv"), nil)
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprint("/formals/", id.String(), "/tickets.csv?guest=true"), nil)
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 	c.SetParamNames("id")
 	c.SetParamValues(id.String())
 	// Mock
-	s.formals.On("GetTicketStats", id).Return(tickets, nil).Once()
+	s.formals.On("GetTicketStats", id, true).Return(tickets, nil).Once()
 	// Test
 	err := s.h.GetFormalTicketStatsCSV(c)
 	s.NoError(err)

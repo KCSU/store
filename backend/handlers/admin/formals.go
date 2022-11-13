@@ -182,7 +182,8 @@ func (ah *AdminHandler) GetFormalTicketStatsCSV(c echo.Context) error {
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	stats, err := ah.Formals.GetTicketStats(formalID)
+	isGuest := (c.QueryParam("guest") == "true")
+	stats, err := ah.Formals.GetTicketStats(formalID, isGuest)
 	if err != nil {
 		return err
 	}

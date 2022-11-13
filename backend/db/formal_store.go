@@ -33,7 +33,7 @@ type FormalStore interface {
 	// Create a formal
 	Create(formal *model.Formal) error
 	// Get all ticket stats for a formal
-	GetTicketStats(id uuid.UUID) ([]model.TicketStat, error)
+	GetTicketStats(id uuid.UUID, isGuest bool) ([]model.TicketStat, error)
 	// Find all groups with specified ids
 	GetGroups(ids []uuid.UUID) ([]model.Group, error)
 	// Update a formal
@@ -160,7 +160,7 @@ func (f *DBFormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uin
 }
 
 // Get all ticket stats for a formal
-func (f *DBFormalStore) GetTicketStats(id uuid.UUID) ([]model.TicketStat, error) {
+func (f *DBFormalStore) GetTicketStats(id uuid.UUID, isGuest bool) ([]model.TicketStat, error) {
 	tickets := f.db.Model(&model.Ticket{}).
 		Not("is_queue").
 		Joins("LEFT JOIN users ON users.id = tickets.user_id").
@@ -170,6 +170,7 @@ func (f *DBFormalStore) GetTicketStats(id uuid.UUID) ([]model.TicketStat, error)
 	allTickets := f.db.Raw(`(?) UNION ALL (?)`, tickets, manualTickets)
 	var data []model.TicketStat
 	err := f.db.Table("(?) AS t", allTickets).
+		Where("is_guest = ?", isGuest).
 		Where("formal_id = ?", id).
 		Order("name").
 		Scan(&data).Error

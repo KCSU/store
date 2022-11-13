@@ -154,8 +154,19 @@ export function FormalStats() {
         colorScheme="green"
         leftIcon={<Icon as={FaTable} />}
         rightIcon={<Icon as={FaDownload} />}
+        mr={2}
       >
-        Download
+        Standard
+      </Button>
+      <Button
+        size="sm"
+        as="a"
+        href={`${base}admin/formals/${formal.id}/tickets.csv?guest=true`}
+        colorScheme="green"
+        leftIcon={<Icon as={FaTable} />}
+        rightIcon={<Icon as={FaDownload} />}
+      >
+        Guests
       </Button>
       <Heading as="h4" size="md" mt={4} mb={1}>Ticket Types</Heading>
       <StatTable table={typeTable} />

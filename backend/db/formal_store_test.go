@@ -323,7 +323,7 @@ func (s *FormalSuite) TestGetTicketStats() {
 			tickets[1].IsGuest, tickets[1].MealOption,
 		),
 	)
-	result, err := s.store.GetTicketStats(id)
+	result, err := s.store.GetTicketStats(id, true)
 	s.NoError(err)
 	s.Equal(tickets, result)
 }
