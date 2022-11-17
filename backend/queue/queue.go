@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -8,6 +9,8 @@ import (
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +21,7 @@ func min(a, b int) int {
 	return b
 }
 
-func GetSuccesses(tickets []model.Ticket, maxTickets int) []uuid.UUID {
+func GetSuccesses(tickets []model.Ticket, maxTickets int) []model.Ticket {
 	// Shuffle the list
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(tickets), func(i, j int) {
@@ -26,15 +29,10 @@ func GetSuccesses(tickets []model.Ticket, maxTickets int) []uuid.UUID {
 	})
 	// Get the IDs of tickets which have been successfully bought
 	ticketSuccess := min(maxTickets, len(tickets))
-	tickets = tickets[0:ticketSuccess]
-	successes := make([]uuid.UUID, 0, ticketSuccess)
-	for _, t := range tickets {
-		successes = append(successes, t.ID)
-	}
-	return successes
+	return tickets[0:ticketSuccess]
 }
 
-func GetGuestSuccesses(tickets []model.Ticket, maxTickets int) []uuid.UUID {
+func GetGuestSuccesses(tickets []model.Ticket, maxTickets int) []model.Ticket {
 	guestAttempts := make(map[uuid.UUID][]model.Ticket, len(tickets))
 	for _, guestTicket := range tickets {
 		guestAttempts[guestTicket.UserID] = append(guestAttempts[guestTicket.UserID], guestTicket)
@@ -49,14 +47,12 @@ func GetGuestSuccesses(tickets []model.Ticket, maxTickets int) []uuid.UUID {
 		userIds[i], userIds[j] = userIds[j], userIds[i]
 	})
 	// Get the IDs of tickets which have been successfully bought
-	successes := make([]uuid.UUID, 0, maxTickets)
+	successes := make([]model.Ticket, 0, maxTickets)
 	for _, userId := range userIds {
 		attempts := guestAttempts[userId]
 		ticketSuccess := min(maxTickets, len(attempts))
 		attempts = attempts[0:ticketSuccess]
-		for _, t := range attempts {
-			successes = append(successes, t.ID)
-		}
+		successes = append(successes, attempts...)
 		maxTickets -= ticketSuccess
 		if maxTickets == 0 {
 			break
@@ -72,21 +68,92 @@ func UpdateSuccesses(tickets []uuid.UUID, d *gorm.DB) error {
 
 func GetNonGuestQueue(formal *model.Formal, d *gorm.DB) ([]model.Ticket, error) {
 	var tickets []model.Ticket
-	err := d.Model(&formal).Association("TicketSales").Find(&tickets, "NOT is_guest AND is_queue")
+	err := d.Model(&model.Ticket{}).
+		Preload("User").
+		Where("formal_id = ? AND is_queue AND NOT is_guest", formal.ID).
+		Find(&tickets).Error
 	return tickets, err
 }
 
 func GetGuestQueueByUsers(formal *model.Formal, users []uuid.UUID, d *gorm.DB) ([]model.Ticket, error) {
 	var guestTickets []model.Ticket
-	err := d.Model(&formal).Association("TicketSales").Find(&guestTickets, "is_guest AND is_queue AND user_id IN ?", users)
+	err := d.Model(&model.Ticket{}).
+		Preload("User").
+		Where("formal_id = ? AND is_queue AND is_guest AND user_id IN ?", formal.ID, users).
+		Find(&guestTickets).Error
 	return guestTickets, err
 
 }
 
 func GetSuccessfulUserIDs(formal *model.Formal, d *gorm.DB) ([]uuid.UUID, error) {
 	var successfulUsers []uuid.UUID
-	err := d.Model(&model.Ticket{}).Not("is_guest").Not("is_queue").Distinct("user_id").Pluck("user_id", &successfulUsers).Error
+	err := d.Model(&model.Ticket{}).
+		Where("formal_id = ?", formal.ID).
+		Not("is_guest").Not("is_queue").
+		Distinct("user_id").
+		Pluck("user_id", &successfulUsers).Error
 	return successfulUsers, err
+}
+
+type templateFormalData struct {
+	Name string    `json:"name"`
+	ID   uuid.UUID `json:"id"`
+}
+
+type templateTicketData struct {
+	Type   string `json:"type"`
+	Option string `json:"option"`
+}
+
+type templateData struct {
+	Username string
+	Formal   templateFormalData
+	Tickets  []templateTicketData
+}
+
+func GeneratePersonalisations(formal *model.Formal, successes []model.Ticket, guestSuccesses []model.Ticket) []*mail.Personalization {
+	data := map[string]*templateData{}
+	for _, t := range successes {
+		data[t.User.Email] = &templateData{
+			Tickets: []templateTicketData{
+				{
+					Type:   "King's",
+					Option: t.MealOption,
+				},
+			},
+			Formal: templateFormalData{
+				Name: formal.Name,
+				ID:   formal.ID,
+			},
+			Username: t.User.Name,
+		}
+	}
+	for _, t := range guestSuccesses {
+		if _, ok := data[t.User.Email]; !ok {
+			data[t.User.Email] = &templateData{
+				Tickets: []templateTicketData{},
+				Formal: templateFormalData{
+					Name: formal.Name,
+					ID:   formal.ID,
+				},
+				Username: t.User.Name,
+			}
+		}
+		data[t.User.Email].Tickets = append(data[t.User.Email].Tickets, templateTicketData{
+			Type:   "Guest",
+			Option: t.MealOption,
+		})
+	}
+
+	personalizations := make([]*mail.Personalization, 0, len(data))
+	for user, d := range data {
+		person := mail.NewPersonalization()
+		person.AddTos(mail.NewEmail(d.Username, user))
+		person.SetDynamicTemplateData("formal", d.Formal)
+		person.SetDynamicTemplateData("tickets", d.Tickets)
+		personalizations = append(personalizations, person)
+	}
+	return personalizations
 }
 
 func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
@@ -113,7 +180,11 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 		}
 
 		successes := GetSuccesses(tickets, int(ticketsAvailable))
-		if err := UpdateSuccesses(successes, d); err != nil {
+		successIDs := make([]uuid.UUID, len(successes))
+		for i, t := range successes {
+			successIDs[i] = t.ID
+		}
+		if err := UpdateSuccesses(successIDs, d); err != nil {
 			return err
 		}
 
@@ -129,8 +200,31 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 		}
 
 		guestSuccesses := GetGuestSuccesses(guestTickets, int(guestTicketsAvailable))
-		if err := UpdateSuccesses(guestSuccesses, d); err != nil {
+		guestSuccessIDs := make([]uuid.UUID, len(guestSuccesses))
+		for i, t := range guestSuccesses {
+			guestSuccessIDs[i] = t.ID
+		}
+		if err := UpdateSuccesses(guestSuccessIDs, d); err != nil {
 			return err
+		}
+
+		if len(successes) != 0 || len(guestSuccesses) != 0 {
+			personalizations := GeneratePersonalisations(
+				&formal, successes, guestSuccesses,
+			)
+			message := mail.NewV3Mail()
+			message.SetFrom(mail.NewEmail("KiFoMaSy", c.MailFrom))
+			message.SetTemplateID(c.MailTemplateId)
+			message.AddPersonalizations(personalizations...)
+			client := sendgrid.NewSendClient(c.MailApiKey)
+			response, err := client.Send(message)
+			if err != nil {
+				return err
+			} else {
+				fmt.Println(response.StatusCode)
+				fmt.Println(response.Body)
+				fmt.Println(response.Headers)
+			}
 		}
 	}
 	return nil

@@ -20,6 +20,9 @@ type Config struct {
 	OauthCallbackUrl string `split_words:"true"`
 	OauthRedirectUrl string `split_words:"true"`
 	LookupApiUrl     string `split_words:"true"`
+	MailTemplateId   string `split_words:"true"`
+	MailFrom         string `split_words:"true"`
+	MailApiKey       string `split_words:"true"`
 }
 
 // Load configuration from environment variables or

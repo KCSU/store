@@ -19,7 +19,11 @@ require (
 	gorm.io/gorm v1.24.1
 )
 
-require cloud.google.com/go/compute/metadata v0.2.1 // indirect
+require (
+	cloud.google.com/go/compute/metadata v0.2.1 // indirect
+	github.com/sendgrid/rest v2.6.9+incompatible // indirect
+	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
+)
 
 require (
 	cloud.google.com/go/compute v1.12.1 // indirect
