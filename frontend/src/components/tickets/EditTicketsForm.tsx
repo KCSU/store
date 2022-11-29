@@ -84,7 +84,7 @@ export function EditTicketsForm({
           Add Guest Ticket
         </Button>
       </HStack>
-      <PriceStat formal={formal} guestTickets={guestTickets} />
+      <PriceStat formal={formal} isQueue={ticket.isQueue} guestTickets={guestTickets} />
       <AddGuestTicketModal isOpen={isOpen} onClose={onClose} formal={formal} />
     </VStack>
   );

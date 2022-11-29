@@ -208,7 +208,7 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 			return err
 		}
 
-		if len(successes) != 0 || len(guestSuccesses) != 0 {
+		if !c.Debug && (len(successes) != 0 || len(guestSuccesses) != 0) {
 			personalizations := GeneratePersonalisations(
 				&formal, successes, guestSuccesses,
 			)
