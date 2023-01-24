@@ -311,7 +311,7 @@ func (s *FormalSuite) TestGetTicketStats() {
 		},
 	}
 	s.mock.ExpectQuery(
-		`SELECT \* FROM \(\(SELECT .+ FROM "tickets" .+\) UNION ALL \(SELECT .+ FROM "manual_tickets" .+\)\)`,
+		`SELECT .+ FROM \(\(SELECT .+ FROM "tickets" .+\) UNION ALL \(SELECT .+ FROM "manual_tickets" .+\)\)`,
 	).WillReturnRows(
 		sqlmock.NewRows([]string{
 			"name", "email", "is_guest", "meal_option",

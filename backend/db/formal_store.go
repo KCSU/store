@@ -170,6 +170,8 @@ func (f *DBFormalStore) GetTicketStats(id uuid.UUID, isGuest bool) ([]model.Tick
 	allTickets := f.db.Raw(`(?) UNION ALL (?)`, tickets, manualTickets)
 	var data []model.TicketStat
 	err := f.db.Table("(?) AS t", allTickets).
+		Joins("LEFT JOIN pigeonholes ON pigeonholes.email = t.email").
+		Select("t.*, pigeonholes.number AS pidge").
 		Where("is_guest = ?", isGuest).
 		Where("formal_id = ?", id).
 		Order("name").

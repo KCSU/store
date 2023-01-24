@@ -27,6 +27,7 @@ func main() {
 		&model.Role{},
 		&model.Permission{},
 		&model.AccessLog{},
+		&model.Pigeonhole{},
 	)
 	if err != nil {
 		log.Panic(err)
