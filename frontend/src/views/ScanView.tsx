@@ -101,6 +101,7 @@ export function ScanView() {
         }}
         constraints={{
           aspectRatio: 1,
+          facingMode: "environment",
         }}
         containerStyle={{
           maxWidth: "300px",
