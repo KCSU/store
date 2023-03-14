@@ -32,6 +32,8 @@ type TicketStore interface {
 	DeleteByFormal(formalID uuid.UUID, userID uuid.UUID) error
 	// Delete a single ticket
 	Delete(id uuid.UUID) error
+	// Mark a ticket as scanned
+	Scan(id uuid.UUID) error
 }
 
 // Helper struct for using Tickets in the database
@@ -112,4 +114,10 @@ func (t *DBTicketStore) DeleteByFormal(formalID uuid.UUID, userID uuid.UUID) err
 // Delete a single ticket
 func (t *DBTicketStore) Delete(id uuid.UUID) error {
 	return t.db.Delete(&model.Ticket{}, id).Error
+}
+
+// Mark a ticket as scanned
+func (t *DBTicketStore) Scan(id uuid.UUID) error {
+	return t.db.Model(&model.Ticket{}).
+		Where("id = ?", id).Update("is_scanned", true).Error
 }

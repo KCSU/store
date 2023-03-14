@@ -23,6 +23,7 @@ import { AdminEditBillView } from "./views/admin/AdminEditBillView";
 import { AdminCreateBillView } from "./views/admin/AdminCreateBillView";
 import { AccessLogView } from "./views/AccessLogView";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { ScanView } from "./views/ScanView";
 
 const MotionBox = motionComponent<BoxProps, "div">(Box);
 
@@ -120,6 +121,7 @@ export function Routes() {
       >
         <ErrorBoundary>
           <ReactRoutes location={location}>
+          <Route path="/scan" element={<ScanView />} />
             <Route path="/login" element={<LoginView />} />
             <Route element={<RequireAuth />}>
               <Route path="/" element={<FormalListView />} />

@@ -4,6 +4,8 @@ import {
   Button,
   Heading,
   HStack,
+  Icon,
+  IconButton,
   Table,
   Tbody,
   Td,
@@ -14,7 +16,7 @@ import {
   Tooltip,
   Tr,
 } from "@chakra-ui/react";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaQrcode } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { formatMoney } from "../../helpers/formatMoney";
 import { useCanEditTicket } from "../../hooks/state/useTicketPermissions";
@@ -22,6 +24,7 @@ import { useDateTime } from "../../hooks/state/useDateTime";
 import { FormalTicket } from "../../model/Ticket";
 import { Card } from "../utility/Card";
 import { CancelTicketButton } from "./CancelTicketButton";
+import { QrCodeModal } from "./QrCodeModal";
 
 interface TicketInfoCardProps {
   ticket: FormalTicket;
@@ -112,23 +115,26 @@ export function TicketInfoCard({ ticket, queue = false }: TicketInfoCardProps) {
           </Tfoot>
         </Table>
       </Box>
-      {canEdit && (
-        <HStack justifyContent="flex-end">
-          <Button
-            size="sm"
-            variant="outline"
-            leftIcon={<FaEdit />}
-            as={Link}
-            to={`/tickets/${ticket.ticket.id}`}
-          >
-            Edit
-          </Button>
-          <CancelTicketButton
-            formalId={ticket.formal.id}
-            confirmText={`Cancel ${queue ? " Request" : " Ticket"}`}
-          />
-        </HStack>
-      )}
+      <HStack justifyContent="flex-end">
+        {canEdit && (
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              leftIcon={<FaEdit />}
+              as={Link}
+              to={`/tickets/${ticket.ticket.id}`}
+            >
+              Edit
+            </Button>
+            <CancelTicketButton
+              formalId={ticket.formal.id}
+              confirmText={`Cancel ${queue ? " Request" : " Ticket"}`}
+            />
+          </>
+        )}
+        {!queue && <QrCodeModal ticket={ticket} />}
+      </HStack>
       {/* {queue && (
         <Progress
           colorScheme="brand"

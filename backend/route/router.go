@@ -66,6 +66,9 @@ func ApiRoutes(api *echo.Group, h *handlers.Handler, requireAuth echo.Middleware
 	// TODO: change to health
 	api.GET("/", h.GetHello)
 
+	// Ticket scanning
+	api.GET("/scan/:id", h.ScanTicket)
+
 	// Auth Routes
 	auth := api.Group("/oauth")
 	auth.GET("/redirect", h.AuthRedirect)

@@ -623,6 +623,10 @@ func (t *TicketSuite) TestAddTicket() {
 	}
 }
 
+func (t *TicketSuite) TestScanTicket() {
+	t.Fail("Not implemented")
+}
+
 func TestTicketSuite(t *testing.T) {
 	suite.Run(t, new(TicketSuite))
 }

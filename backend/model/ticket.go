@@ -6,6 +6,7 @@ type Ticket struct {
 	Model
 	IsGuest    bool      `json:"isGuest"`
 	IsQueue    bool      `json:"isQueue"`
+	IsScanned  bool      `json:"isScanned"`
 	MealOption string    `json:"option"`
 	FormalID   uuid.UUID `json:"formalId"`
 	Formal     *Formal   `json:"-" gorm:"constraint:OnDelete:CASCADE;"`

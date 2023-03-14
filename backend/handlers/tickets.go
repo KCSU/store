@@ -315,6 +315,42 @@ func (h *Handler) AddTicket(c echo.Context) error {
 	return c.NoContent(http.StatusCreated)
 }
 
+func (h *Handler) ScanTicket(c echo.Context) error {
+	// Parse request data
+	id := c.Param("id")
+	ticketID, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	ticket, err := h.Tickets.Find(ticketID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if ticket.IsQueue {
+		return echo.NewHTTPError(
+			http.StatusUnprocessableEntity,
+			"Cannot scan a queue ticket",
+		)
+	}
+	// Update the ticket in the DB
+	if err := h.Tickets.Scan(ticketID); err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, dto.ScannedTicketDto{
+		ID:         ticket.ID,
+		IsGuest:    ticket.IsGuest,
+		IsScanned:  ticket.IsScanned,
+		MealOption: ticket.MealOption,
+		FormalID:   ticket.FormalID,
+		FormalName: ticket.Formal.Name,
+		FormalDate: ticket.Formal.DateTime,
+		UserName:   ticket.User.Name,
+	})
+}
+
 // Check if the specified user can buy tickets to the specified formal
 func (h *Handler) canBuyTickets(user *model.User, formal *model.Formal) (bool, error) {
 	userGroups, err := h.Users.Groups(user)

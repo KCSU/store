@@ -272,6 +272,10 @@ func (s *TicketSuite) TestDeleteTicket() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *TicketSuite) TestScanTicket() {
+	s.Fail("Not implemented")
+}
+
 func TestTicketSuite(t *testing.T) {
 	suite.Run(t, new(TicketSuite))
 }
