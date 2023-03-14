@@ -8,6 +8,7 @@ import {
   Spinner,
   Text,
   useColorModeValue,
+  VStack,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -28,7 +29,7 @@ function ScanTicket({ id }: { id: string }) {
   }
   if (isError) {
     return (
-      <Alert status="error">
+      <Alert status="error" maxW="500px">
         <AlertIcon />
         Invalid ticket.
       </Alert>
@@ -45,7 +46,7 @@ function ScanTicket({ id }: { id: string }) {
     colour = `${colour}.500`;
   }
   return (
-    <Card maxWidth="500px" border="2px" borderColor={colour || "transparent"}>
+    <Card maxW="500px" border="2px" borderColor={colour || "transparent"}>
       {data?.isScanned && (
         <Alert status="warning" mb={2}>
           <AlertIcon />
@@ -81,46 +82,49 @@ export function ScanView() {
   const [data, setData] = useState<string | null>(null);
   const isValid = validateUUIDv4(data ?? "");
   return (
-    <>
-      <Heading size="xl" mb={5}>
+    <VStack>
+      <Heading size="xl" as="h1" mb={5}>
+        KiFoMaSy
+      </Heading>
+      <Heading size="lg" as="h2" mb={5}>
         Scan Tickets
       </Heading>
-      <Box mb={3}>
-        <QrReader
-          onResult={(result, error) => {
-            if (!!result) {
-              setData(result?.toString());
-            }
+      <QrReader
+        onResult={(result, error) => {
+          if (!!result) {
+            setData(result?.toString());
+          }
 
-            if (!!error) {
-              console.info(error);
-            }
-          }}
-          constraints={{
-            aspectRatio: 1,
-          }}
-          containerStyle={{
-            maxWidth: "300px",
-          }}
-          videoStyle={{
-            borderRadius: "8px",
-          }}
-          // style={{ width: '100%' }}
-        />
-      </Box>
+          if (!!error) {
+            console.info(error);
+          }
+        }}
+        constraints={{
+          aspectRatio: 1,
+        }}
+        containerStyle={{
+          maxWidth: "300px",
+          width: "100%"
+        }}
+        videoStyle={{
+          borderRadius: "8px",
+        }}
+        // style={{ width: '100%' }}
+      />
+      <Box mt={4} />
       {data === null ? (
-        <Alert status="info">
+        <Alert status="info" maxW="500px">
           <AlertIcon />
           No QR code detected
         </Alert>
       ) : isValid ? (
         <ScanTicket id={data} />
       ) : (
-        <Alert status="error">
+        <Alert status="error" maxW="500px">
           <AlertIcon />
           Invalid ticket.
         </Alert>
       )}
-    </>
+    </VStack>
   );
 }

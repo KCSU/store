@@ -19,7 +19,7 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { FaPlus, FaSave, FaTrashAlt, FaUndo } from "react-icons/fa";
+import { FaPlus, FaQrcode, FaSave, FaTrashAlt, FaUndo } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import {
   useCanEditTicket,
@@ -35,6 +35,7 @@ import { CancelGuestTicketDialog } from "./CancelGuestTicketDialog";
 import { CancelTicketButton } from "./CancelTicketButton";
 import { PriceStat } from "../formals/PriceStat";
 import { TicketOptionsInput } from "./TicketOptionsInput";
+import { QrCodeModal } from "./QrCodeModal";
 
 export interface EditTicketsFormProps {
   ticket: FormalTicket;
@@ -107,7 +108,9 @@ function EditSingleTicketForm({
   const [option, setOption] = useState(ticket.option);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const footer = (
-    <HStack mt={3} justify="flex-end">
+    <HStack mt={3}>
+      {!ticket.isQueue && <QrCodeModal ticket={ticket} />}
+      <Box flex="1"></Box>
       <Button
         size="sm"
         variant="ghost"

@@ -26,7 +26,7 @@ function App() {
   // TODO: refactoring with useCallback
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
   const bg = useColorModeValue("gray.50", "gray.800");
-  const hideSidebarRoutes = ["/login"];
+  const hideSidebarRoutes = ["/login", "/scan"];
   const location = useLocation();
   const showSidebar = !hideSidebarRoutes.includes(location.pathname);
 

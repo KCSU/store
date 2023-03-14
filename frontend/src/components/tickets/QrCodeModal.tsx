@@ -17,10 +17,10 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { FaExternalLinkAlt, FaQrcode } from "react-icons/fa";
-import { FormalTicket } from "../../model/Ticket";
+import { FormalTicket, Ticket } from "../../model/Ticket";
 
 interface QrCodeModalProps {
-  ticket: FormalTicket;
+  ticket: FormalTicket | Ticket;
 }
 
 function getQrCodeUrl(id: string) {
@@ -69,12 +69,14 @@ export function QrCodeModal({ ticket }: QrCodeModalProps) {
           <ModalCloseButton />
           <ModalBody>
             <VStack>
+              {"ticket" in ticket ? <>
               <QrCode id={ticket.ticket.id}>King's Ticket</QrCode>
-              {ticket.guestTickets.map((guestTicket, i) => (
-                <QrCode key={guestTicket.id} id={guestTicket.id}>
-                  Guest Ticket {i + 1} of {ticket.guestTickets.length}
-                </QrCode>
-              ))}
+                {ticket.guestTickets.map((guestTicket, i) => (
+                  <QrCode key={guestTicket.id} id={guestTicket.id}>
+                    Guest Ticket {i + 1} of {ticket.guestTickets.length}
+                  </QrCode>)
+                )}
+              </> : <QrCode id={ticket.id}>Your Ticket</QrCode>}
             </VStack>
           </ModalBody>
         </ModalContent>
