@@ -273,7 +273,18 @@ func (s *TicketSuite) TestDeleteTicket() {
 }
 
 func (s *TicketSuite) TestScanTicket() {
-	s.Fail("Not implemented")
+	ticket := model.Ticket{
+		Model:   model.Model{ID: uuid.New()},
+		IsGuest: true,
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "tickets" SET "is_scanned"`).WithArgs(
+		sqlmock.AnyArg(), sqlmock.AnyArg(), ticket.ID,
+	).WillReturnResult(sqlmock.NewResult(0, 1))
+	s.mock.ExpectCommit()
+	err := s.store.Scan(ticket.ID)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func TestTicketSuite(t *testing.T) {

@@ -624,7 +624,81 @@ func (t *TicketSuite) TestAddTicket() {
 }
 
 func (t *TicketSuite) TestScanTicket() {
-	t.Fail("Not implemented")
+	// test the following cases:
+	// - ticket in queue
+	// - ticket successfully scanned
+	type wants struct {
+		code    int
+		message string
+	}
+	type test struct {
+		name   string
+		ticket model.Ticket
+		wants  *wants
+	}
+	id := uuid.MustParse("b00d6057-7b5b-4096-9d4d-bcc7581b329c")
+	tests := []test{
+		{"Should Scan", model.Ticket{
+			Model:      model.Model{ID: id},
+			Formal:     &model.Formal{Name: "Test Formal"},
+			User:       &model.User{Name: "Test User"},
+			IsGuest:    true,
+			IsQueue:    false,
+			IsScanned:  false,
+			MealOption: "Normal",
+		}, nil},
+		{"Queue Ticket", model.Ticket{
+			Model:      model.Model{ID: id},
+			Formal:     &model.Formal{Name: "Test Formal"},
+			User:       &model.User{Name: "Test User"},
+			IsGuest:    true,
+			IsQueue:    true,
+			IsScanned:  false,
+			MealOption: "Normal",
+		}, &wants{
+			code:    http.StatusUnprocessableEntity,
+			message: "Cannot scan a queue ticket",
+		}},
+	}
+	json := `{
+		"id": "b00d6057-7b5b-4096-9d4d-bcc7581b329c",
+		"isGuest": true,
+		"isScanned": false,
+		"formalId": "00000000-0000-0000-0000-000000000000",
+		"formalName": "Test Formal",
+		"formalDate": "0001-01-01T00:00:00Z",
+		"option": "Normal",
+		"userName": "Test User"
+	}`
+	for _, test := range tests {
+		t.Run(test.name, func() {
+			// HTTP
+			path := fmt.Sprintf("/scan/%s", test.ticket.ID.String())
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			rec := httptest.NewRecorder()
+			c := t.e.NewContext(req, rec)
+			c.SetParamNames("id")
+			c.SetParamValues(test.ticket.ID.String())
+			// Mock
+			t.tickets.On("Find", test.ticket.ID).Return(test.ticket, nil).Once()
+			if test.wants == nil {
+				t.tickets.On("Scan", test.ticket.ID).Return(nil).Once()
+			}
+			// Test
+			err := t.h.ScanTicket(c)
+			if test.wants != nil {
+				var he *echo.HTTPError
+				if t.ErrorAs(err, &he) {
+					t.Equal(test.wants.code, he.Code)
+					t.Equal(test.wants.message, he.Message)
+				}
+			} else {
+				t.NoError(err)
+				t.Equal(http.StatusOK, rec.Code)
+				t.JSONEq(json, rec.Body.String())
+			}
+		})
+	}
 }
 
 func TestTicketSuite(t *testing.T) {
