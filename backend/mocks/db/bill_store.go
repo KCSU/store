@@ -94,6 +94,30 @@ func (_m *BillStore) Find(id uuid.UUID) (model.Bill, error) {
 	return r0, r1
 }
 
+// FindWithExtras provides a mock function with given fields: id
+func (_m *BillStore) FindWithExtras(id uuid.UUID) (model.Bill, error) {
+	ret := _m.Called(id)
+
+	var r0 model.Bill
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uuid.UUID) (model.Bill, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(uuid.UUID) model.Bill); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(model.Bill)
+	}
+
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FindWithFormals provides a mock function with given fields: id
 func (_m *BillStore) FindWithFormals(id uuid.UUID) (model.Bill, error) {
 	ret := _m.Called(id)
@@ -194,6 +218,20 @@ func (_m *BillStore) GetCostBreakdownByUser(bill *model.Bill) ([]model.UserCostB
 	}
 
 	return r0, r1
+}
+
+// RemoveExtraCharge provides a mock function with given fields: chargeId
+func (_m *BillStore) RemoveExtraCharge(chargeId uuid.UUID) error {
+	ret := _m.Called(chargeId)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(uuid.UUID) error); ok {
+		r0 = rf(chargeId)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // RemoveFormal provides a mock function with given fields: bill, formalId

@@ -197,6 +197,39 @@ func (ah *AdminHandler) AddBillExtra(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Delete an extra ents charge from a bill
+func (ah *AdminHandler) RemoveBillExtra(c echo.Context) error {
+	// Get the bill ID from query
+	id := c.Param("id")
+	billId, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	extraID, err := uuid.Parse(c.Param("extraId"))
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	bill, err := ah.Bills.Find(billId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	if err := ah.Bills.RemoveExtraCharge(extraID); err != nil {
+		return err
+	}
+	if err := ah.Access.Log(c,
+		fmt.Sprintf("removed extra ents charge from bill %s", bill.Name),
+		map[string]string{
+			"billId": bill.ID.String(),
+		},
+	); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}
+
 // Add a formal to a bill
 func (ah *AdminHandler) AddBillFormals(c echo.Context) error {
 	// Get the bill ID from query
@@ -283,7 +316,7 @@ func (ah *AdminHandler) GetBillStats(c echo.Context) error {
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	bill, err := ah.Bills.Find(billID)
+	bill, err := ah.Bills.FindWithExtras(billID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
@@ -298,6 +331,26 @@ func (ah *AdminHandler) GetBillStats(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	extraSum := float32(0)
+	for _, extra := range bill.Extras {
+		extraSum += extra.Amount
+	}
+	// Add to cost where email id is "ents" or create a new entry
+	found := false
+	for i, userCost := range userCosts {
+		if userCost.Email == "ents" {
+			userCosts[i].Cost += extraSum
+			found = true
+			break
+		}
+	}
+	if !found {
+		userCosts = append(userCosts, model.UserCostBreakdown{
+			Email: "ents",
+			Cost:  extraSum,
+		})
+	}
+
 	return c.JSON(http.StatusOK, &dto.BillStatsDto{
 		Formals: formalCosts,
 		Users:   userCosts,
@@ -310,7 +363,7 @@ func (ah *AdminHandler) GetBillFormalStatsCSV(c echo.Context) error {
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	bill, err := ah.Bills.Find(billID)
+	bill, err := ah.Bills.FindWithExtras(billID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
@@ -363,6 +416,31 @@ func (ah *AdminHandler) GetBillFormalStatsCSV(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	if len(bill.Extras) > 0 {
+		if err := writer.WriteAll([][]string{
+			{},
+			{"Extra Ents Charges"},
+		}); err != nil {
+			return err
+		}
+		for _, extra := range bill.Extras {
+			if err := writer.Write([]string{
+				extra.Description, "", "", "", "", "", fmt.Sprintf("%.2f", extra.Amount),
+			}); err != nil {
+				return err
+			}
+		}
+		extraSum := float32(0)
+		for _, extra := range bill.Extras {
+			extraSum += extra.Amount
+		}
+		if err := writer.WriteAll([][]string{
+			{},
+			{"Overall Total", "", "", "", "", "", fmt.Sprintf("%.2f", costSum+extraSum)},
+		}); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -372,7 +450,7 @@ func (ah *AdminHandler) GetBillUserStatsCSV(c echo.Context) error {
 	if err != nil {
 		return echo.ErrNotFound
 	}
-	bill, err := ah.Bills.Find(billID)
+	bill, err := ah.Bills.FindWithExtras(billID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return echo.ErrNotFound
@@ -383,6 +461,26 @@ func (ah *AdminHandler) GetBillUserStatsCSV(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	extraSum := float32(0)
+	for _, extra := range bill.Extras {
+		extraSum += extra.Amount
+	}
+	// Add to cost where email id is "ents" or create a new entry
+	found := false
+	for i, userCost := range userCosts {
+		if userCost.Email == "ents" {
+			userCosts[i].Cost += extraSum
+			found = true
+			break
+		}
+	}
+	if !found {
+		userCosts = append(userCosts, model.UserCostBreakdown{
+			Email: "ents",
+			Cost:  extraSum,
+		})
+	}
+
 	c.Response().Header().Set(
 		echo.HeaderContentDisposition,
 		fmt.Sprintf("attachment; filename=%q", "user_costs.csv"),

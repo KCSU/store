@@ -149,5 +149,6 @@ func AdminRoutes(a *echo.Group, ah *admin.AdminHandler) {
 	bills.POST("/:id/extras", ah.AddBillExtra, rbac.M("tickets", "write"))
 	bills.POST("/:id/formals", ah.AddBillFormals, rbac.M("billing", "write"))
 	bills.DELETE("/:id/formals/:formalId", ah.RemoveBillFormal, rbac.M("billing", "write"))
+	bills.DELETE("/:id/extras/:extraId", ah.RemoveBillExtra, rbac.M("tickets", "write"))
 	bills.DELETE("/:id", ah.DeleteBill, rbac.M("billing", "delete"))
 }

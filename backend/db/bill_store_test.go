@@ -90,6 +90,42 @@ func (s *BillSuite) TestFindBill() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *BillSuite) TestFindBillWithExtras() {
+	id := uuid.New()
+	bill := model.Bill{
+		Model: model.Model{ID: id},
+		Name:  "Test Bill",
+		Start: time.Now().Add(-12 * time.Hour),
+		End:   time.Now().Add(24 * time.Hour),
+		Extras: []model.ExtraCharge{{
+			Model:       model.Model{ID: uuid.New()},
+			Description: "Test Extra",
+			Amount:      10,
+			BillID:      id,
+		}},
+	}
+	s.mock.ExpectQuery(`SELECT \* FROM "bills"`).
+		WithArgs(id).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "name", "start", "end"}).
+				AddRow(
+					id, bill.Name, bill.Start, bill.End,
+				),
+		)
+	s.mock.ExpectQuery(`SELECT \* FROM "extra_charges"`).
+		WithArgs(id).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "description", "amount", "bill_id"}).
+				AddRow(
+					bill.Extras[0].ID, bill.Extras[0].Description, bill.Extras[0].Amount, bill.ID,
+				),
+		)
+	b, err := s.store.FindWithExtras(id)
+	s.Require().NoError(err)
+	s.Equal(bill, b)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *BillSuite) TestFindBillWithFormals() {
 	id := uuid.New()
 	bill := model.Bill{
@@ -102,6 +138,12 @@ func (s *BillSuite) TestFindBillWithFormals() {
 			Name:   "Test Formal",
 			BillID: &id,
 		}},
+		Extras: []model.ExtraCharge{{
+			Model:       model.Model{ID: uuid.New()},
+			Description: "Test Extra",
+			Amount:      10,
+			BillID:      id,
+		}},
 	}
 	s.mock.ExpectQuery(`SELECT \* FROM "bills"`).
 		WithArgs(id).
@@ -109,6 +151,14 @@ func (s *BillSuite) TestFindBillWithFormals() {
 			sqlmock.NewRows([]string{"id", "name", "start", "end"}).
 				AddRow(
 					id, bill.Name, bill.Start, bill.End,
+				),
+		)
+	s.mock.ExpectQuery(`SELECT \* FROM "extra_charges"`).
+		WithArgs(id).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"id", "description", "amount", "bill_id"}).
+				AddRow(
+					bill.Extras[0].ID, bill.Extras[0].Description, bill.Extras[0].Amount, bill.ID,
 				),
 		)
 	s.mock.ExpectQuery(`SELECT \* FROM "formals"`).
@@ -190,7 +240,47 @@ func (s *BillSuite) TestDeleteBill() {
 }
 
 func (s *BillSuite) TestAddExtraChargeToBill() {
-	s.Fail("Not implemented")
+	id := uuid.New()
+	bill := model.Bill{
+		Model:   model.Model{ID: id},
+		Name:    "Test Bill",
+		Start:   time.Now().Add(-12 * time.Hour),
+		End:     time.Now().Add(24 * time.Hour),
+		Formals: []model.Formal{},
+	}
+	extra := model.ExtraCharge{
+		Description: "Test Extra",
+		Amount:      10,
+	}
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "bills"`).
+		WithArgs(
+			sqlmock.AnyArg(), bill.ID,
+		).WillReturnResult(sqlmock.NewResult(0, 1))
+	s.mock.ExpectQuery(`INSERT INTO "extra_charges"`).
+		WithArgs(
+			sqlmock.AnyArg(), sqlmock.AnyArg(), nil,
+			extra.Description, extra.Amount, bill.ID,
+		).WillReturnRows(
+		sqlmock.NewRows([]string{"id"}).AddRow(uuid.New()),
+	)
+	s.mock.ExpectCommit()
+	err := s.store.AddExtraCharge(&bill, &extra)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
+func (s *BillSuite) TestRemoveExtraChargeFromBill() {
+	extraId := uuid.New()
+	s.mock.ExpectBegin()
+	s.mock.ExpectExec(`UPDATE "extra_charges"`).
+		WithArgs(
+			sqlmock.AnyArg(), extraId,
+		).WillReturnResult(sqlmock.NewResult(0, 1))
+	s.mock.ExpectCommit()
+	err := s.store.RemoveExtraCharge(extraId)
+	s.NoError(err)
+	s.NoError(s.mock.ExpectationsWereMet())
 }
 
 func (s *BillSuite) TestAddFormalsToBill() {

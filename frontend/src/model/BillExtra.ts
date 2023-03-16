@@ -1,5 +1,5 @@
 export interface BillExtra {
-  id: number;
+  id: string;
   description: string;
   amount: number;
   billId: string;

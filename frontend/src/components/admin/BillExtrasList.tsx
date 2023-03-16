@@ -32,6 +32,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
+  Tfoot,
 } from "@chakra-ui/react";
 import { Field, FieldProps, Form, Formik } from "formik";
 import { useContext, useMemo } from "react";
@@ -39,6 +40,7 @@ import { FaPlus, FaTrashAlt } from "react-icons/fa";
 import { Column, CellProps, useTable } from "react-table";
 import { useAddBillExtra } from "../../hooks/admin/useAddBillExtra";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
+import { useRemoveBillExtra } from "../../hooks/admin/useRemoveBillExtra";
 import { BillContext } from "../../model/Bill";
 import { BillExtra } from "../../model/BillExtra";
 
@@ -151,52 +153,72 @@ function AddExtraButton() {
 
 interface BillExtrasTableProps {
   billExtras: BillExtra[];
+  billId?: string;
+  showActions?: boolean;
 }
 
-function BillExtrasTable({ billExtras }: BillExtrasTableProps) {
+export function BillExtrasTable({
+  billExtras,
+  billId,
+  showActions = false,
+}: BillExtrasTableProps) {
   const canWrite = useHasPermission("tickets", "write"); // FIXME: URGENT
   const columns = useMemo<Column<BillExtra>[]>(() => {
     const cols: Column<BillExtra>[] = [
       {
         accessor: "description",
         Header: "Description",
+        Footer: "Total",
       },
       {
         accessor: "amount",
-        Header: "Amount",
+        Header: "Total",
+        isNumeric: true,
+        Footer: ({ rows }) => {
+          const total = rows.reduce(
+            (sum: number, row: any) => sum + row.values.amount,
+            0
+          );
+          return total;
+        },
       },
-    ];
-    if (canWrite) {
+    ] as Column<BillExtra>[];
+    if (canWrite && showActions) {
       cols.push({
         Header: "Actions",
+        isNumeric: true,
         Cell({ row: { original } }: CellProps<BillExtra>) {
-          // const mutation = useRemoveBillExtra();
+          const mutation = useRemoveBillExtra(billId ?? "");
           return (
             <IconButton
               aria-label="Revoke"
               size="xs"
               colorScheme="red"
-              isLoading={false /* mutation.isLoading */}
+              isLoading={mutation.isLoading}
               variant="ghost"
               onClick={() => {
-                // mutation.mutate({
-                //   billExtraId: original.billExtraId,
-                // });
+                mutation.mutate(original.id);
               }}
             >
               <Icon as={FaTrashAlt} />
             </IconButton>
           );
         },
-      });
+      } as Column<BillExtra>);
     }
     return cols;
   }, []);
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({
-      columns,
-      data: billExtras,
-    });
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    footerGroups,
+  } = useTable({
+    columns,
+    data: billExtras,
+  });
   const background = useColorModeValue("white", "gray.750");
   return (
     <Table variant="striped" size="sm" {...getTableProps()}>
@@ -204,7 +226,11 @@ function BillExtrasTable({ billExtras }: BillExtrasTableProps) {
         {headerGroups.map((headerGroup) => (
           <Tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column) => (
-              <Th {...column.getHeaderProps()} p={1}>
+              <Th
+                p={1}
+                {...column.getHeaderProps()}
+                isNumeric={(column as any).isNumeric}
+              >
                 {column.render("Header")}
               </Th>
             ))}
@@ -217,7 +243,10 @@ function BillExtrasTable({ billExtras }: BillExtrasTableProps) {
           return (
             <Tr {...row.getRowProps()}>
               {row.cells.map((cell) => (
-                <Td {...cell.getCellProps()} p={1}>
+                <Td
+                  {...cell.getCellProps()}
+                  isNumeric={(cell.column as any).isNumeric}
+                >
                   {cell.render("Cell")}
                 </Td>
               ))}
@@ -225,6 +254,21 @@ function BillExtrasTable({ billExtras }: BillExtrasTableProps) {
           );
         })}
       </Tbody>
+      <Tfoot>
+        {footerGroups.map((footerGroup) => (
+          <Tr {...footerGroup.getFooterGroupProps()}>
+            {footerGroup.headers.map((column) => (
+              <Th
+                {...column.getFooterProps()}
+                pt={3}
+                isNumeric={(column as any).isNumeric}
+              >
+                {column.render("Footer")}
+              </Th>
+            ))}
+          </Tr>
+        ))}
+      </Tfoot>
     </Table>
   );
 }
@@ -242,7 +286,7 @@ export function BillExtrasList() {
           No extra charges
         </Alert>
       ) : (
-        <BillExtrasTable billExtras={extras} />
+        <BillExtrasTable billExtras={extras} billId={bill.id} showActions />
       )}
     </>
   );

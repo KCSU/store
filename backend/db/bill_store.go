@@ -14,6 +14,8 @@ type BillStore interface {
 	Find(id uuid.UUID) (model.Bill, error)
 	// Retrieve a single bill with formals
 	FindWithFormals(id uuid.UUID) (model.Bill, error)
+	// Retrieve a single bill with extras
+	FindWithExtras(id uuid.UUID) (model.Bill, error)
 	// Create a bill
 	Create(bill *model.Bill) error
 	// Update a bill
@@ -26,6 +28,8 @@ type BillStore interface {
 	RemoveFormal(bill *model.Bill, formalId uuid.UUID) error
 	// Add an extra charge to a bill
 	AddExtraCharge(bill *model.Bill, charge *model.ExtraCharge) error
+	// Remove an extra charge from a bill
+	RemoveExtraCharge(chargeId uuid.UUID) error
 	// Get bill cost breakdown by formal
 	GetCostBreakdown(bill *model.Bill) ([]model.FormalCostBreakdown, error)
 	// Get bill cost breakdown by user
@@ -47,6 +51,13 @@ func NewBillStore(db *gorm.DB) BillStore {
 func (b *DBBillStore) Find(id uuid.UUID) (model.Bill, error) {
 	var bill model.Bill
 	err := b.db.First(&bill, id).Error
+	return bill, err
+}
+
+// Retrieve a single bill with extras
+func (b *DBBillStore) FindWithExtras(id uuid.UUID) (model.Bill, error) {
+	var bill model.Bill
+	err := b.db.Preload("Extras").First(&bill, id).Error
 	return bill, err
 }
 
@@ -88,6 +99,11 @@ func (b *DBBillStore) Delete(bill *model.Bill) error {
 // Add an extra charge to a bill
 func (b *DBBillStore) AddExtraCharge(bill *model.Bill, charge *model.ExtraCharge) error {
 	return b.db.Model(bill).Association("Extras").Append(charge)
+}
+
+// Remove an extra charge from a bill
+func (b *DBBillStore) RemoveExtraCharge(chargeId uuid.UUID) error {
+	return b.db.Where("id = ?", chargeId).Delete(&model.ExtraCharge{}).Error
 }
 
 // Add a formal to a bill

@@ -44,6 +44,7 @@ import {
 import { useBillStats } from "../../hooks/admin/useBillStats";
 import { BillContext } from "../../model/Bill";
 import { FormalCostBreakdown, UserCostBreakdown } from "../../model/BillStats";
+import { BillExtrasTable } from "../admin/BillExtrasList";
 
 interface BillFormalOverviewProps {
   stats: FormalCostBreakdown[];
@@ -410,6 +411,14 @@ export function BillStats() {
         </Button>
       </Flex>
       <BillFormalOverview stats={stats?.formals ?? []} />
+      {(bill.extras ?? []).length > 0 && (
+        <>
+          <Heading as="h4" size="md" my={2}>
+            Extra Ents Charges
+          </Heading>
+          <BillExtrasTable billExtras={bill.extras ?? []} />
+        </>
+      )}
       <Flex justifyContent="space-between" alignItems="center" mb={2} mt={4}>
         <Heading as="h4" size="md">
           By User

@@ -52,7 +52,8 @@ func (s *AdminBillSuite) TestGetBills() {
 			"name": "Bill 1",
 			"start": "2022-01-22T00:00:00Z",
 			"end": "2022-05-22T00:00:00+01:00",
-			"formals": null
+			"formals": null,
+			"extras": null
 		}
 	]`
 	// Init HTTP
@@ -107,6 +108,17 @@ func (s *AdminBillSuite) TestGetBill() {
 				"hasGuestList": false,
 				"isVisible": true
 			}
+		],
+		"extras": [
+			{
+				"id": "c8150018-6cb9-44ad-824b-40f30fc3bf69",
+				"createdAt": "0001-01-01T00:00:00Z",
+				"updatedAt": "0001-01-01T00:00:00Z",
+				"deletedAt": null,
+				"description": "Test Extra",
+				"amount": 10,
+				"billId": "af63ca4e-7f54-45bf-aab0-2d971f08222a"
+			}
 		]
 	}`
 	// Init HTTP
@@ -144,6 +156,12 @@ func (s *AdminBillSuite) TestGetBill() {
 				IsVisible:              true,
 			},
 		},
+		Extras: []model.ExtraCharge{{
+			Model:       model.Model{ID: uuid.MustParse("c8150018-6cb9-44ad-824b-40f30fc3bf69")},
+			Description: "Test Extra",
+			BillID:      id,
+			Amount:      10,
+		}},
 	}
 	s.bills.On("FindWithFormals", id).Return(bill, nil)
 	// Run test
@@ -345,7 +363,67 @@ func (s *AdminBillSuite) TestDeleteBill() {
 }
 
 func (s *AdminBillSuite) TestAddBillExtra() {
-	s.Fail("Not implemented")
+	json := `{"description": "Test", "amount": 100}`
+	billId := uuid.New()
+	e := echo.New()
+	e.Validator = middleware.NewValidator()
+	req := httptest.NewRequest(
+		http.MethodPost,
+		fmt.Sprint("/bills/", billId, "/extras"),
+		strings.NewReader(json),
+	)
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(billId.String())
+	// Mock
+	s.bills.On("Find", billId).Return(
+		model.Bill{
+			Model: model.Model{ID: billId},
+			Name:  "TestB",
+		},
+		nil,
+	).Once()
+	s.bills.On("AddExtraCharge", &model.Bill{
+		Model: model.Model{ID: billId},
+		Name:  "TestB",
+	}, &model.ExtraCharge{
+		Description: "Test",
+		Amount:      100,
+	}).Return(nil).Once()
+	// Test
+	err := s.h.AddBillExtra(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
+}
+
+func (s *AdminBillSuite) TestRemoveBillExtra() {
+	extraId := uuid.New()
+	billId := uuid.New()
+	e := echo.New()
+	req := httptest.NewRequest(
+		http.MethodDelete,
+		fmt.Sprint("/bills/", billId, "/extras/", extraId),
+		nil,
+	)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id", "extraId")
+	c.SetParamValues(billId.String(), extraId.String())
+	// Mock
+	s.bills.On("Find", billId).Return(
+		model.Bill{
+			Model: model.Model{ID: billId},
+			Name:  "TestB",
+		},
+		nil,
+	).Once()
+	s.bills.On("RemoveExtraCharge", extraId).Return(nil).Once()
+	// Test
+	err := s.h.RemoveBillExtra(c)
+	s.NoError(err)
+	s.Equal(http.StatusOK, rec.Code)
 }
 
 func (s *AdminBillSuite) TestAddBillFormals() {
@@ -360,7 +438,7 @@ func (s *AdminBillSuite) TestAddBillFormals() {
 	e.Validator = middleware.NewValidator()
 	req := httptest.NewRequest(
 		http.MethodPost,
-		fmt.Sprint("/bills/", "/formals"),
+		fmt.Sprint("/bills/", billId, "/formals"),
 		strings.NewReader(body),
 	)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -409,6 +487,16 @@ func (s *AdminBillSuite) TestGetBillStats() {
 	bill := model.Bill{
 		Model: model.Model{ID: uuid.New()},
 		Name:  "Test",
+		Extras: []model.ExtraCharge{
+			{
+				Description: "Extra 1",
+				Amount:      10,
+			},
+			{
+				Description: "Extra 2",
+				Amount:      20,
+			},
+		},
 	}
 	fbs := []model.FormalCostBreakdown{
 		{
@@ -469,6 +557,10 @@ func (s *AdminBillSuite) TestGetBillStats() {
 			{
 				"userEmail": "def456@cam.ac.uk",
 				"cost": 73.4
+			},
+			{
+				"userEmail": "ents",
+				"cost": 30
 			}
 		]
 	}`
@@ -479,7 +571,7 @@ func (s *AdminBillSuite) TestGetBillStats() {
 	c.SetParamNames("id")
 	c.SetParamValues(bill.ID.String())
 	// Mock database
-	s.bills.On("Find", bill.ID).Return(bill, nil).Once()
+	s.bills.On("FindWithExtras", bill.ID).Return(bill, nil).Once()
 	s.bills.On("GetCostBreakdown", &bill).Return(fbs, nil).Once()
 	s.bills.On("GetCostBreakdownByUser", &bill).Return(ubs, nil).Once()
 	// Run test
@@ -493,6 +585,16 @@ func (s *AdminBillSuite) TestGetBillFormalStatsCSV() {
 	bill := model.Bill{
 		Model: model.Model{ID: uuid.New()},
 		Name:  "Test",
+		Extras: []model.ExtraCharge{
+			{
+				Description: "Extra 1",
+				Amount:      10,
+			},
+			{
+				Description: "Extra 2",
+				Amount:      20,
+			},
+		},
 	}
 	fbs := []model.FormalCostBreakdown{
 		{
@@ -518,7 +620,13 @@ func (s *AdminBillSuite) TestGetBillFormalStatsCSV() {
 		`Formal,Date,King's Tickets,King's Price,Guest Tickets,Guest Price,Total
 		Formal 1,Jan 1 2020,11,10.00,21,20.00,530.00
 		Formal 2,Feb 1 2020,12,21.20,15,31.30,723.90
-		Total,,23,,36,,1253.90`,
+		Total,,23,,36,,1253.90
+		
+		Extra Ents Charges
+		Extra 1,,,,,,10.00
+		Extra 2,,,,,,20.00
+		
+		Overall Total,,,,,,1283.90`,
 		"\t", "",
 	)
 	e := echo.New()
@@ -528,7 +636,7 @@ func (s *AdminBillSuite) TestGetBillFormalStatsCSV() {
 	c.SetParamNames("id")
 	c.SetParamValues(bill.ID.String())
 	// Mock database
-	s.bills.On("Find", bill.ID).Return(bill, nil).Once()
+	s.bills.On("FindWithExtras", bill.ID).Return(bill, nil).Once()
 	s.bills.On("GetCostBreakdown", &bill).Return(fbs, nil).Once()
 	// Run test
 	err := s.h.GetBillFormalStatsCSV(c)
@@ -542,6 +650,16 @@ func (s *AdminBillSuite) TestGetBillUserStatsCSV() {
 	bill := model.Bill{
 		Model: model.Model{ID: uuid.New()},
 		Name:  "Test",
+		Extras: []model.ExtraCharge{
+			{
+				Description: "Extra 1",
+				Amount:      10,
+			},
+			{
+				Description: "Extra 2",
+				Amount:      20,
+			},
+		},
 	}
 	ubs := []model.UserCostBreakdown{
 		{
@@ -557,7 +675,8 @@ func (s *AdminBillSuite) TestGetBillUserStatsCSV() {
 		`CRSID,Total
 		abc123,14.00
 		def456,73.40
-		Total,87.40`,
+		ents,30.00
+		Total,117.40`,
 		"\t", "",
 	)
 	e := echo.New()
@@ -567,7 +686,7 @@ func (s *AdminBillSuite) TestGetBillUserStatsCSV() {
 	c.SetParamNames("id")
 	c.SetParamValues(bill.ID.String())
 	// Mock database
-	s.bills.On("Find", bill.ID).Return(bill, nil).Once()
+	s.bills.On("FindWithExtras", bill.ID).Return(bill, nil).Once()
 	s.bills.On("GetCostBreakdownByUser", &bill).Return(ubs, nil).Once()
 	// Run test
 	err := s.h.GetBillUserStatsCSV(c)
