@@ -24,6 +24,8 @@ type BillStore interface {
 	AddFormals(bill *model.Bill, formalIds []uuid.UUID) error
 	// Remove a formal from a bill
 	RemoveFormal(bill *model.Bill, formalId uuid.UUID) error
+	// Add an extra charge to a bill
+	AddExtraCharge(bill *model.Bill, charge *model.ExtraCharge) error
 	// Get bill cost breakdown by formal
 	GetCostBreakdown(bill *model.Bill) ([]model.FormalCostBreakdown, error)
 	// Get bill cost breakdown by user
@@ -51,7 +53,7 @@ func (b *DBBillStore) Find(id uuid.UUID) (model.Bill, error) {
 // Retrieve a single bill with formals
 func (b *DBBillStore) FindWithFormals(id uuid.UUID) (model.Bill, error) {
 	var bill model.Bill
-	err := b.db.Preload("Formals").First(&bill, id).Error
+	err := b.db.Preload("Formals").Preload("Extras").First(&bill, id).Error
 	return bill, err
 }
 
@@ -81,6 +83,11 @@ func (b *DBBillStore) Delete(bill *model.Bill) error {
 		}
 		return tx.Delete(bill).Error
 	})
+}
+
+// Add an extra charge to a bill
+func (b *DBBillStore) AddExtraCharge(bill *model.Bill, charge *model.ExtraCharge) error {
+	return b.db.Model(bill).Association("Extras").Append(charge)
 }
 
 // Add a formal to a bill

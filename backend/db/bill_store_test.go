@@ -189,6 +189,10 @@ func (s *BillSuite) TestDeleteBill() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *BillSuite) TestAddExtraChargeToBill() {
+	s.Fail("Not implemented")
+}
+
 func (s *BillSuite) TestAddFormalsToBill() {
 	id := uuid.New()
 	bill := model.Bill{

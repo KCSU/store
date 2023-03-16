@@ -154,6 +154,49 @@ func (ah *AdminHandler) DeleteBill(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Add an extra ents charge to a bill
+func (ah *AdminHandler) AddBillExtra(c echo.Context) error {
+	// Get the bill ID from query
+	id := c.Param("id")
+	billID, err := uuid.Parse(id)
+	if err != nil {
+		return echo.ErrNotFound
+	}
+	e := new(dto.AddExtraToBillDto)
+	if err := c.Bind(e); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+	if err := c.Validate(e); err != nil {
+		return err
+	}
+	bill, err := ah.Bills.Find(billID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return echo.ErrNotFound
+		}
+		return err
+	}
+	err = ah.Bills.AddExtraCharge(&bill, &model.ExtraCharge{
+		Description: e.Description,
+		Amount:      e.Amount,
+	})
+	if err != nil {
+		return err
+	}
+	err = ah.Access.Log(c,
+		fmt.Sprintf("added extra ents charge to bill %s", bill.Name),
+		map[string]string{
+			"billId":      bill.ID.String(),
+			"description": e.Description,
+			"amount":      fmt.Sprintf("%.2f", e.Amount),
+		},
+	)
+	if err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusOK)
+}
+
 // Add a formal to a bill
 func (ah *AdminHandler) AddBillFormals(c echo.Context) error {
 	// Get the bill ID from query
@@ -198,6 +241,7 @@ func (ah *AdminHandler) AddBillFormals(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// Remove a formal from a bill
 func (ah *AdminHandler) RemoveBillFormal(c echo.Context) error {
 	// Get the bill ID from query
 	id := c.Param("id")

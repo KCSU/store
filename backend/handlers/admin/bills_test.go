@@ -344,6 +344,10 @@ func (s *AdminBillSuite) TestDeleteBill() {
 	s.Equal(http.StatusOK, rec.Code)
 }
 
+func (s *AdminBillSuite) TestAddBillExtra() {
+	s.Fail("Not implemented")
+}
+
 func (s *AdminBillSuite) TestAddBillFormals() {
 	fid1, fid2 := uuid.New(), uuid.New()
 	body := fmt.Sprintf(`{"formalIds": ["%s", "%s"]}`, fid1.String(), fid2.String())

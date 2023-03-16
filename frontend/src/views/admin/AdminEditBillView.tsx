@@ -31,6 +31,7 @@ import { BillContext } from "../../model/Bill";
 import { BillStats } from "../../components/formals/BillStats";
 import { FaTrashAlt } from "react-icons/fa";
 import { useDeleteBill } from "../../hooks/admin/useDeleteBill";
+import { BillExtrasList } from "../../components/admin/BillExtrasList";
 
 function AdminEditBillCard() {
   const bill = useContext(BillContext);
@@ -49,6 +50,7 @@ function AdminEditBillCard() {
           <TabList flexWrap="wrap">
             <Tab>Bill Details</Tab>
             <Tab>Formals</Tab>
+            <Tab>Extras</Tab>
             <Tab isDisabled={bill.formals?.length === 0}>Stats</Tab>
           </TabList>
           <TabPanels>
@@ -57,6 +59,9 @@ function AdminEditBillCard() {
             </TabPanel>
             <TabPanel>
               <BillFormalsList />
+            </TabPanel>
+            <TabPanel>
+              <BillExtrasList />
             </TabPanel>
             <TabPanel>
               <BillStats />

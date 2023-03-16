@@ -14,6 +14,20 @@ type BillStore struct {
 	mock.Mock
 }
 
+// AddExtraCharge provides a mock function with given fields: bill, charge
+func (_m *BillStore) AddExtraCharge(bill *model.Bill, charge *model.ExtraCharge) error {
+	ret := _m.Called(bill, charge)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*model.Bill, *model.ExtraCharge) error); ok {
+		r0 = rf(bill, charge)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // AddFormals provides a mock function with given fields: bill, formalIds
 func (_m *BillStore) AddFormals(bill *model.Bill, formalIds []uuid.UUID) error {
 	ret := _m.Called(bill, formalIds)
