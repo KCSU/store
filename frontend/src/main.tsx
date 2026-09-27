@@ -13,6 +13,11 @@ import { ReactQueryDevtools } from 'react-query/devtools'
 import axios from "axios";
 import { AuthProvider } from "./components/utility/AuthProvider";
 
+// OAuth session cookies only work on the canonical domain
+if (location.hostname === "kifomasy.web.app") {
+  location.replace("https://store.kcsu.org.uk" + location.pathname + location.search);
+}
+
 // TODO: move to config
 const queryClient = new QueryClient({
   queryCache: new QueryCache({

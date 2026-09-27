@@ -2,6 +2,7 @@ package route
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/kcsu/store/auth"
 	"github.com/kcsu/store/config"
@@ -63,8 +64,9 @@ func Init() *echo.Echo {
 
 func ApiRoutes(api *echo.Group, h *handlers.Handler, requireAuth echo.MiddlewareFunc) {
 
-	// TODO: change to health
-	api.GET("/", h.GetHello)
+	api.GET("/health", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	})
 
 	// Ticket scanning
 	api.GET("/scan/:id", h.ScanTicket)
