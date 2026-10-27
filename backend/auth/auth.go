@@ -150,6 +150,9 @@ func (auth *GoogleAuth) CompleteUserAuth(c echo.Context) (goth.User, error) {
 	return gu, err
 }
 
+// A stale or reused login link.
+var ErrStateMismatch = errors.New("state token mismatch")
+
 // validateState ensures that the state token param from the original
 // AuthURL matches the one included in the current (callback) request.
 func validateState(c echo.Context, sess goth.Session) error {
@@ -167,7 +170,7 @@ func validateState(c echo.Context, sess goth.Session) error {
 
 	originalState := authURL.Query().Get("state")
 	if originalState != "" && (originalState != reqState) {
-		return errors.New("state token mismatch")
+		return ErrStateMismatch
 	}
 	return nil
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
@@ -48,6 +49,10 @@ func (h *Handler) GetUser(c echo.Context) error {
 func (h *Handler) AuthCallback(c echo.Context) error {
 	// Fetch the OAuth2 user data
 	authUser, err := h.Auth.CompleteUserAuth(c)
+	if errors.Is(err, auth.ErrStateMismatch) {
+		// Send them back to log in again
+		return c.Redirect(http.StatusTemporaryRedirect, h.Config.OauthRedirectUrl)
+	}
 	if err != nil {
 		return err
 	}

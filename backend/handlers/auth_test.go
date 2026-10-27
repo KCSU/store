@@ -18,6 +18,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth"
 	"github.com/quasoft/memstore"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -184,6 +185,21 @@ func (a *AuthSuite) TestEmailConflict() {
 		a.Equal(he.Code, http.StatusConflict)
 		a.Equal(he.Message, "email is taken")
 	}
+}
+
+func (a *AuthSuite) TestAuthCallbackStateMismatch() {
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	a.auth.On("CompleteUserAuth", c).Return(goth.User{}, auth.ErrStateMismatch)
+
+	err := a.h.AuthCallback(c)
+
+	a.NoError(err)
+	a.Equal(http.StatusTemporaryRedirect, rec.Code)
+	a.Equal(redirect, rec.Header().Get(echo.HeaderLocation))
+	a.users.AssertNotCalled(a.T(), "FindOrCreate", mock.Anything)
 }
 
 func (a *AuthSuite) TestLogout() {
