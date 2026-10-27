@@ -300,7 +300,8 @@ func (s *FormalSuite) TestAllTicketsRemaining() {
 	sold.FirstSaleTickets, sold.SecondSaleTickets = 11, 12
 	sold.FirstSaleGuestTickets, sold.SecondSaleGuestTickets = 24, 3
 	unsold.FirstSaleTickets, unsold.FirstSaleGuestTickets = 5, 2
-	s.mock.ExpectQuery(`SELECT formal_id, count\(\*\) FILTER \(WHERE NOT is_guest\) AS tickets, count\(\*\) FILTER \(WHERE is_guest\) AS guest_tickets FROM "tickets" WHERE NOT is_queue AND "tickets"."deleted_at" IS NULL GROUP BY "formal_id"`).
+	s.mock.ExpectQuery(`SELECT formal_id, count\(\*\) FILTER \(WHERE NOT is_guest\) AS tickets, count\(\*\) FILTER \(WHERE is_guest\) AS guest_tickets FROM "tickets" WHERE .*formal_id IN \(\$1,\$2\) AND NOT is_queue.* GROUP BY "formal_id"`).
+		WithArgs(sold.ID, unsold.ID).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"formal_id", "tickets", "guest_tickets"}).AddRow(sold.ID, 10, 4),
 		)

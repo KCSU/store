@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/kcsu/store/db"
 	. "github.com/kcsu/store/handlers"
 	am "github.com/kcsu/store/mocks/auth"
 	mocks "github.com/kcsu/store/mocks/db"
@@ -138,10 +139,10 @@ func TestGetFormals(t *testing.T) {
 	// FIXME: refactor to make it easier to add cases?
 	a.On("GetUserId", c).Return(uid)
 	f.On("GetWithUserData", uid).Return(formals, nil)
-	f.On("TicketsRemaining", &formals[0], true).Return(uint(56))
-	f.On("TicketsRemaining", &formals[0], false).Return(uint(24))
-	f.On("TicketsRemaining", &formals[1], true).Return(uint(31))
-	f.On("TicketsRemaining", &formals[1], false).Return(uint(64))
+	f.On("AllTicketsRemaining", formals).Return(map[uuid.UUID]db.RemainingTickets{
+		formals[0].ID: {Tickets: 24, GuestTickets: 56},
+		formals[1].ID: {Tickets: 64, GuestTickets: 31},
+	}, nil)
 
 	// Run test
 	err := h.GetFormals(c)

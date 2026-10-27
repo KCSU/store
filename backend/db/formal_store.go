@@ -176,6 +176,10 @@ type RemainingTickets struct {
 
 // Get the number of tickets remaining for each of the given formals
 func (f *DBFormalStore) AllTicketsRemaining(formals []model.Formal) (map[uuid.UUID]RemainingTickets, error) {
+	ids := make([]uuid.UUID, len(formals))
+	for i, formal := range formals {
+		ids[i] = formal.ID
+	}
 	var sold []struct {
 		FormalID     uuid.UUID
 		Tickets      uint
@@ -183,7 +187,7 @@ func (f *DBFormalStore) AllTicketsRemaining(formals []model.Formal) (map[uuid.UU
 	}
 	err := f.db.Model(&model.Ticket{}).
 		Select("formal_id, count(*) FILTER (WHERE NOT is_guest) AS tickets, count(*) FILTER (WHERE is_guest) AS guest_tickets").
-		Where("NOT is_queue").
+		Where("formal_id IN ? AND NOT is_queue", ids).
 		Group("formal_id").
 		Scan(&sold).Error
 	if err != nil {
