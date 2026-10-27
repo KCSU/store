@@ -13,7 +13,7 @@ export function AdminCreateGroupView() {
   const defaultGroup: Group = {
     id: '',
     name: '',
-    type: 'inst',
+    type: 'group',
     lookup: ''
   }
   return (

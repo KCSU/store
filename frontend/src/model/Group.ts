@@ -6,6 +6,9 @@ export interface Group {
     users?: GroupUser[];
 }
 
+// Lookup groups published by kcsu-admin
+export const lookupGroups = ["kings-sis-ug", "kings-sis-pg", "kings-fellows"];
+
 export function groupType(type: string) {
     switch (type) {
         case "inst":

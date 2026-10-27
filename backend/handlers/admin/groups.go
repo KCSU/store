@@ -200,28 +200,6 @@ func (ah *AdminHandler) RemoveGroupUser(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-// Sync a group with the lookup directory
-func (ah *AdminHandler) LookupGroupUsers(c echo.Context) error {
-	// Get the group ID from query
-	id := c.Param("id")
-	groupID, err := uuid.Parse(id)
-	if err != nil {
-		return echo.ErrNotFound
-	}
-	group, err := ah.Groups.Find(groupID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return echo.ErrNotFound
-		}
-		return err
-	}
-	// Check manual group?
-	if err := ah.Lookup.ProcessGroup(group); err != nil {
-		return err
-	}
-	return c.NoContent(http.StatusOK)
-}
-
 func (ah *AdminHandler) logGroupAccess(c echo.Context, verb string, group *model.Group) error {
 	return ah.Access.Log(c, verb, map[string]string{"groupId": group.ID.String()})
 }

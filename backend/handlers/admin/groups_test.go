@@ -11,7 +11,6 @@ import (
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
-	lm "github.com/kcsu/store/mocks/lookup"
 	mm "github.com/kcsu/store/mocks/middleware"
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
@@ -24,16 +23,13 @@ type AdminGroupSuite struct {
 	suite.Suite
 	h      *AdminHandler
 	groups *mocks.GroupStore
-	lookup *lm.Lookup
 }
 
 func (s *AdminGroupSuite) SetupTest() {
 	// Init handler
 	s.h = new(AdminHandler)
 	s.groups = mocks.NewGroupStore(s.T())
-	s.lookup = lm.NewLookup(s.T())
 	s.h.Groups = s.groups
-	s.h.Lookup = s.lookup
 	// HACK: We currently ignore calls to Access.Log
 	// but this is probably a bad idea.
 	accessMock := mm.NewAccess(s.T())
@@ -171,7 +167,7 @@ func (s *AdminGroupSuite) TestCreateGroup() {
 			"Missing Lookup",
 			`{
 				"name": "A group",
-				"type": "inst"
+				"type": "group"
 			}`,
 			model.Group{},
 			&wants{
@@ -192,16 +188,16 @@ func (s *AdminGroupSuite) TestCreateGroup() {
 			nil,
 		},
 		{
-			"Should Create: institution",
+			"Should Create: Lookup group",
 			`{
 				"name": "My Group",
-				"type": "inst",
-				"lookup": "MYGRP"
+				"type": "group",
+				"lookup": "kings-sis-ug"
 			}`,
 			model.Group{
 				Name:   "My Group",
-				Type:   "inst",
-				Lookup: "MYGRP",
+				Type:   "group",
+				Lookup: "kings-sis-ug",
 			},
 			nil,
 		},
@@ -275,17 +271,17 @@ func (s *AdminGroupSuite) TestUpdateGroup() {
 			nil,
 		},
 		{
-			"Should Update: institution",
+			"Should Update: Lookup group",
 			`{
 				"name": "My Group",
-				"type": "inst",
-				"lookup": "MYGRP"
+				"type": "group",
+				"lookup": "kings-sis-pg"
 			}`,
 			model.Group{
 				Model:  model.Model{ID: uuid.New()},
 				Name:   "My Group",
-				Type:   "inst",
-				Lookup: "MYGRP",
+				Type:   "group",
+				Lookup: "kings-sis-pg",
 			},
 			nil,
 		},
@@ -587,68 +583,6 @@ func (s *AdminGroupSuite) TestRemoveGroupUser() {
 			if test.wants == nil {
 				s.NoError(err)
 				s.Equal(http.StatusNoContent, rec.Code)
-			} else {
-				var he *echo.HTTPError
-				if s.ErrorAs(err, &he) {
-					s.Equal(test.wants.code, he.Code)
-					s.Equal(test.wants.message, he.Message)
-				}
-			}
-		})
-	}
-}
-
-func (s *AdminGroupSuite) TestLookupGroupUsers() {
-	type wants struct {
-		code    int
-		message string
-	}
-	type test struct {
-		name  string
-		group model.Group
-		users []model.GroupUser
-		wants *wants
-	}
-	tests := []test{
-		{
-			"Should Replace",
-			model.Group{
-				Model:  model.Model{ID: uuid.New()},
-				Name:   "My Group",
-				Type:   "inst",
-				Lookup: "MYGRP",
-			},
-			[]model.GroupUser{
-				{UserEmail: "abc123@cam.ac.uk"},
-				{UserEmail: "def456@cam.ac.uk"},
-			},
-			nil,
-		},
-	}
-	for _, test := range tests {
-		s.Run(test.name, func() {
-			e := echo.New()
-			// HTTP
-			route := fmt.Sprint("/groups/", test.group.ID, "/users/lookup")
-			req := httptest.NewRequest(
-				http.MethodPost, route, nil,
-			)
-			rec := httptest.NewRecorder()
-			c := e.NewContext(req, rec)
-			c.SetParamNames("id")
-			c.SetParamValues(test.group.ID.String())
-			// Mock
-			s.groups.On("Find", test.group.ID).Return(
-				test.group, nil,
-			).Once()
-			if test.wants == nil {
-				s.lookup.On("ProcessGroup", test.group).Return(nil).Once()
-			}
-			// Test
-			err := s.h.LookupGroupUsers(c)
-			if test.wants == nil {
-				s.NoError(err)
-				s.Equal(http.StatusOK, rec.Code)
 			} else {
 				var he *echo.HTTPError
 				if s.ErrorAs(err, &he) {

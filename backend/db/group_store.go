@@ -5,6 +5,7 @@ import (
 	"github.com/kcsu/store/model"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Helper for using Groups in the database
@@ -89,7 +90,8 @@ func (g *DBGroupStore) ReplaceLookupUsers(group *model.Group, users []model.Grou
 		if err != nil {
 			return err
 		}
-		if err := tx.Create(&newUsers).Error; err != nil {
+		// Users who are also manual members stay manual
+		if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&newUsers).Error; err != nil {
 			return err
 		}
 		return nil

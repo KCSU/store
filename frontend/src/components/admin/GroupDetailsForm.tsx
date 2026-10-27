@@ -10,7 +10,7 @@ import {
 import { Select } from "chakra-react-select";
 import { Formik, Form, Field, FieldProps } from "formik";
 import { FaSave } from "react-icons/fa";
-import { Group, groupType } from "../../model/Group";
+import { Group, groupType, lookupGroups } from "../../model/Group";
 
 interface GroupDetailsFormProps {
   group: Group;
@@ -54,7 +54,6 @@ export const GroupDetailsForm: React.FC<GroupDetailsFormProps> = ({
                       label: groupType(field.value),
                     }}
                     options={[
-                      { value: "inst", label: "Institution" },
                       { value: "group", label: "Group" },
                       { value: "manual", label: "Manual" },
                     ]}
@@ -72,8 +71,17 @@ export const GroupDetailsForm: React.FC<GroupDetailsFormProps> = ({
                   isDisabled={isDisabled}
                   isInvalid={!!(form.errors.lookup && form.touched.lookup)}
                 >
-                  <FormLabel htmlFor="lookup">Lookup Query</FormLabel>
-                  <Input {...field} fontFamily="mono" id="lookup" placeholder="Query" />
+                  <FormLabel htmlFor="lookup">Lookup Group</FormLabel>
+                  <Select
+                    inputId="lookup"
+                    isDisabled={isDisabled || form.values.type === "manual"}
+                    value={field.value ? { value: field.value, label: field.value } : null}
+                    options={lookupGroups.map((g) => ({ value: g, label: g }))}
+                    selectedOptionColor="brand"
+                    onChange={(option) =>
+                      form.setFieldValue(field.name, option?.value)
+                    }
+                  ></Select>
                   <FormErrorMessage>{form.errors.lookup}</FormErrorMessage>
                 </FormControl>
               )}

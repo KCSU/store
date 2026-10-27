@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/logging"
 	"github.com/kcsu/store/lookup"
+	lookupv1 "github.com/kcsu/store/proto/kcsu/lookup/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var c *config.Config
@@ -39,9 +42,29 @@ func main() {
 	}
 }
 
+// Handle a Pub/Sub push from kcsu-admin's hourly lookup sync
 func handler(w http.ResponseWriter, r *http.Request) {
-	if err := lookup.Run(c, g); err != nil {
-		alerts.Send("lookup-sync-failed", "Lookup sync failed", err, nil)
-		w.WriteHeader(500)
+	var push struct {
+		Message struct {
+			Data []byte `json:"data"`
+		} `json:"message"`
 	}
+	snapshot := &lookupv1.GroupSnapshot{}
+	err := json.NewDecoder(r.Body).Decode(&push)
+	if err == nil {
+		err = proto.Unmarshal(push.Message.Data, snapshot)
+	}
+	if err != nil || snapshot.Name == "" {
+		// Redelivering can't fix a malformed message
+		alerts.Send("lookup-sync-failed", "Dropped a malformed Lookup snapshot", err, nil)
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if err := lookup.ApplySnapshot(g, snapshot); err != nil {
+		// Probably transient; reply with 500 for Pub/Sub to retry delivery
+		alerts.Send("lookup-sync-failed", "Lookup sync failed", err, map[string]string{"lookup_group": snapshot.Name})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
