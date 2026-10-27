@@ -1,9 +1,12 @@
 package route
 
 import (
+	"bytes"
 	"log"
 	"net/http"
+	"strings"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/kcsu/store/auth"
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
@@ -31,7 +34,16 @@ func Init() *echo.Echo {
 	e.Validator = middleware.NewValidator()
 
 	// Configure global middleware
-	e.Use(em.Logger())
+	e.Use(em.LoggerWithConfig(em.LoggerConfig{
+		Format: strings.Replace(em.DefaultLoggerConfig.Format, `"status"`, `"crsid":"${custom}","status"`, 1),
+		CustomTagFunc: func(c echo.Context, buf *bytes.Buffer) (int, error) {
+			crsid := ""
+			if token, ok := c.Get("user").(*jwt.Token); ok {
+				crsid, _, _ = strings.Cut(token.Claims.(*auth.JwtClaims).Email, "@")
+			}
+			return buf.WriteString(crsid)
+		},
+	}))
 	if c.Debug {
 		e.Debug = true
 		// CORS for testing localhost on different ports
