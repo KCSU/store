@@ -1,9 +1,8 @@
 package config
 
 import (
-	"log"
-
 	"github.com/joho/godotenv"
+	"github.com/kcsu/store/logging"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -31,7 +30,7 @@ func Init() *Config {
 	_ = godotenv.Load() // TODO: Handle err (log no .env file)?
 	c := &Config{}
 	if err := envconfig.Process("", c); err != nil {
-		log.Panic(err) // TODO: use JSON log?
+		logging.Fatalf("reading the config failed: %v", err)
 	}
 	return c
 }

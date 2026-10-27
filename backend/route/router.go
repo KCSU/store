@@ -2,7 +2,7 @@ package route
 
 import (
 	"bytes"
-	"log"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -12,6 +12,7 @@ import (
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/handlers"
 	"github.com/kcsu/store/handlers/admin"
+	"github.com/kcsu/store/logging"
 	"github.com/kcsu/store/middleware"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -26,22 +27,27 @@ func Init() *echo.Echo {
 	// Initialise database connection
 	d, err := db.Init(c)
 	if err != nil {
-		log.Panic(err)
+		logging.Fatalf("connecting to the database failed: %v", err)
 	}
 
 	// Create the router
 	e := echo.New()
+	e.Logger.SetHeader(`{"time":"${time_rfc3339_nano}","severity":"${level}","file":"${short_file}","line":"${line}"}`)
 	e.Validator = middleware.NewValidator()
 
 	// Configure global middleware
 	e.Use(em.LoggerWithConfig(em.LoggerConfig{
-		Format: strings.Replace(em.DefaultLoggerConfig.Format, `"status"`, `"crsid":"${custom}","status"`, 1),
+		Format: strings.Replace(em.DefaultLoggerConfig.Format, `"status"`, `${custom},"status"`, 1),
 		CustomTagFunc: func(c echo.Context, buf *bytes.Buffer) (int, error) {
 			crsid := ""
 			if token, ok := c.Get("user").(*jwt.Token); ok {
 				crsid, _, _ = strings.Cut(token.Claims.(*auth.JwtClaims).Email, "@")
 			}
-			return buf.WriteString(crsid)
+			severity := "INFO"
+			if c.Response().Status >= 500 {
+				severity = "ERROR"
+			}
+			return fmt.Fprintf(buf, `"crsid":%q,"severity":%q`, crsid, severity)
 		},
 	}))
 	if c.Debug {

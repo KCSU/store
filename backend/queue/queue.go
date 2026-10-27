@@ -1,13 +1,13 @@
 package queue
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
+	"github.com/kcsu/store/logging"
 	"github.com/kcsu/store/model"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/gorm"
@@ -212,7 +212,7 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 				&formal, successes, guestSuccesses,
 			)
 			// TODO(khm39): replace SendGrid with some alternative
-			fmt.Printf("email disabled: not sending %d ticket emails for formal %s\n", len(personalizations), formal.ID)
+			logging.Warnf("email disabled: not sending %d ticket emails for formal %s", len(personalizations), formal.ID)
 		}
 	}
 	return nil
