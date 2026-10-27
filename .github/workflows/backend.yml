@@ -72,19 +72,19 @@ jobs:
         with:
           credentials_json: '${{ secrets.GCR_JSON_KEY }}'
       - name: Deploy api to Cloud Run
-        uses: 'google-github-actions/deploy-cloudrun@v0'
+        uses: 'google-github-actions/deploy-cloudrun@v3'
         with:
           image: 'eu.gcr.io/kifomasy/api:edge'
           region: europe-west1
           service: api
       - name: Deploy lookup to Cloud Run
-        uses: 'google-github-actions/deploy-cloudrun@v0'
+        uses: 'google-github-actions/deploy-cloudrun@v3'
         with:
           image: 'eu.gcr.io/kifomasy/lookup:edge'
           region: europe-west1
           service: lookup
       - name: Deploy queue to Cloud Run
-        uses: 'google-github-actions/deploy-cloudrun@v0'
+        uses: 'google-github-actions/deploy-cloudrun@v3'
         with:
           image: 'eu.gcr.io/kifomasy/queue:edge'
           region: europe-west1
