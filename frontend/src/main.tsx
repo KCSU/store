@@ -14,8 +14,10 @@ import axios from "axios";
 import { AuthProvider } from "./components/utility/AuthProvider";
 
 // OAuth session cookies only work on the canonical domain
-if (location.hostname === "kifomasy.web.app") {
-  location.replace("https://store.kcsu.org.uk" + location.pathname + location.search);
+if (import.meta.env.PROD && location.hostname !== "store.kcsu.org.uk") {
+  location.replace(
+    "https://store.kcsu.org.uk" + location.pathname + location.search + location.hash,
+  );
 }
 
 // TODO: move to config
