@@ -162,7 +162,7 @@ export function BillExtrasTable({
   billId,
   showActions = false,
 }: BillExtrasTableProps) {
-  const canWrite = useHasPermission("tickets", "write"); // FIXME: URGENT
+  const canWrite = useHasPermission("billing", "write");
   const columns = useMemo<Column<BillExtra>[]>(() => {
     const cols: Column<BillExtra>[] = [
       {
@@ -275,7 +275,7 @@ export function BillExtrasTable({
 
 export function BillExtrasList() {
   const bill = useContext(BillContext);
-  const canWrite = useHasPermission("tickets", "write"); // FIXME: URGENT
+  const canWrite = useHasPermission("billing", "write");
   const extras = bill?.extras ?? [];
   return (
     <>
