@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kcsu/store/alerts"
 	"github.com/kcsu/store/logging"
 	"github.com/kcsu/store/route"
 )
@@ -16,5 +17,5 @@ func main() {
 	}
 	e.HidePort = true
 	logging.Infof("listening on port %s", port)
-	logging.Fatalf("server stopped: %v", e.Start(fmt.Sprintf(":%s", port)))
+	alerts.Fatal("server stopped", e.Start(fmt.Sprintf(":%s", port)))
 }

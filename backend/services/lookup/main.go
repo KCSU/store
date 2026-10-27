@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/kcsu/store/alerts"
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/logging"
@@ -19,7 +20,7 @@ func main() {
 	var err error
 	d, err := db.Init(c)
 	if err != nil {
-		logging.Fatalf("connecting to the database failed: %v", err)
+		alerts.Fatal("connecting to the database failed", err)
 	}
 	g = db.NewGroupStore(d)
 	http.HandleFunc("/", handler)
@@ -34,13 +35,13 @@ func main() {
 	// Start HTTP server.
 	logging.Infof("listening on port %s", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		logging.Fatalf("server stopped: %v", err)
+		alerts.Fatal("server stopped", err)
 	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	if err := lookup.Run(c, g); err != nil {
-		logging.Errorf("syncing with Lookup failed: %v", err)
+		alerts.Send("lookup-sync-failed", "Lookup sync failed", err, nil)
 		w.WriteHeader(500)
 	}
 }

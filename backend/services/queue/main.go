@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/kcsu/store/alerts"
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/logging"
@@ -21,7 +22,7 @@ func main() {
 	var err error
 	d, err = db.Init(c)
 	if err != nil {
-		logging.Fatalf("connecting to the database failed: %v", err)
+		alerts.Fatal("connecting to the database failed", err)
 	}
 	f = db.NewFormalStore(d)
 	http.HandleFunc("/", handler)
@@ -36,13 +37,13 @@ func main() {
 	// Start HTTP server.
 	logging.Infof("listening on port %s", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		logging.Fatalf("server stopped: %v", err)
+		alerts.Fatal("server stopped", err)
 	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	if err := queue.Run(c, d, f); err != nil {
-		logging.Errorf("running the queue failed: %v", err)
+		alerts.Send("queue-failed", "Ticket queue run failed", err, nil)
 		w.WriteHeader(500)
 	}
 }

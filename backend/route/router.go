@@ -7,12 +7,12 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/kcsu/store/alerts"
 	"github.com/kcsu/store/auth"
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/handlers"
 	"github.com/kcsu/store/handlers/admin"
-	"github.com/kcsu/store/logging"
 	"github.com/kcsu/store/middleware"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -27,7 +27,7 @@ func Init() *echo.Echo {
 	// Initialise database connection
 	d, err := db.Init(c)
 	if err != nil {
-		logging.Fatalf("connecting to the database failed: %v", err)
+		alerts.Fatal("connecting to the database failed", err)
 	}
 
 	// Create the router
@@ -71,6 +71,12 @@ func Init() *echo.Echo {
 	// Authentication middleware
 	requireAuth := middleware.JWTAuth(c)
 	api := e.Group("/api")
+	api.GET("/health", func(c echo.Context) error {
+		if err := d.Exec("SELECT 1").Error; err != nil {
+			return c.JSON(http.StatusServiceUnavailable, map[string]string{"status": "database unreachable"})
+		}
+		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+	})
 	ApiRoutes(api, h, requireAuth)
 
 	adminApi := api.Group("/admin", requireAuth)
@@ -81,10 +87,6 @@ func Init() *echo.Echo {
 }
 
 func ApiRoutes(api *echo.Group, h *handlers.Handler, requireAuth echo.MiddlewareFunc) {
-
-	api.GET("/health", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
-	})
 
 	// Ticket scanning
 	api.GET("/scan/:id", h.ScanTicket)
