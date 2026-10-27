@@ -156,9 +156,17 @@ func (f *DBFormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uin
 		query = "NOT is_guest AND NOT is_queue"
 	}
 
-	return baseTickets - uint(
+	return Remaining(baseTickets, uint(
 		f.db.Model(formal).Where(query).Association("TicketSales").Count(),
-	)
+	))
+}
+
+// max(total - used, 0)
+func Remaining(total, used uint) uint {
+	if used >= total {
+		return 0
+	}
+	return total - used
 }
 
 type RemainingTickets struct {
@@ -189,8 +197,8 @@ func (f *DBFormalStore) AllTicketsRemaining(formals []model.Formal) (map[uuid.UU
 	for _, formal := range formals {
 		s := soldByFormal[formal.ID]
 		remaining[formal.ID] = RemainingTickets{
-			Tickets:      formal.FirstSaleTickets + formal.SecondSaleTickets - s.Tickets,
-			GuestTickets: formal.FirstSaleGuestTickets + formal.SecondSaleGuestTickets - s.GuestTickets,
+			Tickets:      Remaining(formal.FirstSaleTickets+formal.SecondSaleTickets, s.Tickets),
+			GuestTickets: Remaining(formal.FirstSaleGuestTickets+formal.SecondSaleGuestTickets, s.GuestTickets),
 		}
 	}
 	return remaining, nil

@@ -313,6 +313,23 @@ func (s *FormalSuite) TestAllTicketsRemaining() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestTicketsRemainingOversold() {
+	f := model.Formal{}
+	f.ID = uuid.New()
+	f.FirstSaleTickets, f.FirstSaleGuestTickets = 5, 2
+	s.mock.ExpectQuery(`SELECT count\(\*\) FROM "tickets"`).
+		WillReturnRows(sqlmock.NewRows([]string{"count(*)"}).AddRow(9))
+	s.EqualValues(0, s.store.TicketsRemaining(&f, false))
+	s.mock.ExpectQuery(`SELECT formal_id, count\(\*\) FILTER`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"formal_id", "tickets", "guest_tickets"}).AddRow(f.ID, 9, 3),
+		)
+	remaining, err := s.store.AllTicketsRemaining([]model.Formal{f})
+	s.NoError(err)
+	s.Equal(RemainingTickets{Tickets: 0, GuestTickets: 0}, remaining[f.ID])
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *FormalSuite) TestGetTicketStats() {
 	id := uuid.New()
 	tickets := []model.TicketStat{

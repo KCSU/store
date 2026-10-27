@@ -168,8 +168,8 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 
 		if time.Now().Before(formal.SecondSaleStart) {
 			// Second sale hasn't started yet
-			ticketsAvailable -= formal.SecondSaleTickets
-			guestTicketsAvailable -= formal.SecondSaleGuestTickets
+			ticketsAvailable = db.Remaining(ticketsAvailable, formal.SecondSaleTickets)
+			guestTicketsAvailable = db.Remaining(guestTicketsAvailable, formal.SecondSaleGuestTickets)
 		}
 
 		// Get all queued tickets
