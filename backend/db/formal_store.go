@@ -30,6 +30,8 @@ type FormalStore interface {
 	GetQueueLength(id uuid.UUID) (int, error)
 	// Get the number of tickets remaining for a specified formal
 	TicketsRemaining(formal *model.Formal, isGuest bool) uint
+	// Get the number of tickets remaining for each of the given formals
+	AllTicketsRemaining(formals []model.Formal) (map[uuid.UUID]RemainingTickets, error)
 	// Create a formal
 	Create(formal *model.Formal) error
 	// Get all ticket stats for a formal
@@ -157,6 +159,41 @@ func (f *DBFormalStore) TicketsRemaining(formal *model.Formal, isGuest bool) uin
 	return baseTickets - uint(
 		f.db.Model(formal).Where(query).Association("TicketSales").Count(),
 	)
+}
+
+type RemainingTickets struct {
+	Tickets      uint
+	GuestTickets uint
+}
+
+// Get the number of tickets remaining for each of the given formals
+func (f *DBFormalStore) AllTicketsRemaining(formals []model.Formal) (map[uuid.UUID]RemainingTickets, error) {
+	var sold []struct {
+		FormalID     uuid.UUID
+		Tickets      uint
+		GuestTickets uint
+	}
+	err := f.db.Model(&model.Ticket{}).
+		Select("formal_id, count(*) FILTER (WHERE NOT is_guest) AS tickets, count(*) FILTER (WHERE is_guest) AS guest_tickets").
+		Where("NOT is_queue").
+		Group("formal_id").
+		Scan(&sold).Error
+	if err != nil {
+		return nil, err
+	}
+	soldByFormal := make(map[uuid.UUID]RemainingTickets, len(sold))
+	for _, s := range sold {
+		soldByFormal[s.FormalID] = RemainingTickets{s.Tickets, s.GuestTickets}
+	}
+	remaining := make(map[uuid.UUID]RemainingTickets, len(formals))
+	for _, formal := range formals {
+		s := soldByFormal[formal.ID]
+		remaining[formal.ID] = RemainingTickets{
+			Tickets:      formal.FirstSaleTickets + formal.SecondSaleTickets - s.Tickets,
+			GuestTickets: formal.FirstSaleGuestTickets + formal.SecondSaleGuestTickets - s.GuestTickets,
+		}
+	}
+	return remaining, nil
 }
 
 // Get all ticket stats for a formal

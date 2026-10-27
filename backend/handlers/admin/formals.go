@@ -22,15 +22,18 @@ func (ah *AdminHandler) GetFormals(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	remaining, err := ah.Formals.AllTicketsRemaining(formals)
+	if err != nil {
+		return err
+	}
 	// Create JSON response
 	// TODO: DRY!!!!!
 	// Do we actually need any of this or can we just return the basic info?
 	formalData := make([]dto.FormalDto, len(formals))
 	for i, f := range formals {
 		formalData[i].Formal = f
-		// FIXME: This is horribly inefficient!!
-		formalData[i].TicketsRemaining = ah.Formals.TicketsRemaining(&f, false)
-		formalData[i].GuestTicketsRemaining = ah.Formals.TicketsRemaining(&f, true)
+		formalData[i].TicketsRemaining = remaining[f.ID].Tickets
+		formalData[i].GuestTicketsRemaining = remaining[f.ID].GuestTickets
 		groups := make([]dto.GroupDto, len(f.Groups))
 		for j, g := range f.Groups {
 			groups[j] = dto.GroupDto{

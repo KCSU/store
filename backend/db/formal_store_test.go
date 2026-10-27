@@ -294,6 +294,25 @@ func (s *FormalSuite) TestTicketsRemaining() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
+func (s *FormalSuite) TestAllTicketsRemaining() {
+	sold, unsold := model.Formal{}, model.Formal{}
+	sold.ID, unsold.ID = uuid.New(), uuid.New()
+	sold.FirstSaleTickets, sold.SecondSaleTickets = 11, 12
+	sold.FirstSaleGuestTickets, sold.SecondSaleGuestTickets = 24, 3
+	unsold.FirstSaleTickets, unsold.FirstSaleGuestTickets = 5, 2
+	s.mock.ExpectQuery(`SELECT formal_id, count\(\*\) FILTER \(WHERE NOT is_guest\) AS tickets, count\(\*\) FILTER \(WHERE is_guest\) AS guest_tickets FROM "tickets" WHERE NOT is_queue AND "tickets"."deleted_at" IS NULL GROUP BY "formal_id"`).
+		WillReturnRows(
+			sqlmock.NewRows([]string{"formal_id", "tickets", "guest_tickets"}).AddRow(sold.ID, 10, 4),
+		)
+	remaining, err := s.store.AllTicketsRemaining([]model.Formal{sold, unsold})
+	s.NoError(err)
+	s.Equal(map[uuid.UUID]RemainingTickets{
+		sold.ID:   {Tickets: 13, GuestTickets: 23},
+		unsold.ID: {Tickets: 5, GuestTickets: 2},
+	}, remaining)
+	s.NoError(s.mock.ExpectationsWereMet())
+}
+
 func (s *FormalSuite) TestGetTicketStats() {
 	id := uuid.New()
 	tickets := []model.TicketStat{

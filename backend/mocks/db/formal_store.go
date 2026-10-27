@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	db "github.com/kcsu/store/db"
 	model "github.com/kcsu/store/model"
 	mock "github.com/stretchr/testify/mock"
 
@@ -33,6 +34,32 @@ func (_m *FormalStore) All() ([]model.Formal, error) {
 
 	if rf, ok := ret.Get(1).(func() error); ok {
 		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// AllTicketsRemaining provides a mock function with given fields: formals
+func (_m *FormalStore) AllTicketsRemaining(formals []model.Formal) (map[uuid.UUID]db.RemainingTickets, error) {
+	ret := _m.Called(formals)
+
+	var r0 map[uuid.UUID]db.RemainingTickets
+	var r1 error
+	if rf, ok := ret.Get(0).(func([]model.Formal) (map[uuid.UUID]db.RemainingTickets, error)); ok {
+		return rf(formals)
+	}
+	if rf, ok := ret.Get(0).(func([]model.Formal) map[uuid.UUID]db.RemainingTickets); ok {
+		r0 = rf(formals)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[uuid.UUID]db.RemainingTickets)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func([]model.Formal) error); ok {
+		r1 = rf(formals)
 	} else {
 		r1 = ret.Error(1)
 	}

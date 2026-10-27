@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kcsu/store/db"
 	. "github.com/kcsu/store/handlers/admin"
 	"github.com/kcsu/store/middleware"
 	mocks "github.com/kcsu/store/mocks/db"
@@ -141,10 +142,10 @@ func (s *AdminFormalSuite) TestGetFormals() {
 	}
 	// FIXME: refactor to make it easier to add cases?
 	s.formals.On("All").Return(formals, nil)
-	s.formals.On("TicketsRemaining", &formals[0], true).Return(uint(56))
-	s.formals.On("TicketsRemaining", &formals[0], false).Return(uint(24))
-	s.formals.On("TicketsRemaining", &formals[1], true).Return(uint(31))
-	s.formals.On("TicketsRemaining", &formals[1], false).Return(uint(64))
+	s.formals.On("AllTicketsRemaining", formals).Return(map[uuid.UUID]db.RemainingTickets{
+		formals[0].ID: {Tickets: 24, GuestTickets: 56},
+		formals[1].ID: {Tickets: 64, GuestTickets: 31},
+	}, nil)
 
 	// Run test
 	err := s.h.GetFormals(c)
