@@ -9,7 +9,6 @@ import (
 	"github.com/kcsu/store/config"
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/model"
-	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/gorm"
 )
@@ -212,19 +211,8 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 			personalizations := GeneratePersonalisations(
 				&formal, successes, guestSuccesses,
 			)
-			message := mail.NewV3Mail()
-			message.SetFrom(mail.NewEmail("KiFoMaSy", c.MailFrom))
-			message.SetTemplateID(c.MailTemplateId)
-			message.AddPersonalizations(personalizations...)
-			client := sendgrid.NewSendClient(c.MailApiKey)
-			response, err := client.Send(message)
-			if err != nil {
-				return err
-			} else {
-				fmt.Println(response.StatusCode)
-				fmt.Println(response.Body)
-				fmt.Println(response.Headers)
-			}
+			// TODO(khm39): replace SendGrid with some alternative
+			fmt.Printf("email disabled: not sending %d ticket emails for formal %s\n", len(personalizations), formal.ID)
 		}
 	}
 	return nil
