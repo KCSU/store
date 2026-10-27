@@ -101,7 +101,7 @@ func (s *TicketSuite) TestFindTicket() {
 	}
 	ticket.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
-		WithArgs(ticket.ID).
+		WithArgs(ticket.ID, 1).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "formal_id", "user_id", "is_guest", "is_queue"}).
 				AddRow(ticket.ID, ticket.FormalID, ticket.UserID, ticket.IsGuest, ticket.IsQueue),
@@ -137,7 +137,7 @@ func (s *TicketSuite) TestFindTicketWithFormal() {
 	}
 	ticket.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "tickets"`).
-		WithArgs(ticket.ID).
+		WithArgs(ticket.ID, 1).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "formal_id", "is_guest", "is_queue"}).
 				AddRow(ticket.ID, ticket.FormalID, ticket.IsGuest, ticket.IsQueue),

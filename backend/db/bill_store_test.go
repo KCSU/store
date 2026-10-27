@@ -77,7 +77,7 @@ func (s *BillSuite) TestFindBill() {
 		End:   time.Now().Add(24 * time.Hour),
 	}
 	s.mock.ExpectQuery(`SELECT \* FROM "bills"`).
-		WithArgs(id).
+		WithArgs(id, 1).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "name", "start", "end"}).
 				AddRow(
@@ -105,7 +105,7 @@ func (s *BillSuite) TestFindBillWithExtras() {
 		}},
 	}
 	s.mock.ExpectQuery(`SELECT \* FROM "bills"`).
-		WithArgs(id).
+		WithArgs(id, 1).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "name", "start", "end"}).
 				AddRow(
@@ -146,7 +146,7 @@ func (s *BillSuite) TestFindBillWithFormals() {
 		}},
 	}
 	s.mock.ExpectQuery(`SELECT \* FROM "bills"`).
-		WithArgs(id).
+		WithArgs(id, 1).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "name", "start", "end"}).
 				AddRow(

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/kcsu/store/alerts"
 	"github.com/kcsu/store/auth"
 	"github.com/kcsu/store/config"

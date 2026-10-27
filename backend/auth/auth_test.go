@@ -19,7 +19,7 @@ type OAuthSuite struct {
 }
 
 func (a *OAuthSuite) SetupTest() {
-	store := memstore.NewMemStore([]byte{})
+	store := memstore.NewMemStore([]byte("test-hash-key"))
 	a.auth = Init(&config.Config{}, store)
 }
 

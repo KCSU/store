@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
@@ -10,7 +10,7 @@ import (
 type JwtClaims struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 	// TODO: admin stuff
 }
 

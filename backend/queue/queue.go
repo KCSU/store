@@ -9,7 +9,6 @@ import (
 	"github.com/kcsu/store/db"
 	"github.com/kcsu/store/logging"
 	"github.com/kcsu/store/model"
-	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"gorm.io/gorm"
 )
 
@@ -104,16 +103,19 @@ type templateTicketData struct {
 	Option string `json:"option"`
 }
 
-type templateData struct {
+// One email per user with the tickets they were allocated
+type TicketEmail struct {
+	Email    string
 	Username string
 	Formal   templateFormalData
 	Tickets  []templateTicketData
 }
 
-func GeneratePersonalisations(formal *model.Formal, successes []model.Ticket, guestSuccesses []model.Ticket) []*mail.Personalization {
-	data := map[string]*templateData{}
+func GenerateTicketEmails(formal *model.Formal, successes []model.Ticket, guestSuccesses []model.Ticket) []*TicketEmail {
+	data := map[string]*TicketEmail{}
 	for _, t := range successes {
-		data[t.User.Email] = &templateData{
+		data[t.User.Email] = &TicketEmail{
+			Email: t.User.Email,
 			Tickets: []templateTicketData{
 				{
 					Type:   "King's",
@@ -129,7 +131,8 @@ func GeneratePersonalisations(formal *model.Formal, successes []model.Ticket, gu
 	}
 	for _, t := range guestSuccesses {
 		if _, ok := data[t.User.Email]; !ok {
-			data[t.User.Email] = &templateData{
+			data[t.User.Email] = &TicketEmail{
+				Email:   t.User.Email,
 				Tickets: []templateTicketData{},
 				Formal: templateFormalData{
 					Name: formal.Name,
@@ -144,15 +147,11 @@ func GeneratePersonalisations(formal *model.Formal, successes []model.Ticket, gu
 		})
 	}
 
-	personalizations := make([]*mail.Personalization, 0, len(data))
-	for user, d := range data {
-		person := mail.NewPersonalization()
-		person.AddTos(mail.NewEmail(d.Username, user))
-		person.SetDynamicTemplateData("formal", d.Formal)
-		person.SetDynamicTemplateData("tickets", d.Tickets)
-		personalizations = append(personalizations, person)
+	emails := make([]*TicketEmail, 0, len(data))
+	for _, e := range data {
+		emails = append(emails, e)
 	}
-	return personalizations
+	return emails
 }
 
 func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
@@ -208,11 +207,11 @@ func Run(c *config.Config, d *gorm.DB, f db.FormalStore) error {
 		}
 
 		if !c.Debug && (len(successes) != 0 || len(guestSuccesses) != 0) {
-			personalizations := GeneratePersonalisations(
+			emails := GenerateTicketEmails(
 				&formal, successes, guestSuccesses,
 			)
-			// TODO(khm39): replace SendGrid with some alternative
-			logging.Warnf("email disabled: not sending %d ticket emails for formal %s", len(personalizations), formal.ID)
+			// TODO(khm39): send these with an email service
+			logging.Warnf("email disabled: not sending %d ticket emails for formal %s", len(emails), formal.ID)
 		}
 	}
 	return nil

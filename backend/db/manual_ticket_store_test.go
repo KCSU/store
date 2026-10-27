@@ -57,7 +57,7 @@ func (s *ManualTicketSuite) TestFindManualTicket() {
 	}
 	ticket.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "manual_tickets"`).
-		WithArgs(ticket.ID).
+		WithArgs(ticket.ID, 1).
 		WillReturnRows(
 			sqlmock.NewRows(
 				[]string{"id", "formal_id", "meal_option", "type", "name", "justification", "email"},

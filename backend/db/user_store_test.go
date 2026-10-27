@@ -102,7 +102,7 @@ func (s *UserSuite) TestFindUserByEmail() {
 	}
 	user.ID = uuid.New()
 	s.mock.ExpectQuery(`SELECT \* FROM "users"`).
-		WithArgs(user.Email).
+		WithArgs(user.Email, 1).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "name", "email", "provider_user_id"}).
 				AddRow(user.ID, user.Name, user.Email, user.ProviderUserId),

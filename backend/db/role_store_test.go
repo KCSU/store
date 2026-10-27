@@ -125,7 +125,7 @@ func (s *RoleSuite) TestFindRole() {
 		Model: model.Model{ID: uuid.New()},
 		Name:  "My Role",
 	}
-	s.mock.ExpectQuery(`SELECT \* FROM "roles"`).WithArgs(role.ID).
+	s.mock.ExpectQuery(`SELECT \* FROM "roles"`).WithArgs(role.ID, 1).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "name"}).AddRow(
 				role.ID, role.Name,
@@ -150,7 +150,7 @@ func (s *RoleSuite) TestFindPermission() {
 		},
 	}
 	s.mock.ExpectQuery(`SELECT \* FROM "permissions"`).
-		WithArgs(permission.ID).
+		WithArgs(permission.ID, 1).
 		WillReturnRows(
 			sqlmock.NewRows([]string{"id", "role_id", "resource", "action"}).
 				AddRow(permission.ID, permission.RoleID, permission.Resource, permission.Action),

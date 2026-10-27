@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/kcsu/store/auth"
 	"github.com/kcsu/store/model/dto"
 	"github.com/labstack/echo-contrib/session"
@@ -70,8 +70,8 @@ func (h *Handler) AuthCallback(c echo.Context) error {
 	claims := &auth.JwtClaims{
 		Name:  user.Name,
 		Email: user.Email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 72)),
 			Subject:   user.ID.String(),
 		},
 	}
