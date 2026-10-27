@@ -452,6 +452,38 @@ func (s *AdminGroupSuite) TestAddGroupUser() {
 			},
 			nil,
 		},
+		{
+			"Already a manual member",
+			`{
+				"userEmail": "def456@cam.ac.uk"
+			}`,
+			"def456@cam.ac.uk",
+			true,
+			&model.Group{
+				Model: model.Model{ID: id},
+				Name:  "My Group",
+				GroupUsers: []model.GroupUser{
+					{GroupID: id, UserEmail: "def456@cam.ac.uk", IsManual: true},
+				},
+			},
+			&wants{http.StatusConflict, `"def456@cam.ac.uk" is already a manual user of group "My Group".`},
+		},
+		{
+			"Lookup member becomes manual",
+			`{
+				"userEmail": "def456@cam.ac.uk"
+			}`,
+			"def456@cam.ac.uk",
+			true,
+			&model.Group{
+				Model: model.Model{ID: id},
+				Name:  "My Group",
+				GroupUsers: []model.GroupUser{
+					{GroupID: id, UserEmail: "def456@cam.ac.uk", IsManual: false},
+				},
+			},
+			nil,
+		},
 	}
 	for _, test := range tests {
 		s.Run(test.name, func() {
@@ -477,7 +509,7 @@ func (s *AdminGroupSuite) TestAddGroupUser() {
 				}
 			}
 			if test.wants == nil {
-				s.groups.On("AddUser", test.group, test.email).Once().Return(nil)
+				s.groups.On("AddManualUser", test.group, test.email).Once().Return(nil)
 			}
 
 			// Test

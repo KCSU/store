@@ -14,8 +14,8 @@ type GroupStore struct {
 	mock.Mock
 }
 
-// AddUser provides a mock function with given fields: group, email
-func (_m *GroupStore) AddUser(group *model.Group, email string) error {
+// AddManualUser provides a mock function with given fields: group, email
+func (_m *GroupStore) AddManualUser(group *model.Group, email string) error {
 	ret := _m.Called(group, email)
 
 	var r0 error

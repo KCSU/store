@@ -153,14 +153,17 @@ func (ah *AdminHandler) AddGroupUser(c echo.Context) error {
 		}
 		return err
 	}
-	// TODO: ensure user does not already exist
-	if err := ah.Groups.AddUser(&group, dto.Email); err != nil {
+	for _, user := range group.GroupUsers {
+		if user.UserEmail == dto.Email && user.IsManual {
+			return echo.NewHTTPError(http.StatusConflict, fmt.Sprintf(
+				"%q is already a manual user of group %q.", dto.Email, group.Name,
+			))
+		}
+	}
+	if err := ah.Groups.AddManualUser(&group, dto.Email); err != nil {
 		return err
 	}
-	if err := ah.logGroupAccess(c,
-		fmt.Sprintf("added user %q to group %q", dto.Email, group.Name),
-		&group,
-	); err != nil {
+	if err := ah.logGroupAccess(c, fmt.Sprintf("added user %q to group %q", dto.Email, group.Name), &group); err != nil {
 		return err
 	}
 	return c.NoContent(http.StatusCreated)

@@ -90,21 +90,19 @@ func (s *GroupSuite) TestFindGroup() {
 	s.NoError(s.mock.ExpectationsWereMet())
 }
 
-func (s *GroupSuite) TestAddUser() {
+func (s *GroupSuite) TestAddManualUser() {
 	group := model.Group{
 		Model: model.Model{ID: uuid.New()},
 		Name:  "A Group",
 	}
 	email := "abc123@cam.ac.uk"
 	s.mock.ExpectBegin()
-	s.mock.ExpectExec(`UPDATE "groups" SET "updated_at"`).
-		WithArgs(sqlmock.AnyArg(), group.ID).
-		WillReturnResult(sqlmock.NewResult(0, 1))
-	s.mock.ExpectExec(`INSERT INTO "group_users"`).
-		WithArgs(group.ID, email, true, sqlmock.AnyArg()).
+	// An existing (Lookup) member becomes manual instead
+	s.mock.ExpectExec(`INSERT INTO "group_users" .* ON CONFLICT \("group_id","user_email"\) DO UPDATE SET "is_manual"`).
+		WithArgs(group.ID, email, true, sqlmock.AnyArg(), true).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 	s.mock.ExpectCommit()
-	err := s.store.AddUser(&group, email)
+	err := s.store.AddManualUser(&group, email)
 	s.Require().NoError(err)
 	s.NoError(s.mock.ExpectationsWereMet())
 }

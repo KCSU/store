@@ -14,8 +14,8 @@ type GroupStore interface {
 	Get() ([]model.Group, error)
 	// Retrieve a single group
 	Find(id uuid.UUID) (model.Group, error)
-	// Add a user to the group
-	AddUser(group *model.Group, email string) error
+	// Add a manual user to the group; a Lookup member becomes manual
+	AddManualUser(group *model.Group, email string) error
 	// Remove a user from the group
 	RemoveUser(group *model.Group, email string) error
 	// Replace the lookup users in the group
@@ -53,14 +53,18 @@ func (g *DBGroupStore) Find(id uuid.UUID) (model.Group, error) {
 	return group, err
 }
 
-// Add a user to the group
-func (g *DBGroupStore) AddUser(group *model.Group, email string) error {
+// Add a manual user to the group
+func (g *DBGroupStore) AddManualUser(group *model.Group, email string) error {
 	groupUser := model.GroupUser{
+		GroupID:   group.ID,
 		UserEmail: email,
 		IsManual:  true,
 	}
-	err := g.db.Model(group).Association("GroupUsers").Append(&groupUser)
-	return err
+	// If they are a Lookup member, they become manual
+	return g.db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "group_id"}, {Name: "user_email"}},
+		DoUpdates: clause.Assignments(map[string]interface{}{"is_manual": true}),
+	}).Create(&groupUser).Error
 }
 
 // Remove a user from the group
