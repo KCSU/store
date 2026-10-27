@@ -269,6 +269,32 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 	}
 	tests := []test{
 		{
+			"Sale Ends Before It Starts",
+			`{
+				"name": "A formal",
+				"firstSaleStart": "2022-03-01T17:45:00Z",
+				"secondSaleStart": "2022-03-01T17:45:00Z",
+				"saleEnd": "2022-02-10T11:30:00Z",
+				"dateTime": "2022-03-05T20:30:00Z"
+			}`,
+			nil,
+			nil,
+			&wants{http.StatusUnprocessableEntity, "Key: 'CreateFormalDto.SaleEnd' Error:Field validation for 'SaleEnd' failed on the 'gtfield' tag"},
+		},
+		{
+			"Sale Ends After The Formal",
+			`{
+				"name": "A formal",
+				"firstSaleStart": "2022-02-10T11:30:00Z",
+				"secondSaleStart": "2022-02-10T11:30:00Z",
+				"saleEnd": "2022-03-06T17:45:00Z",
+				"dateTime": "2022-03-05T20:30:00Z"
+			}`,
+			nil,
+			nil,
+			&wants{http.StatusUnprocessableEntity, "Key: 'CreateFormalDto.DateTime' Error:Field validation for 'DateTime' failed on the 'gtefield' tag"},
+		},
+		{
 			"Invalid Groups",
 			`{
 				"name": "A formal",
@@ -442,6 +468,30 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 		wants  *wants
 	}
 	tests := []test{
+		{
+			"Sale Ends Before It Starts",
+			`{
+				"name": "A formal",
+				"firstSaleStart": "2022-03-01T17:45:00Z",
+				"secondSaleStart": "2022-03-01T17:45:00Z",
+				"saleEnd": "2022-02-10T11:30:00Z",
+				"dateTime": "2022-03-05T20:30:00Z"
+			}`,
+			model.Formal{},
+			&wants{http.StatusUnprocessableEntity, "Key: 'UpdateFormalDto.SaleEnd' Error:Field validation for 'SaleEnd' failed on the 'gtfield' tag"},
+		},
+		{
+			"Sale Ends After The Formal",
+			`{
+				"name": "A formal",
+				"firstSaleStart": "2022-02-10T11:30:00Z",
+				"secondSaleStart": "2022-02-10T11:30:00Z",
+				"saleEnd": "2022-03-06T17:45:00Z",
+				"dateTime": "2022-03-05T20:30:00Z"
+			}`,
+			model.Formal{},
+			&wants{http.StatusUnprocessableEntity, "Key: 'UpdateFormalDto.DateTime' Error:Field validation for 'DateTime' failed on the 'gtefield' tag"},
+		},
 		{
 			"Should Update",
 			`{
