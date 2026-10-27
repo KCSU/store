@@ -51,12 +51,10 @@ func NewTicketStore(db *gorm.DB) TicketStore {
 // Retrieve all the user's tickets
 func (t *DBTicketStore) Get(userId uuid.UUID) ([]model.Ticket, error) {
 	var tickets []model.Ticket
-	// XXX: does this need an order by?
-	// FIXME: what if the formal is deleted but the tickets are not?
-	// This should be fine but doublecheck
 	err := t.db.Preload("Formal").
 		Preload("Formal.Bill").
 		Where("user_id = ?", userId).
+		Order("created_at").
 		Find(&tickets).Error
 	return tickets, err
 }
@@ -92,7 +90,7 @@ func (t *DBTicketStore) Create(ticket *model.Ticket) error {
 	return t.db.Create(ticket).Error
 }
 
-// Get tne number of guests attending a specified formal
+// Get the number of guests attending a specified formal
 func (t *DBTicketStore) CountGuestByFormal(formalID uuid.UUID, userID uuid.UUID) (int64, error) {
 	var count int64
 	err := t.db.Model(&model.Ticket{}).Where("is_guest").Where("formal_id = ? AND user_id = ?", formalID, userID).Count(&count).Error
