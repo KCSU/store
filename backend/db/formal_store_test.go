@@ -459,6 +459,7 @@ func (s *FormalSuite) TestDeleteFormal() {
 		SaleEnd:               time.Date(2021, 5, 7, 11, 0, 0, 0, time.UTC),
 		DateTime:              time.Date(2021, 6, 1, 17, 0, 0, 0, time.UTC),
 	}
+	s.mock.MatchExpectationsInOrder(false)
 	s.mock.ExpectBegin()
 	s.mock.ExpectExec(`UPDATE "tickets" SET "deleted_at"`).WithArgs(
 		sqlmock.AnyArg(), f.ID,
