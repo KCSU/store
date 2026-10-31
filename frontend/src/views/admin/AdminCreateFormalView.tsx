@@ -26,6 +26,8 @@ import dayjs from "dayjs";
 import { Formik, Form, Field, FieldProps } from "formik";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { QueueWarning } from "../../components/admin/QueueWarning";
+import { SaleStartHint } from "../../components/admin/SaleStartHint";
 import { BackButton } from "../../components/utility/BackButton";
 import { Card } from "../../components/utility/Card";
 import DatePicker from "../../components/utility/DatePicker";
@@ -244,6 +246,9 @@ const CreateFormalForm: React.FC<CreateFormalForm> = ({
                   </FormControl>
                 )}
               </Field>
+              {props.values.isVisible && (
+                <QueueWarning firstSaleStart={props.values.firstSaleStart} />
+              )}
               <Field name="firstSaleStart">
                 {({ field, form }: FieldProps) => (
                   <FormControl
@@ -255,7 +260,7 @@ const CreateFormalForm: React.FC<CreateFormalForm> = ({
                     }
                   >
                     <FormLabel htmlFor="firstSaleStart">
-                      Sale Start Time
+                      Sale Start Time <SaleStartHint />
                     </FormLabel>
                     <DatePicker
                       {...field}

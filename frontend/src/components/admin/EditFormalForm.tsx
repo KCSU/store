@@ -26,6 +26,8 @@ import { useEditFormal } from "../../hooks/admin/useEditFormal";
 import { useHasPermission } from "../../hooks/admin/useHasPermission";
 import { Formal, FormalContext } from "../../model/Formal";
 import DatePicker from "../utility/DatePicker";
+import { QueueWarning } from "./QueueWarning";
+import { SaleStartHint } from "./SaleStartHint";
 
 interface FormalDetailsFormProps {
   formal: Formal;
@@ -247,6 +249,13 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                   </FormControl>
                 )}
               </Field>
+              {props.values.isVisible &&
+                (!formal.isVisible ||
+                  !dayjs(props.values.firstSaleStart).isSame(
+                    formal.firstSaleStart
+                  )) && (
+                  <QueueWarning firstSaleStart={props.values.firstSaleStart} />
+                )}
               <Field name="firstSaleStart">
                 {({ field, form }: FieldProps) => (
                   <FormControl
@@ -259,7 +268,7 @@ const FormalDetailsForm: React.FC<FormalDetailsFormProps> = ({
                     }
                   >
                     <FormLabel htmlFor="firstSaleStart">
-                      Sale Start Time
+                      Sale Start Time <SaleStartHint />
                     </FormLabel>
                     <DatePicker
                       {...field}
