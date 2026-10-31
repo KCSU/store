@@ -172,7 +172,7 @@ func (s *AdminGroupSuite) TestCreateGroup() {
 			model.Group{},
 			&wants{
 				http.StatusUnprocessableEntity,
-				"Key: 'AdminGroupDto.Lookup' Error:Field validation for 'Lookup' failed on the 'required_unless' tag",
+				"Lookup is a required field",
 			},
 		},
 		{
@@ -254,7 +254,7 @@ func (s *AdminGroupSuite) TestUpdateGroup() {
 			model.Group{},
 			&wants{
 				http.StatusUnprocessableEntity,
-				"Key: 'AdminGroupDto.Lookup' Error:Field validation for 'Lookup' failed on the 'required_unless' tag",
+				"Lookup is a required field",
 			},
 		},
 		{
@@ -423,7 +423,7 @@ func (s *AdminGroupSuite) TestAddGroupUser() {
 			nil,
 			&wants{
 				http.StatusUnprocessableEntity,
-				"Key: 'GroupUserDto.Email' Error:Field validation for 'Email' failed on the 'email' tag",
+				"Email must be a valid email address",
 			},
 		},
 		{
@@ -553,7 +553,7 @@ func (s *AdminGroupSuite) TestRemoveGroupUser() {
 			nil,
 			&wants{
 				http.StatusUnprocessableEntity,
-				"Key: 'GroupUserDto.Email' Error:Field validation for 'Email' failed on the 'email' tag",
+				"Email must be a valid email address",
 			},
 		},
 		{

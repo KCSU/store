@@ -347,7 +347,7 @@ func (s *AdminRoleSuite) TestUpdateRole() {
 			model.Role{},
 			&wants{
 				http.StatusUnprocessableEntity,
-				"Key: 'RoleDto.Name' Error:Field validation for 'Name' failed on the 'min' tag",
+				"Name must be at least 3 characters in length",
 			},
 		},
 		{

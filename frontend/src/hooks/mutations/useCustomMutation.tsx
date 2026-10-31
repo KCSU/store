@@ -1,4 +1,4 @@
-import { useToast } from "@chakra-ui/react";
+import { Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { MutationFunction, useMutation, UseMutationOptions } from "react-query";
 
@@ -13,7 +13,9 @@ export function useCustomMutation<T, V = void>(
       if (axios.isAxiosError(error)) {
         toast({
           title: "Error",
-          description: error.response?.data.message,
+          description: (
+            <Text whiteSpace="pre-line">{error.response?.data.message}</Text>
+          ),
           status: "error",
         });
       }

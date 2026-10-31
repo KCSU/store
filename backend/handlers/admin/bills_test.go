@@ -207,7 +207,7 @@ func (s *AdminBillSuite) TestCreateBill() {
 			nil,
 			&wants{
 				http.StatusUnprocessableEntity,
-				"Key: 'BillDto.End' Error:Field validation for 'End' failed on the 'datetime' tag",
+				"End does not match the 2006-01-02 format",
 			},
 		},
 	}
@@ -292,7 +292,7 @@ func (s *AdminBillSuite) TestUpdateBill() {
 			nil,
 			&wants{
 				http.StatusUnprocessableEntity,
-				"Key: 'BillDto.Start' Error:Field validation for 'Start' failed on the 'datetime' tag",
+				"Start does not match the 2006-01-02 format",
 			},
 		},
 	}

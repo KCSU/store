@@ -279,7 +279,7 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 			}`,
 			nil,
 			nil,
-			&wants{http.StatusUnprocessableEntity, "Key: 'CreateFormalDto.SaleEnd' Error:Field validation for 'SaleEnd' failed on the 'gtfield' tag"},
+			&wants{http.StatusUnprocessableEntity, "SaleEnd must be greater than FirstSaleStart"},
 		},
 		{
 			"Sale Ends After The Formal",
@@ -292,7 +292,7 @@ func (s *AdminFormalSuite) TestCreateFormal() {
 			}`,
 			nil,
 			nil,
-			&wants{http.StatusUnprocessableEntity, "Key: 'CreateFormalDto.DateTime' Error:Field validation for 'DateTime' failed on the 'gtefield' tag"},
+			&wants{http.StatusUnprocessableEntity, "DateTime must be greater than or equal to SaleEnd"},
 		},
 		{
 			"Invalid Groups",
@@ -478,7 +478,7 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 				"dateTime": "2022-03-05T20:30:00Z"
 			}`,
 			model.Formal{},
-			&wants{http.StatusUnprocessableEntity, "Key: 'UpdateFormalDto.SaleEnd' Error:Field validation for 'SaleEnd' failed on the 'gtfield' tag"},
+			&wants{http.StatusUnprocessableEntity, "SaleEnd must be greater than FirstSaleStart"},
 		},
 		{
 			"Sale Ends After The Formal",
@@ -490,7 +490,7 @@ func (s *AdminFormalSuite) TestUpdateFormal() {
 				"dateTime": "2022-03-05T20:30:00Z"
 			}`,
 			model.Formal{},
-			&wants{http.StatusUnprocessableEntity, "Key: 'UpdateFormalDto.DateTime' Error:Field validation for 'DateTime' failed on the 'gtefield' tag"},
+			&wants{http.StatusUnprocessableEntity, "DateTime must be greater than or equal to SaleEnd"},
 		},
 		{
 			"Should Update",
